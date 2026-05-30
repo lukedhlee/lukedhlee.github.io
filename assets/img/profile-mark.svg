@@ -1,0 +1,10 @@
+<svg width="360" height="360" viewBox="0 0 360 360" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Luke Lee profile mark</title>
+  <desc id="desc">A simple abstract profile mark with the initials LL.</desc>
+  <rect width="360" height="360" rx="28" fill="#F4F7F5"/>
+  <path d="M50 256C82 206 107 160 124 118C142 75 172 55 214 58C251 61 279 80 298 115C319 153 318 191 297 228C276 266 239 286 187 288C134 290 88 279 50 256Z" fill="#D9E6DE"/>
+  <path d="M69 241C100 214 124 178 142 132C153 105 171 89 197 85C224 81 246 91 263 115C279 138 282 164 272 191C258 230 229 252 185 257C141 262 102 257 69 241Z" fill="#F8FAF8"/>
+  <path d="M111 106H139V230H206V255H111V106Z" fill="#1F2A24"/>
+  <path d="M179 106H207V230H274V255H179V106Z" fill="#3B6651"/>
+  <circle cx="286" cy="80" r="18" fill="#D2B15B"/>
+</svg>

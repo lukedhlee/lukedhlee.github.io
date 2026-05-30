@@ -1,0 +1,24 @@
+title: Luke Lee
+description: Ph.D. student at UC Berkeley studying large language models.
+url: "https://lukedhlee.github.io"
+baseurl: ""
+
+author:
+  name: Luke Lee
+  affiliation: UC Berkeley
+  email: ""
+  github: lukedhlee
+  scholar: ""
+  linkedin: ""
+  cv: ""
+
+permalink: /blog/:year/:month/:day/:title/
+markdown: kramdown
+
+plugins:
+  - jekyll-feed
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - README.md
