@@ -8,11 +8,14 @@ title: Home
     <img src="{{ '/assets/img/profile-mark.svg' | relative_url }}" alt="">
   </div>
   <div class="hero-copy">
-    <p class="eyebrow">Ph.D. student · UC Berkeley</p>
-    <h1>Luke Lee</h1>
+    <p class="eyebrow">First-year CS Ph.D. student · UC Berkeley</p>
+    <h1>Donghyun Lee <span class="name-note">(Luke)</span></h1>
     <p class="lead">
-      I am a Ph.D. student at UC Berkeley studying large language models.
-      My research interests include LLM reasoning, agents, evaluation, and systems for reliable AI.
+      I am a first-year CS Ph.D. student at UC Berkeley, where I am part of
+      <a href="https://bair.berkeley.edu/">BAIR</a> and the
+      <a href="https://sky.cs.berkeley.edu/">Sky Computing Lab</a>.
+      I am fortunate to be advised by Professor
+      <a href="https://people.eecs.berkeley.edu/~matei/">Matei Zaharia</a>.
     </p>
     <div class="link-row">
       <a href="https://github.com/lukedhlee">GitHub</a>
@@ -26,13 +29,11 @@ title: Home
 <section class="section">
   <h2>About</h2>
   <p>
-    I work on questions around how large language models reason, use tools, interact with environments,
-    and can be evaluated in ways that reflect real-world use. I am broadly interested in building AI systems
-    that are capable, understandable, and dependable.
+    I am interested in X and Y.
   </p>
   <p>
-    Before and during graduate school, I have been interested in research at the intersection of machine learning,
-    language, infrastructure, and human-facing applications.
+    More broadly, I am interested in large language models and the systems that make them more useful,
+    reliable, and efficient in real-world settings.
   </p>
 </section>
 
@@ -47,7 +48,7 @@ title: Home
     </li>
     <li>
       <time>2026</time>
-      <span>Working on research around large language models at UC Berkeley.</span>
+      <span>Started as a CS Ph.D. student at UC Berkeley.</span>
     </li>
   </ol>
 </section>
@@ -78,7 +79,7 @@ title: Home
   <div class="publication-list">
     <article>
       <h3>Paper Title Goes Here</h3>
-      <p><strong>Luke Lee</strong>, Collaborator Name, Advisor Name</p>
+      <p><strong>Donghyun Lee</strong>, Collaborator Name, Advisor Name</p>
       <p>Conference or preprint, 2026. <a href="#">Paper</a> <a href="#">Code</a></p>
     </article>
   </div>
