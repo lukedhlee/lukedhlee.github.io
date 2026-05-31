@@ -5,7 +5,7 @@ title: Home
 
 <section class="hero">
   <div class="profile-art">
-    <img src="{{ '/assets/img/profile.jpeg' | relative_url }}" alt="Donghyun Lee">
+    <img src="{{ '/assets/img/profile.png' | relative_url }}" alt="Donghyun Lee">
   </div>
   <div class="hero-copy">
     <h1>Donghyun Lee <span class="name-note">(Luke)</span></h1>
