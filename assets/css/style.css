@@ -77,13 +77,14 @@ a:hover {
 
 .hero {
   display: grid;
-  grid-template-columns: 260px minmax(0, 1fr);
-  gap: 44px;
+  grid-template-columns: 112px minmax(0, 1fr);
+  gap: 28px;
   align-items: center;
-  margin-bottom: 58px;
+  margin-bottom: 34px;
 }
 
 .profile-art {
+  width: 112px;
   aspect-ratio: 1;
 }
 
@@ -93,7 +94,7 @@ a:hover {
   display: block;
   object-fit: cover;
   border: 1px solid var(--line);
-  border-radius: 18px;
+  border-radius: 14px;
 }
 
 .eyebrow {
@@ -112,7 +113,7 @@ h3 {
 }
 
 h1 {
-  margin: 0 0 18px;
+  margin: 0;
   font-family: "Source Serif 4", Georgia, serif;
   font-size: 52px;
   letter-spacing: 0;
@@ -133,12 +134,32 @@ h3 {
   font-size: 17px;
 }
 
+.intro-section {
+  max-width: 100%;
+  margin: 0 0 36px;
+}
+
 .lead {
-  max-width: 660px;
+  max-width: 900px;
   margin: 0;
   color: #343b36;
-  font-size: 19px;
+  font-size: 16px;
   line-height: 1.7;
+}
+
+.bio-line {
+  max-width: 900px;
+  margin: 14px 0 0;
+  color: #3f4842;
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+.contact-line {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 15px;
+  font-weight: 600;
 }
 
 .link-row {
@@ -241,6 +262,19 @@ time {
   color: #3f4842;
 }
 
+.pub-note {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  margin: 0 8px 0 0;
+  border-radius: 6px;
+  padding: 2px 8px;
+  background: #f2ead0;
+  color: #705614;
+  font-size: 13px;
+  font-weight: 700;
+}
+
 .writing-list-large article {
   padding: 24px;
 }
@@ -320,7 +354,11 @@ time {
   }
 
   .profile-art {
-    width: min(220px, 100%);
+    width: 96px;
+  }
+
+  .intro-section {
+    margin-left: 0;
   }
 
   h1 {
@@ -328,7 +366,7 @@ time {
   }
 
   .lead {
-    font-size: 17px;
+    font-size: 15px;
   }
 
   .news-list li {

@@ -1,6 +1,6 @@
 # lukedhlee.github.io
 
-Personal website for Luke Lee, built with Jekyll and hosted on GitHub Pages.
+Personal website for Donghyun Lee (Luke), built with Jekyll and hosted on GitHub Pages.
 
 ## Local Preview
 
