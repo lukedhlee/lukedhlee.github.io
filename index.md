@@ -25,7 +25,10 @@ title: Home
   </p>
   <p class="bio-line">
     Before starting my Ph.D., I completed an integrated Master of Engineering in Computer Science
-    at University College London.
+    at University College London. I was also a visiting researcher at the
+    <a href="https://ai.stanford.edu/">Stanford AI Lab</a>
+    (<a href="https://robots.stanford.edu/personal.html">Thrun Lab</a>), where I worked on
+    system optimization and LLM security.
   </p>
 </section>
 
