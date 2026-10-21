@@ -228,7 +228,7 @@ Full reports: [SFT versus RL versus SFT→RL](https://github.com/marin-community
 
 ## Relay SFT
 
-The next experiments started from Marin's newer [Grug Datakit 09-21](https://github.com/marin-community/marin/issues/8089) checkpoint. Kimi demonstrations alone now reached 41.6% on SWE-bench, against 13.8% for that starting model under the three-run evaluation recipe. The earlier failure did not make the dataset universally unhelpful: the starting checkpoint and training recipe mattered.
+The next experiments started from Marin's newer [Grug Datakit 09-21](https://github.com/marin-community/marin/issues/8089) checkpoint. Standard SFT on Kimi demonstrations alone now reached 41.6% on SWE-bench, against 13.8% for that starting model under the three-run evaluation recipe. The earlier failure did not make the dataset universally unhelpful: the starting checkpoint and training recipe mattered.
 
 ### Bringing in the Teacher
 
@@ -252,8 +252,8 @@ On matched CalibForge tasks, trace counts, and pass/fail outcomes, Relay SFT bea
 The best recipe then used the full set of 5,916 relay episodes plus 4,392 Kimi traces. It reached **46.6% on SWE-bench, 18.8% on Terminal-Bench 2.1, and 27.2% on OpenThoughts-TBLite**, the same checkpoint shown in the opening table. The smaller matched-data run is a separate comparison, labeled below.
 
 <figure class="research-figure">
-<a href="{{ '/assets/img/snowball/relay-matched-dots.png' | relative_url }}"><img src="{{ '/assets/img/snowball/relay-matched-dots.png' | relative_url }}" alt="Matched teacher-only and Relay SFT comparisons alongside the best full-data recipe from the opening table." width="2160" height="1056" loading="lazy"></a>
-<figcaption>The green bars show the best recipe from the opening table. Blue and orange bars show the smaller matched-data comparisons; the full-data recipe uses more relay episodes. Three-run means, with standard errors over tasks.</figcaption>
+<a href="{{ '/assets/img/snowball/relay-matched-dots.png' | relative_url }}"><img src="{{ '/assets/img/snowball/relay-matched-dots.png' | relative_url }}" alt="Kimi-only standard SFT, matched teacher-only and Relay SFT comparisons, and the best full-data recipe from the opening table." width="2160" height="1184" loading="lazy"></a>
+<figcaption>Purple bars show standard SFT on Kimi demonstrations alone. Green bars show the best recipe from the opening table. Blue and orange bars show the matched teacher-only and Relay SFT comparisons. Three-run means, with standard errors over tasks.</figcaption>
 </figure>
 
 Exposure bias motivated the recipe, but these experiments do not isolate it as the mechanism or show that the triggers beat random switching. The broader idea is related to [teacher continuations from student contexts](https://arxiv.org/abs/2607.04574v2) and [Relay-OPD](https://arxiv.org/abs/2607.26057).
