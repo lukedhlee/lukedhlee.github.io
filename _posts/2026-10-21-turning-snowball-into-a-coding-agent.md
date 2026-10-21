@@ -154,7 +154,7 @@ The changes were visible in the traces. Successful attempts took a median of 15 
 This was more than learning to announce completion. The grader already credited correct fixes left in the repository when the context ran out. RL made it more likely that useful work reached a correct fix within the budget. Verification remained a weakness: repository-test use fell, and wrong submissions became more common.
 
 <figure class="research-figure">
-<a href="{{ '/assets/img/snowball/rl-context-gains.png' | relative_url }}"><img src="{{ '/assets/img/snowball/rl-context-gains.png' | relative_url }}" alt="RL gains were largest on tasks where the starting model frequently ran out of context." width="1200" height="600" loading="lazy"></a>
+<a href="{{ '/assets/img/snowball/rl-context-gains.png' | relative_url }}"><img src="{{ '/assets/img/snowball/rl-context-gains.png' | relative_url }}" alt="RL gains were largest on tasks where the starting model frequently ran out of context." width="1200" height="570" loading="lazy"></a>
 <figcaption>Starting model versus the new-stack update-24 checkpoint, on 265 held-out tasks with eight attempts each. Tasks are grouped by how often the starting model ran out of context. The pattern is descriptive, rather than an isolated test of the mechanism.</figcaption>
 </figure>
 
