@@ -22,12 +22,12 @@ The final experiments improved all three agent benchmarks I was tracking:
 
 | Model, evaluated with Terminus-2 | SWE-bench Verified random-100 | Terminal-Bench 2.1 | OpenThoughts-TBLite |
 |---|---:|---:|---:|
-| [Snowball 09-21](https://huggingface.co/open-athena/Grug-67B-A2B-Datakit-SFT-262K-2026.09.21), starting checkpoint | 13.8% | 6.5% | 11.7% |
+| [Snowball 09-21](https://github.com/marin-community/marin/issues/8089#issuecomment-5809285235), starting checkpoint | 13.8% | 6.5% | 11.7% |
 | Best recipe (Relay SFT + Kimi demonstrations) | **46.6%** | **18.8%** | **27.2%** |
 
 </div>
 
-*Pass@1, averaged over three evaluation runs. The recipe fine-tunes [Grug Datakit 09-21](https://huggingface.co/open-athena/Grug-67B-A2B-Datakit-SFT-262K-2026.09.21) on Relay SFT and Kimi coding demonstrations. These results are from an experimental checkpoint; the final Snowball launch checkpoint is not yet specified.*
+*Pass@1, averaged over three evaluation runs. The recipe fine-tunes [Grug Datakit 09-21](https://github.com/marin-community/marin/issues/8089#issuecomment-5809285235) on Relay SFT and Kimi coding demonstrations. These results are from an experimental checkpoint; the final Snowball launch checkpoint is not yet specified.*
 
 That result took several changes of approach. Snowball itself also changed during the work, so this is an account of building the expert across successive starting checkpoints.
 
@@ -46,7 +46,7 @@ That result took several changes of approach. Snowball itself also changed durin
 
 ### The Pre-RL Probe
 
-I started with [Snowball's Stage-3 Nemotron-Terminal SFT checkpoint](https://huggingface.co/laion/snowball-67b-a2b-sft-s3-nemotron-terminal-step1888). Before training, I sampled R2E-Gym tasks eight times each and used coding agents to inspect the traces. Only 36% of fully sampled tasks had both successes and failures—the useful band for binary-reward GRPO.
+I started with [Snowball's Stage-3 Nemotron-Terminal SFT checkpoint](https://github.com/marin-community/marin/issues/8225). Before training, I sampled R2E-Gym tasks eight times each and used coding agents to inspect the traces. Only 36% of fully sampled tasks had both successes and failures—the useful band for binary-reward GRPO.
 
 <figure class="research-figure">
 <a href="{{ '/assets/img/snowball/pre-rl-probe.png' | relative_url }}"><img src="{{ '/assets/img/snowball/pre-rl-probe.png' | relative_url }}" alt="The pre-RL probe: 36% of tasks were sometimes solvable; successful attempts more often edited the repository and ran a test." width="2380" height="901" loading="lazy"></a>
@@ -216,7 +216,7 @@ Full reports: [SFT versus RL versus SFT→RL](https://github.com/marin-community
 
 ## Relay SFT
 
-The next experiments started from Marin's newer [Grug Datakit 09-21](https://huggingface.co/open-athena/Grug-67B-A2B-Datakit-SFT-262K-2026.09.21) checkpoint. Kimi demonstrations alone now reached 41.6% on SWE-bench, against 13.8% for that starting model under the three-run evaluation recipe. The earlier failure did not make the dataset universally unhelpful: the starting checkpoint and training recipe mattered.
+The next experiments started from Marin's newer [Grug Datakit 09-21](https://github.com/marin-community/marin/issues/8089#issuecomment-5809285235) checkpoint. Kimi demonstrations alone now reached 41.6% on SWE-bench, against 13.8% for that starting model under the three-run evaluation recipe. The earlier failure did not make the dataset universally unhelpful: the starting checkpoint and training recipe mattered.
 
 ### Bringing in the Teacher
 
@@ -237,9 +237,11 @@ Full reports: [Initial relay design](https://gist.github.com/lukedhlee/d8fc1454e
 
 The first small held-out CalibForge comparison did not establish a Relay SFT advantage. Later agent-benchmark experiments did. On matched CalibForge tasks, trace counts, and pass/fail outcomes, Relay SFT beat teacher-only SFT on all three benchmarks. The advantage repeated on a separate task pool, TMax.
 
+The best recipe then used the full set of 5,916 relay episodes plus 4,392 Kimi traces. It reached **46.6% on SWE-bench, 18.8% on Terminal-Bench 2.1, and 27.2% on OpenThoughts-TBLite**—the same checkpoint shown in the opening table. The smaller matched-data run is a separate comparison, labeled below.
+
 <figure class="research-figure">
-<a href="{{ '/assets/img/snowball/relay-matched-dots.png' | relative_url }}"><img src="{{ '/assets/img/snowball/relay-matched-dots.png' | relative_url }}" alt="Relay SFT and teacher-only demonstrations on matched CalibForge tasks, with and without the same Kimi coding data." width="2080" height="960" loading="lazy"></a>
-<figcaption>Relay SFT helped where teacher-only traces taught much less. Kimi coding traces supplied additional software-repair gains; Relay SFT retained a substantial Terminal-Bench advantage with Kimi in both arms. Three-run means, with standard errors over tasks. Matching data did not make this an equal-compute comparison.</figcaption>
+<a href="{{ '/assets/img/snowball/relay-matched-dots.png' | relative_url }}"><img src="{{ '/assets/img/snowball/relay-matched-dots.png' | relative_url }}" alt="Matched teacher-only and Relay SFT comparisons alongside the best full-data recipe from the opening table." width="2160" height="1056" loading="lazy"></a>
+<figcaption>The green bars show the best recipe from the opening table. Blue and orange bars show the smaller matched-data comparisons; the full-data recipe uses more relay episodes. Three-run means, with standard errors over tasks.</figcaption>
 </figure>
 
 Exposure bias motivated the recipe, but these experiments do not isolate it as the mechanism or show that the triggers beat random switching. The broader idea is related to [teacher continuations from student contexts](https://arxiv.org/abs/2607.04574v2) and [Relay-OPD](https://arxiv.org/abs/2607.26057).
