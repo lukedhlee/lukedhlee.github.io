@@ -135,13 +135,15 @@ The text looks identical, but the trainer now sees a token the model never sampl
 
 ### What RL Improved
 
-In the first held-out evaluation, RL nearly doubled pass@1 from 8.7% to 16.6%. Much of the improvement came from completing useful work inside the context window.
+In the first held-out evaluation, RL nearly doubled pass@1 from 8.7% to 16.6%. Before RL, 91% of attempts exhausted the 64k context window while the agent was still working. One RL recipe brought that down to 56%, making it more likely that useful work reached a result within the window.
 
 
 <figure class="research-figure">
 <a href="{{ '/assets/img/snowball/early-rl-labeled.png' | relative_url }}"><img src="{{ '/assets/img/snowball/early-rl-labeled.png' | relative_url }}" alt="Starting model versus RL with truncated and full-distribution sampling, with all colors labeled." width="1728" height="880" loading="lazy"></a>
 <figcaption>The same 191 held-out tasks, eight attempts each. Both RL recipes also solved tasks the base missed in all eight attempts; this does not mean the base could never solve them.</figcaption>
 </figure>
+
+Finishing more often came with different trade-offs. With truncated sampling, correctness among attempts that declared completion fell from 39% to 29%. Full-distribution sampling increased completion while keeping that figure around 41%. RL could teach the agent to finish without reliably teaching it to judge whether the work was correct. That judgment needed to be checked separately from the headline score.
 
 Rebuilding the stack improved the result further. On a later evaluation set, the new stack scored about ten points above the old one, using half as many nodes.
 
