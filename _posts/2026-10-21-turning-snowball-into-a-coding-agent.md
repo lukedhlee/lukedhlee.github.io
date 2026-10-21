@@ -12,9 +12,15 @@ reading_time: 14
 <a href="{{ '/assets/img/snowball/snowball-opening.png' | relative_url }}"><img src="{{ '/assets/img/snowball/snowball-opening.png' | relative_url }}" alt="Snowball and a teacher untangle a winding blue and orange trail through a snowy landscape." width="1672" height="941" loading="eager"></a>
 </figure>
 
-I spent September and October working closely with Marin's post-training team on a coding-agent expert for Snowball. The Marin team handled mid-training and general SFT, producing the checkpoints I started from. My job was to get as much coding-agent performance as possible out of those models, with the aim of eventually distilling that expertise into the general model.
+Marin’s ambition is to make the knowledge behind capable AI a public resource. That means sharing how models are built: the data, the experiments, and the decisions along the way, including the ones that turn out to be wrong. Other researchers can then see what happened, question it, and contribute their own ideas.
 
-As the team produced new checkpoints, I tried different ways to build on them. I started with reinforcement learning, fixed problems in the training pipeline, inspected failed attempts and their training data, and tried additional SFT. That led to Relay SFT: using a teacher to show Snowball how to recover from its own mistakes.
+Training a coding agent still leaves plenty of room for that kind of work. We can give a model a repository, a terminal, and a task, but getting it to reliably finish the job is another matter. It needs to make changes, test them, and recover when something goes wrong. How best to teach these abilities is still an open question.
+
+Over the last two months, I worked with Marin’s post-training team to develop a coding-agent expert for Snowball, Marin’s 67B A2B MoE model. Snowball had already been through general supervised fine-tuning, and our plan was to use reinforcement learning to develop its coding-agent capabilities, with the aim of eventually distilling that expertise into the general model.
+
+As we ran experiments, we encountered limits in both the training system and what the starting policy could learn through RL. That brought additional SFT back into the picture and raised questions about how to combine the two. Which demonstrations would give RL a better starting point? When should the model learn from its own attempts, and when would examples from a stronger model help more?
+
+This post follows that process, from the initial RL experiments to strengthening the policy with SFT, combining SFT with RL, and eventually collecting teacher guidance from Snowball’s own attempts. Each step changed our understanding of what the model needed to learn next.
 
 The final experiments improved all three agent benchmarks I was tracking:
 
