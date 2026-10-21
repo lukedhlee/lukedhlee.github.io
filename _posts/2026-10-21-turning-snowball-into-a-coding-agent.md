@@ -275,13 +275,19 @@ Exposure bias motivated the recipe, but these experiments do not isolate it as t
 
 ## Reflections
 
-The starting policy mattered more than I appreciated at the beginning. GRPO needed tasks the current model could sometimes solve; SFT could change that starting point substantially, but a lower demonstration loss was not enough to tell whether it had helped.
+The starting policy mattered more than I appreciated at the beginning. GRPO needed tasks the current model could sometimes solve. SFT could change that starting point substantially, but a lower demonstration loss was not enough to tell whether it had helped.
 
 Reading traces repeatedly changed the next experiment. It exposed inherited editing habits, broken probability accounting, and the difference between a model finishing an episode and producing a correct result. Having access to the upstream data and code made those investigations possible. Fixing the system and improving the policy were both part of building the expert.
 
-One open question is how to allocate tasks between SFT and RL. Which tasks are best learned from demonstrations, and which provide useful feedback through the model's own attempts? A principled allocation could change as the policy improves.
+A broader question is whether post-training can become a process of diagnosing a particular model and choosing targeted interventions. Four directions seem especially worth investigating.
 
-Another direction is making off-policy data more on-policy by adapting demonstrations to situations the current student actually encounters. Relay SFT explores one approach. The broader question is when existing demonstrations can be adapted effectively, and when collecting new teacher continuations from the student's own attempts is worth the cost.
+**Can diagnosis scale beyond reading individual traces?** A failed attempt might reflect missing knowledge, poor planning, weak verification, or a broken environment. Can automated probes distinguish these explanations, map the model's strengths, and predict which intervention will help? A useful diagnosis should lead to improvements on new tasks while preserving existing strengths.
+
+**What should change in the harness, and what should change in the weights?** A reminder, a different tool interface, or teacher intervention might address the same failure as additional training. Can cheap harness experiments identify useful behaviors before committing to weight updates? When should those behaviors stay in the harness, and when should they be distilled? This connects to [Yoonho Lee's discussion of learning across text and weights](https://yoonholee.com/blog/2026/we-should-take-text-optimization-more-seriously/).
+
+**How should SFT and RL share tasks and compute?** Which failures call for demonstrations, and which can improve through the model's own attempts? That allocation should change as the policy improves. Relay SFT adds another option by collecting teacher continuations from the student's attempts. When can existing demonstrations be adapted to those situations, and when is collecting new ones worth the cost?
+
+**Can AI help invent better post-training methods?** Beyond choosing datasets and running ablations, could an agent diagnose a recurring failure and propose a new objective, credit-assignment rule, or teacher-intervention strategy? What limits this today: reliable diagnosis, trustworthy evaluation, experiment cost, or the ability to distinguish an algorithmic improvement from a favorable experiment?
 
 ## What you can reuse
 
