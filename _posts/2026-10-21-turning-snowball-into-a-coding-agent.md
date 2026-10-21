@@ -139,15 +139,15 @@ In the first held-out evaluation, RL nearly doubled pass@1 from 8.7% to 16.6%. B
 
 
 <figure class="research-figure">
-<a href="{{ '/assets/img/snowball/early-rl-labeled.png' | relative_url }}"><img src="{{ '/assets/img/snowball/early-rl-labeled.png' | relative_url }}" alt="Starting model versus RL with truncated and full-distribution sampling, with all colors labeled." width="1728" height="880" loading="lazy"></a>
+<a href="{{ '/assets/img/snowball/early-rl-labeled.png?v=results-labels' | relative_url }}"><img src="{{ '/assets/img/snowball/early-rl-labeled.png?v=results-labels' | relative_url }}" alt="Starting model and two RL checkpoints, labeled by their single-attempt success and task coverage." width="1728" height="880" loading="lazy"></a>
 <figcaption>The same 191 held-out tasks, eight attempts each. Both RL recipes also solved tasks the base missed in all eight attempts; this does not mean the base could never solve them.</figcaption>
 </figure>
 
-The early RL recipes also made source edits and test runs more common. Finishing more often came with different trade-offs. With truncated sampling, correctness among attempts that declared completion fell from 39% to 29%. Full-distribution sampling increased completion while keeping that figure around 41%. RL could teach the agent to finish without reliably teaching it to judge whether the work was correct. That judgment needed to be checked separately from the headline score.
+The early RL recipes also made source edits and test runs more common. Finishing more often came with different trade-offs. In the checkpoint with higher pass@1, correctness among attempts that declared completion fell from 39% to 29%. The checkpoint with higher pass@8 increased completion while keeping that figure around 41%. RL could teach the agent to finish without reliably teaching it to judge whether the work was correct. That judgment needed to be checked separately from the headline score.
 
 <figure class="research-figure">
-<a href="{{ '/assets/img/snowball/rl-behavior-changes.png?v=early-rl' | relative_url }}"><img src="{{ '/assets/img/snowball/rl-behavior-changes.png?v=early-rl' | relative_url }}" alt="Early RL behavior: more completion claims, fewer context overflows, more source edits and pytest runs. Completion accuracy fell for the truncated-sampling recipe and held near the starting model for the full-distribution recipe." width="1760" height="960" loading="lazy"></a>
-<figcaption>The same 191-task evaluation as the first results above, with eight attempts per task. Gray is the starting model, blue is RL with truncated sampling, and orange is RL with full-distribution sampling. The last row is conditional on declaring completion.</figcaption>
+<a href="{{ '/assets/img/snowball/rl-behavior-changes.png?v=results-labels' | relative_url }}"><img src="{{ '/assets/img/snowball/rl-behavior-changes.png?v=results-labels' | relative_url }}" alt="Early RL behavior: more completion claims, fewer context overflows, more source edits and pytest runs. Completion accuracy fell for one RL checkpoint and held near the starting model for the other." width="1760" height="960" loading="lazy"></a>
+<figcaption>The same 191-task evaluation as the first results above, with eight attempts per task. Gray is the starting model. Of the two RL checkpoints, blue has higher pass@1 and orange has higher pass@8. The last row is conditional on declaring completion.</figcaption>
 </figure>
 
 Rebuilding the stack improved the result further. On a later evaluation set, the new stack scored about ten points above the old one, using half as many nodes.
