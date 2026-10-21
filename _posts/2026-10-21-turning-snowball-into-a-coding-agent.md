@@ -189,7 +189,7 @@ I also tried training a useful prompt into the weights. A short edit-discipline 
 
 The broader direction is still worth exploring. [Fast-Slow Training (FST)](https://arxiv.org/abs/2605.12484) interleaves prompt optimization with weight updates, while [P²O](https://arxiv.org/pdf/2603.21877) combines prompt optimization with context distillation. Here I tested one fixed prompt and one distillation configuration, without prompt evolution or a teacher-KL loss. How to turn useful guidance in context into useful behavior in the weights remains an interesting question.
 
-The advice I was getting from experienced RL researchers became increasingly relevant: start with a stronger policy. My next experiments focused on SFT.
+The lesson was that the starting policy deserved as much attention as the RL recipe. SFT offered a way to build a stronger coding foundation by learning from demonstrations, including behaviors Snowball rarely discovered on its own. The next experiments focused on whether that foundation would give RL more useful behavior to reinforce.
 
 <aside class="research-reports" markdown="1">
 Full reports: [Curriculum continuation](https://gist.github.com/lukedhlee/969b5bf852b9d1274ec980996232f7ba), [Unwinnable tasks](https://gist.github.com/lukedhlee/9eafb59ad72f08957f2e7fd551c249cb), [Prompt distillation](https://gist.github.com/lukedhlee/edb2f69d38ed089f71f74ff711281807), [Synthesized task-pool audit](https://gist.github.com/lukedhlee/6ad754b83d62536e1976777231c9754e).
