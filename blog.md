@@ -6,7 +6,6 @@ permalink: /blog/
 
 <section class="page-title">
   <h1>Blog</h1>
-  <p>Notes on LLMs, research ideas, papers, and engineering details.</p>
 </section>
 
 <section class="section">
