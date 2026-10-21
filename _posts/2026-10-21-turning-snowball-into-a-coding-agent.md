@@ -119,7 +119,7 @@ Some apparent model failures were bugs in the system around it. I found and fixe
 
 </div>
 
-**Token-in-token-out (TITO)** means keeping the exact token IDs the model sampled, both for training and for later turns. Consider a toy tokenizer:
+The recovery bug in [harbor #122](https://github.com/marin-community/harbor/pull/122) illustrates why **token-in-token-out (TITO)** matters. When a turn hit its output limit, recovery could re-render the conversation and change tokens the model had already sampled. TITO keeps the exact sampled token IDs for both training and later turns. Consider a toy tokenizer:
 
 ```text
 Model samples:          ["hel", "lo"]   (two tokens)
@@ -127,7 +127,7 @@ Decoded text:           "hello"
 Text re-tokenized:      ["hello"]       (one different token)
 ```
 
-The text looks identical, but the trainer now sees a token the model never sampled. The two original token probabilities no longer line up with the training sequence, breaking the probability accounting RL relies on. TITO preserves the original IDs instead of reconstructing them from text. Mercor and SkyRL discuss this in their [agent-training guide](https://www.mercor.com/blog/training-frontier-knowledge-work-agents-a-397b-rl-training-guide-with-skyrl/).
+The text looks identical, but the trainer now sees a token the model never sampled. The two original token probabilities no longer line up with the training sequence, breaking the probability accounting RL relies on. The fix preserved the prompt and completion token IDs through recovery, so the next request continued from the exact sampled sequence. Mercor and SkyRL discuss TITO in their [agent-training guide](https://www.mercor.com/blog/training-frontier-knowledge-work-agents-a-397b-rl-training-guide-with-skyrl/).
 
 <aside class="research-reports" markdown="1">
 [Full report](https://gist.github.com/lukedhlee/ad3a95fccccb527db66619d6b3667e7d).
