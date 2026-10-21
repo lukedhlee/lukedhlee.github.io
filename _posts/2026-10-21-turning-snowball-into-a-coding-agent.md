@@ -22,12 +22,12 @@ The final experiments improved all three agent benchmarks I was tracking:
 
 | Model, evaluated with Terminus-2 | SWE-bench Verified random-100 | Terminal-Bench 2.1 | OpenThoughts-TBLite |
 |---|---:|---:|---:|
-| Snowball 09-21, starting checkpoint | 13.8% | 6.5% | 11.7% |
+| [Snowball 09-21](https://huggingface.co/open-athena/Grug-67B-A2B-Datakit-SFT-262K-2026.09.21), starting checkpoint | 13.8% | 6.5% | 11.7% |
 | Best recipe (Relay SFT + Kimi demonstrations) | **46.6%** | **18.8%** | **27.2%** |
 
 </div>
 
-*Pass@1, averaged over three evaluation runs. The recipe fine-tunes Grug Datakit 09-21 on Relay SFT and Kimi coding demonstrations. These results are from an experimental checkpoint; the final Snowball launch checkpoint is not yet specified.*
+*Pass@1, averaged over three evaluation runs. The recipe fine-tunes [Grug Datakit 09-21](https://huggingface.co/open-athena/Grug-67B-A2B-Datakit-SFT-262K-2026.09.21) on Relay SFT and Kimi coding demonstrations. These results are from an experimental checkpoint; the final Snowball launch checkpoint is not yet specified.*
 
 That result took several changes of approach. Snowball itself also changed during the work, so this is an account of building the expert across successive starting checkpoints.
 
@@ -46,7 +46,7 @@ That result took several changes of approach. Snowball itself also changed durin
 
 ### The Pre-RL Probe
 
-I started with Snowball's Stage-3 Nemotron-Terminal SFT checkpoint. Before training, I sampled R2E-Gym tasks eight times each and used coding agents to inspect the traces. Only 36% of fully sampled tasks had both successes and failures—the useful band for binary-reward GRPO.
+I started with [Snowball's Stage-3 Nemotron-Terminal SFT checkpoint](https://huggingface.co/laion/snowball-67b-a2b-sft-s3-nemotron-terminal-step1888). Before training, I sampled R2E-Gym tasks eight times each and used coding agents to inspect the traces. Only 36% of fully sampled tasks had both successes and failures—the useful band for binary-reward GRPO.
 
 <figure class="research-figure">
 <a href="{{ '/assets/img/snowball/pre-rl-probe.png' | relative_url }}"><img src="{{ '/assets/img/snowball/pre-rl-probe.png' | relative_url }}" alt="The pre-RL probe: 36% of tasks were sometimes solvable; successful attempts more often edited the repository and ran a test." width="2380" height="901" loading="lazy"></a>
@@ -216,7 +216,7 @@ Full reports: [SFT versus RL versus SFT→RL](https://github.com/marin-community
 
 ## Relay SFT
 
-The next experiments started from Marin's newer Grug Datakit 09-21 checkpoint. Kimi demonstrations alone now reached 41.6% on SWE-bench, against 13.8% for that starting model under the three-run evaluation recipe. The earlier failure did not make the dataset universally unhelpful: the starting checkpoint and training recipe mattered.
+The next experiments started from Marin's newer [Grug Datakit 09-21](https://huggingface.co/open-athena/Grug-67B-A2B-Datakit-SFT-262K-2026.09.21) checkpoint. Kimi demonstrations alone now reached 41.6% on SWE-bench, against 13.8% for that starting model under the three-run evaluation recipe. The earlier failure did not make the dataset universally unhelpful: the starting checkpoint and training recipe mattered.
 
 ### Bringing in the Teacher
 
