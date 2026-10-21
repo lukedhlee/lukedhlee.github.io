@@ -90,9 +90,7 @@ Those probabilities matter because the trainer uses them to correct for differen
 
 Our engine-versus-trainer checks looked healthy because both used the same unfiltered probabilities. Those checks established numerical agreement, but did not check whether the probabilities matched the distribution that actually generated the tokens.
 
-Disabling top-p and top-k removed the exploration restriction and made sampling agree with the full-distribution probabilities used by the trainer. The run continued past the earlier collapse point, with entropy staying near its starting level. An upstream [guardrail (#525)](https://github.com/marin-community/MarinSkyRL/pull/525) now rejects sampling settings the trainer cannot reproduce.
-
-Settings that work for generating answers deserve another look when those answers become RL training data.
+Disabling top-p and top-k removed the exploration restriction and made sampling agree with the full-distribution probabilities used by the trainer. The run continued past the earlier collapse point, with entropy staying near its starting level.
 
 <figure class="research-figure">
 <a href="{{ '/assets/img/snowball/entropy-debugging.png' | relative_url }}"><img src="{{ '/assets/img/snowball/entropy-debugging.png' | relative_url }}" alt="Filtered sampling reduced entropy to about half its initial value, while full-distribution sampling stayed near its starting level." width="1760" height="880" loading="lazy"></a>
