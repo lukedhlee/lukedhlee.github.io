@@ -14,7 +14,7 @@ reading_time: 14
 
 I spent September and October working closely with Marin's post-training team on a coding-agent expert for Snowball. The Marin team handled mid-training and general SFT, producing the checkpoints I started from. My job was to get as much coding-agent performance as possible out of those models, with the aim of eventually distilling that expertise into the general model.
 
-As the team produced new checkpoints, I tried different ways to build on them. I started with reinforcement learning, fixed problems in the training pipeline, inspected failed attempts and their training data, and tried additional SFT. That eventually led to collecting demonstrations with the student and teacher working on the same attempt.
+As the team produced new checkpoints, I tried different ways to build on them. I started with reinforcement learning, fixed problems in the training pipeline, inspected failed attempts and their training data, and tried additional SFT. That led to Relay SFT: using a teacher to show Snowball how to recover from its own mistakes.
 
 The final experiments improved all three agent benchmarks I was tracking:
 
