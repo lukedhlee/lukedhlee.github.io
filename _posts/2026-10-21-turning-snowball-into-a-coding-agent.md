@@ -46,7 +46,7 @@ That result took several changes of approach. Snowball itself also changed durin
 
 ### The Pre-RL Probe
 
-I started with [Snowball's Stage-3 Nemotron-Terminal SFT checkpoint](https://github.com/marin-community/marin/issues/8225). Before training, I sampled R2E-Gym tasks eight times each and used coding agents to inspect the traces. Only 36% of fully sampled tasks had both successes and failures—the useful band for binary-reward GRPO.
+I started with [Snowball's Stage-3 Nemotron-Terminal SFT checkpoint](https://github.com/marin-community/marin/issues/8225). Before training, I sampled R2E-Gym tasks eight times each and used coding agents to inspect the traces. Only 36% of fully sampled tasks had both successes and failures, the useful band for binary-reward GRPO.
 
 <figure class="research-figure">
 <a href="{{ '/assets/img/snowball/pre-rl-probe.png' | relative_url }}"><img src="{{ '/assets/img/snowball/pre-rl-probe.png' | relative_url }}" alt="The pre-RL probe: 36% of tasks were sometimes solvable; successful attempts more often edited the repository and ran a test." width="2380" height="901" loading="lazy"></a>
@@ -76,7 +76,7 @@ One recurring failure had a surprisingly specific source. Snowball wrote SEARCH/
 
 ### Diagnosing Entropy Collapse
 
-Early runs could look promising and then lose their held-out gains. Training reward alone did not make the problem obvious. Output entropy—the spread of the model's next-token predictions—fell to about half its starting value in one run.
+Early runs could look promising and then lose their held-out gains. Training reward alone did not make the problem obvious. Output entropy, the spread of the model's next-token predictions, fell to about half its starting value in one run.
 
 The rollout engine was filtering tokens with top-p and top-k, also called truncated sampling, but returning probabilities from the full distribution. The trainer's probability accounting did not describe how the tokens were sampled. Separately, the KL penalty was being logged without contributing a gradient.
 
@@ -149,7 +149,7 @@ Full reports: [First RL results](https://gist.github.com/lukedhlee/9c19fd9288a94
 
 ### Speeding Up Rollouts Without Retraining the Draft
 
-Long agent rollouts also made each experiment expensive. I trained a small EAGLE-3 draft on Snowball's own rollouts: it proposes several tokens, and the main model verifies them. In matched five-node runs, three RL updates took about 31 minutes instead of 44—**1.42× faster**.
+Long agent rollouts also made each experiment expensive. I trained a small EAGLE-3 draft on Snowball's own rollouts: it proposes several tokens, and the main model verifies them. In matched five-node runs, three RL updates took about 31 minutes instead of 44, making the updates **1.42× faster**.
 
 I also checked whether the draft would need refreshing as RL changed Snowball. The same frozen draft held through 60 updates. Its accepted tokens per verification step did not decline. The draft needed training once, then no retraining during that run. That made the speedup useful across the experiments rather than another model to maintain after each update.
 
@@ -237,7 +237,7 @@ Full reports: [Initial relay design](https://gist.github.com/lukedhlee/d8fc1454e
 
 The first small held-out CalibForge comparison did not establish a Relay SFT advantage. Later agent-benchmark experiments did. On matched CalibForge tasks, trace counts, and pass/fail outcomes, Relay SFT beat teacher-only SFT on all three benchmarks. The advantage repeated on a separate task pool, TMax.
 
-The best recipe then used the full set of 5,916 relay episodes plus 4,392 Kimi traces. It reached **46.6% on SWE-bench, 18.8% on Terminal-Bench 2.1, and 27.2% on OpenThoughts-TBLite**—the same checkpoint shown in the opening table. The smaller matched-data run is a separate comparison, labeled below.
+The best recipe then used the full set of 5,916 relay episodes plus 4,392 Kimi traces. It reached **46.6% on SWE-bench, 18.8% on Terminal-Bench 2.1, and 27.2% on OpenThoughts-TBLite**, the same checkpoint shown in the opening table. The smaller matched-data run is a separate comparison, labeled below.
 
 <figure class="research-figure">
 <a href="{{ '/assets/img/snowball/relay-matched-dots.png' | relative_url }}"><img src="{{ '/assets/img/snowball/relay-matched-dots.png' | relative_url }}" alt="Matched teacher-only and Relay SFT comparisons alongside the best full-data recipe from the opening table." width="2160" height="1056" loading="lazy"></a>
