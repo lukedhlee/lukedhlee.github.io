@@ -135,7 +135,7 @@ The text looks identical, but the trainer now sees a token the model never sampl
 
 ### What RL Improved
 
-In the first corrected held-out evaluation, RL nearly doubled pass@1 from 8.7% to 16.6%. Much of the improvement came from completing useful work inside the context window.
+In the first held-out evaluation, RL nearly doubled pass@1 from 8.7% to 16.6%. Much of the improvement came from completing useful work inside the context window.
 
 
 <figure class="research-figure">
