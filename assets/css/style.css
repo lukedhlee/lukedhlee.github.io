@@ -139,7 +139,8 @@ h3 {
   margin: 0 0 36px;
 }
 
-.lead {
+.lead,
+.bio-line {
   max-width: 900px;
   margin: 0;
   color: #343b36;
@@ -148,11 +149,7 @@ h3 {
 }
 
 .bio-line {
-  max-width: 900px;
   margin: 14px 0 0;
-  color: #3f4842;
-  font-size: 15px;
-  line-height: 1.65;
 }
 
 .contact-line {
@@ -365,7 +362,8 @@ time {
     font-size: 40px;
   }
 
-  .lead {
+  .lead,
+  .bio-line {
     font-size: 15px;
   }
 
