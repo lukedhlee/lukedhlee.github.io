@@ -15,13 +15,12 @@ title: Home
 
 <section class="intro-section">
   <p class="lead">
-    I am a first-year CS Ph.D. student at UC Berkeley, where I am part of
+    I am a second-year CS Ph.D. student at UC Berkeley, where I am part of
     <a href="https://bair.berkeley.edu/">BAIR</a> and the
     <a href="https://sky.cs.berkeley.edu/">Sky Computing Lab</a>.
     I am fortunate to be advised by Professor
     <a href="https://people.eecs.berkeley.edu/~matei/">Matei Zaharia</a>.
-    My research interests are in large language models and the systems that make them more
-    useful, reliable, and efficient in real-world settings.
+    My research interests are in AI-driven optimization and LLM post-training.
   </p>
   <p class="bio-line">
     Before starting my Ph.D., I completed an integrated Master of Engineering in Computer Science
