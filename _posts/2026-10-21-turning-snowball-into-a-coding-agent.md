@@ -82,19 +82,25 @@ The corpus also retained unfinished trajectories: 70% of its medium-difficulty s
 
 ### Diagnosing Entropy Collapse
 
-Early runs could look promising and then lose their held-out gains. Training reward alone did not make the problem obvious. Output entropy, the spread of the model's next-token predictions, fell to about half its starting value in one run.
+Early RL runs improved and then lost their held-out gains while training reward kept rising. In one run, output entropy fell to about half its starting value. Snowball's predictions were becoming increasingly concentrated. Lowering the learning rate delayed the failure without resolving it.
 
-The rollout engine was filtering tokens with top-p and top-k, also called truncated sampling, but returning probabilities from the full distribution. The trainer's probability accounting did not describe how the tokens were sampled. Separately, the KL penalty was being logged without contributing a gradient.
+The problem was a disagreement between how we generated rollouts and how we trained on them. The rollout engine used top-p and top-k sampling, which removed lower-probability tokens and redistributed their probability among the remaining choices. But it reported probabilities from before that filtering. A token with 5% probability could, for example, be sampled 10% of the time after filtering while still being reported as 5%.
 
-Fixing KL alone did not rescue the run: entropy eventually rose to 1.75× its starting value instead, while held-out performance deteriorated. Removing the sampling filters produced runs whose entropy stayed near its starting level. Lowering the learning rate had delayed failure.
+Those probabilities matter because the trainer uses them to correct for differences between the policy generating the data and the policy being updated. Here, that correction did not describe the actual sampling process. Tokens outside the retained set also had no chance of being explored. As predictions became more concentrated, filtering could narrow the available choices further.
+
+Our engine-versus-trainer checks looked healthy because both used the same unfiltered probabilities. Those checks established numerical agreement, but did not check whether the probabilities matched the distribution that actually generated the tokens.
+
+Disabling top-p and top-k removed the exploration restriction and made sampling agree with the full-distribution probabilities used by the trainer. The run continued past the earlier collapse point, with entropy staying near its starting level. An upstream [guardrail (#525)](https://github.com/marin-community/MarinSkyRL/pull/525) now rejects sampling settings the trainer cannot reproduce.
+
+Settings that work for generating answers deserve another look when those answers become RL training data.
 
 <figure class="research-figure">
-<a href="{{ '/assets/img/snowball/entropy-debugging.png' | relative_url }}"><img src="{{ '/assets/img/snowball/entropy-debugging.png' | relative_url }}" alt="Entropy fell under filtered sampling, rose when only KL was repaired, and stayed stable under full-distribution sampling." width="1760" height="880" loading="lazy"></a>
-<figcaption>Solid lines omit a working KL penalty; dashed lines include one. Red uses filtered sampling; blue samples the full distribution. This comparison explains the two sampling recipes in the results below. Entropy was a diagnostic here, not a replacement for held-out evaluation.</figcaption>
+<a href="{{ '/assets/img/snowball/entropy-debugging.png' | relative_url }}"><img src="{{ '/assets/img/snowball/entropy-debugging.png' | relative_url }}" alt="Filtered sampling reduced entropy to about half its initial value, while full-distribution sampling stayed near its starting level." width="1760" height="880" loading="lazy"></a>
+<figcaption>The same starting model and learning rate, changing only the sampling settings. Each curve is normalized to its own first update. Entropy stayed stable through update 38 with full-distribution sampling. Curves reproduced from the first RL report.</figcaption>
 </figure>
 
 <aside class="research-reports" markdown="1">
-[Full report](https://gist.github.com/lukedhlee/9c19fd9288a94ecfd1dbd6906b0a8dda) · [KL gradient fix (#517)](https://github.com/marin-community/MarinSkyRL/pull/517) · [Temperature-scaled probability accounting (#519)](https://github.com/marin-community/MarinSkyRL/pull/519) · [Sampling-filter guardrail (#525)](https://github.com/marin-community/MarinSkyRL/pull/525).
+[Full report](https://gist.github.com/lukedhlee/9c19fd9288a94ecfd1dbd6906b0a8dda).
 </aside>
 
 ### Fixing the Training Stack
