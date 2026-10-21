@@ -74,7 +74,7 @@ One recurring failure had a surprisingly specific source. Snowball wrote SEARCH/
 <figcaption>The SWE slice explicitly requested the same path and edit format that Snowball later used in the wrong setting. These behaviors can overlap.</figcaption>
 </figure>
 
-**Access to the SFT data made that behavior explainable.** The corpus also retained unfinished trajectories: 70% of its medium-difficulty synthetic traces never declared completion. That was consistent with Snowball's tendency to keep working until its window filled, though it did not isolate the cause. Later audits found task overlap too: held out from my RL run did not necessarily mean unseen in upstream SFT.
+The corpus also retained unfinished trajectories: 70% of its medium-difficulty synthetic traces never declared completion. That was consistent with Snowball's tendency to keep working until its window filled, though it did not isolate the cause. Marin's commitment to open training data made it possible to inspect what Snowball had seen and better understand the habits it brought into these tasks.
 
 <aside class="research-reports" markdown="1">
 [Full report](https://claude.ai/artifact/TefbJfphaTBsYFtFgrNgMY).
@@ -86,7 +86,7 @@ Early runs could look promising and then lose their held-out gains. Training rew
 
 The rollout engine was filtering tokens with top-p and top-k, also called truncated sampling, but returning probabilities from the full distribution. The trainer's probability accounting did not describe how the tokens were sampled. Separately, the KL penalty was being logged without contributing a gradient.
 
-Fixing KL alone did not rescue the run: entropy eventually rose to 1.75× its starting value instead, while held-out performance deteriorated. Removing the sampling filters produced runs whose entropy stayed near its starting level. Lowering the learning rate had delayed failure; checking the sampler and update code exposed what needed fixing.
+Fixing KL alone did not rescue the run: entropy eventually rose to 1.75× its starting value instead, while held-out performance deteriorated. Removing the sampling filters produced runs whose entropy stayed near its starting level. Lowering the learning rate had delayed failure.
 
 <figure class="research-figure">
 <a href="{{ '/assets/img/snowball/entropy-debugging.png' | relative_url }}"><img src="{{ '/assets/img/snowball/entropy-debugging.png' | relative_url }}" alt="Entropy fell under filtered sampling, rose when only KL was repaired, and stayed stable under full-distribution sampling." width="1760" height="880" loading="lazy"></a>
@@ -94,7 +94,7 @@ Fixing KL alone did not rescue the run: entropy eventually rose to 1.75× its st
 </figure>
 
 <aside class="research-reports" markdown="1">
-[Full report](https://gist.github.com/lukedhlee/9c19fd9288a94ecfd1dbd6906b0a8dda).
+[Full report](https://gist.github.com/lukedhlee/9c19fd9288a94ecfd1dbd6906b0a8dda) · [KL gradient fix (#517)](https://github.com/marin-community/MarinSkyRL/pull/517) · [Temperature-scaled probability accounting (#519)](https://github.com/marin-community/MarinSkyRL/pull/519) · [Sampling-filter guardrail (#525)](https://github.com/marin-community/MarinSkyRL/pull/525).
 </aside>
 
 ### Fixing the Training Stack
@@ -155,9 +155,9 @@ Full reports: [First RL results](https://gist.github.com/lukedhlee/9c19fd9288a94
 
 ### Speeding Up Rollouts Without Retraining the Draft
 
-Long agent rollouts also made each experiment expensive. I trained a small EAGLE-3 draft on Snowball's own rollouts: it proposes several tokens, and the main model verifies them. In matched five-node runs, three RL updates took about 31 minutes instead of 44, making the updates **1.42× faster**.
+Long agent rollouts also made each experiment expensive. The pre-RL probe supplied training data for a small EAGLE-3 draft: it proposes several tokens, and Snowball verifies them. Adapting the pilot draft on 2,177 of Snowball's own rollouts improved per-stream speed by another 12–15% in two same-node repeats. The probe was useful twice, first for inspecting the policy and choosing tasks, then for making the next experiments faster. In matched five-node runs, three RL updates took about 31 minutes instead of 44, making the updates **1.42× faster**.
 
-I also checked whether the draft would need refreshing as RL changed Snowball. The same frozen draft held through 60 updates. Its accepted tokens per verification step did not decline. The draft needed training once, then no retraining during that run. That made the speedup useful across the experiments rather than another model to maintain after each update.
+I also checked whether the draft would need refreshing as RL changed Snowball. The same frozen draft held through 60 updates, with no decline in accepted tokens per verification step. At update 36, 86% of Snowball's weights were still bit-identical to the starting checkpoint. That small change was consistent with the draft remaining useful despite the improvement in agent performance. The draft needed training once, then no retraining during that run.
 
 <figure class="research-figure">
 <a href="{{ '/assets/img/snowball/speculative-decoding.png' | relative_url }}"><img src="{{ '/assets/img/snowball/speculative-decoding.png' | relative_url }}" alt="A frozen speculative-decoding draft accelerated RL updates and maintained acceptance through 60 updates." width="1760" height="848" loading="lazy"></a>
@@ -181,7 +181,9 @@ The task pool grew from 1,003 to 1,247. Continuing the selected checkpoint for a
 
 Hard tasks were not always useful tasks. In a close read of 243 failed attempts across 39 tasks, 40 were attributed to task or sandbox defects. One issue requested a clear error message while its hidden test demanded exact wording. Another task's grader depended on a test helper changed by the reference patch. Two suspected misgrades lacked enough logs to confirm. **The 16% belongs to that audited sample, which over-represented difficult tasks.**
 
-I also tried training a useful prompt into the weights. A short edit-discipline prompt improved the base by 9–14 points on a development set; 24 updates of context distillation left the unprompted model at base performance. The model made the prompted trajectories more likely without becoming more successful. That was an expensive distinction to learn.
+I also tried training a useful prompt into the weights. A short edit-discipline prompt improved the base by 9–14 points on a development set. For context distillation, I kept the prompt during rollouts and removed it from the context used for the weight update. After 24 updates on 12 Jupiter nodes, the unprompted model scored 29.8%, against 30.2% for the base on the same 120-task panel. The prompted-versus-unprompted likelihood gap shrank 85%, but task success did not improve. Matching the prompted trajectories more closely was not enough.
+
+The broader direction is still worth exploring. [Fast-Slow Training (FST)](https://arxiv.org/abs/2605.12484) interleaves prompt optimization with weight updates, while [P²O](https://arxiv.org/pdf/2603.21877) combines prompt optimization with context distillation. Here I tested one fixed prompt and one distillation configuration, without prompt evolution or a teacher-KL loss. How to turn useful guidance in context into useful behavior in the weights remains an interesting question.
 
 The advice I was getting from experienced RL researchers became increasingly relevant: start with a stronger policy. My next experiments focused on SFT.
 
