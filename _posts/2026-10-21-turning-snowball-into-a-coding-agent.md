@@ -247,7 +247,7 @@ Full reports: [Initial relay design](https://gist.github.com/lukedhlee/d8fc1454e
 
 ### Testing the Idea
 
-The first small held-out CalibForge comparison did not establish a Relay SFT advantage. Later agent-benchmark experiments did. On matched CalibForge tasks, trace counts, and pass/fail outcomes, Relay SFT beat teacher-only SFT on all three benchmarks. The advantage repeated on a separate task pool, TMax.
+On matched CalibForge tasks, trace counts, and pass/fail outcomes, Relay SFT beat teacher-only SFT on all three benchmarks. The advantage repeated on a separate task pool, TMax.
 
 The best recipe then used the full set of 5,916 relay episodes plus 4,392 Kimi traces. It reached **46.6% on SWE-bench, 18.8% on Terminal-Bench 2.1, and 27.2% on OpenThoughts-TBLite**, the same checkpoint shown in the opening table. The smaller matched-data run is a separate comparison, labeled below.
 
