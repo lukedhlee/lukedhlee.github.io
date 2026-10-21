@@ -258,6 +258,10 @@ Reading traces repeatedly changed the next experiment. It exposed inherited edit
 
 Relay SFT grew out of that process. I wanted demonstrations that addressed what Snowball did after it had already started working. The resulting recipe improved all three evaluations, but the broader lesson I take from the work is to choose the next training intervention by inspecting the current model's attempts. As Marin supplied new checkpoints, I had to check those assumptions again.
 
+I still lack a principled way to decide which tasks should go into SFT and which into RL. The experiments gave me useful heuristics, but I would like a more systematic way to allocate tasks between learning from demonstrations and learning through attempts.
+
+Another direction is making off-policy data more on-policy: adapting demonstrations to the situations the current student actually encounters. Relay SFT was one attempt at this. How much existing data can be adapted, and when is it better to collect new demonstrations from the student’s own attempts? Those are questions I want to work on next.
+
 ## What you can reuse
 
 The expert checkpoints are public: the [model in the opening table](https://huggingface.co/laion/snowball-67b-a2b-relay-sft-allkimi-step1203), a [similarly performing continuation](https://huggingface.co/laion/snowball-67b-a2b-relay-sft-acont-step999), and the [earlier RL checkpoint](https://huggingface.co/laion/snowball-67b-a2b-rl-r2egym-newstack-step24). The opening model's training set is in [calibforge-relay-traces](https://huggingface.co/datasets/laion/calibforge-relay-traces), under `terminus2_relay_sft`.
