@@ -12,7 +12,7 @@ reading_time: 14
 <a href="{{ '/assets/img/snowball/snowball-opening.png' | relative_url }}"><img src="{{ '/assets/img/snowball/snowball-opening.png' | relative_url }}" alt="Snowball and a teacher untangle a winding blue and orange trail through a snowy landscape." width="1672" height="941" loading="eager"></a>
 </figure>
 
-Marin’s ambition is to make the knowledge behind capable AI a public resource. That means sharing how models are built: the data, the experiments, and the decisions along the way, including the ones that turn out to be wrong. Other researchers can then see what happened, question it, and contribute their own ideas.
+[Marin](https://marin.community/)’s ambition is to make the knowledge behind capable AI a public resource. That means sharing how models are built: the data, the experiments, and the decisions along the way, including the ones that turn out to be wrong. Other researchers can then see what happened, question it, and contribute their own ideas.
 
 Training a coding agent still leaves plenty of room for that kind of work. We can give a model a repository, a terminal, and a task, but getting it to reliably finish the job is another matter. It needs to make changes, test them, and recover when something goes wrong. How best to teach these abilities is still an open question.
 
