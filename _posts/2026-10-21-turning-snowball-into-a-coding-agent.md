@@ -40,7 +40,7 @@ That result took several changes of approach. Snowball itself also changed durin
 <nav class="research-toc" aria-label="Article contents">
 <div class="research-toc-title">Contents</div>
 <ul>
-<li><strong><a href="#starting-with-reinforcement-learning">Starting with RL</a></strong><span class="toc-sub"><a href="#the-pre-rl-probe">Pre-RL probe</a> · <a href="#following-the-behavior-back-to-sft">SFT habits</a> · <a href="#diagnosing-entropy-collapse">Entropy collapse</a> · <a href="#fixing-the-training-stack">Stack fixes</a> · <a href="#what-rl-improved">Results</a> · <a href="#speeding-up-rollouts-without-retraining-the-draft">Speculative decoding</a> · <a href="#finding-useful-training-tasks">Training tasks</a> · <a href="#training-a-prompt-into-the-weights">Prompt distillation</a></span></li>
+<li><strong><a href="#starting-with-reinforcement-learning">Starting with RL</a></strong><span class="toc-sub"><a href="#the-pre-rl-probe">Pre-RL probe</a> · <a href="#following-the-behavior-back-to-sft">SFT habits</a> · <a href="#diagnosing-entropy-collapse">Entropy collapse</a> · <a href="#fixing-the-training-stack">Stack fixes</a> · <a href="#what-rl-improved">Results</a> · <a href="#speeding-up-rollouts-without-retraining-the-draft">Speculative decoding</a> · <a href="#training-a-prompt-into-the-weights">Prompt distillation</a></span></li>
 <li><strong><a href="#strengthening-the-starting-policy-with-sft">Strengthening the policy with SFT</a></strong><span class="toc-sub"><a href="#better-loss-worse-agent">The Kimi experiment</a> · <a href="#combining-sft-and-rl">SFT → RL</a></span></li>
 <li><strong><a href="#relay-sft">Relay SFT</a></strong><span class="toc-sub"><a href="#bringing-in-the-teacher">Motivation and recipe</a> · <a href="#testing-the-idea">Testing the idea</a></span></li>
 <li><strong><a href="#reflections">Reflections</a></strong></li>
@@ -181,33 +181,18 @@ I also checked whether the draft would need refreshing as RL changed Snowball. T
 Full reports: [Toolkit and timing](https://gist.github.com/lukedhlee/b161a78a29e2c42b08a157aaaea6438b), [Frozen draft during RL](https://gist.github.com/lukedhlee/bd14e461b13557a3a541e721fcda643e), [Initial pilot](https://gist.github.com/lukedhlee/f02dc181b7383e47908091b565cf8619).
 </aside>
 
-### Finding Useful Training Tasks
-
-GRPO needs differences in reward within a group of attempts. If every attempt fails, or every attempt passes, binary rewards provide no relative signal. A task can be difficult without being useful for the current model to train on.
-
-The pre-RL probe identified 1,003 tasks Snowball solved between one and seven times in eight attempts. This gave us a curriculum based on the model's actual capabilities. As the policy changed, the useful tasks could change too. An initially difficult task might become reliably solvable, while a previously inaccessible task might start producing occasional successes. That motivated refreshing the pool to 1,247 tasks.
-
-<figure class="research-figure">
-<a href="{{ '/assets/img/snowball/curriculum-refresh.png' | relative_url }}"><img src="{{ '/assets/img/snowball/curriculum-refresh.png' | relative_url }}" alt="A larger curriculum produced small gains whose confidence intervals included zero." width="1760" height="880" loading="lazy"></a>
-<figcaption>Adding tasks and continuing training produced a positive but unresolved result. Both ranges include zero.</figcaption>
-</figure>
-
-Another 24 updates improved the two held-out splits by 2.7 and 3.1 percentage points. That was encouraging, but inconclusive. Both uncertainty ranges included no improvement. Without a matched continuation on the original pool, the experiment could not distinguish the benefit of refreshing the curriculum from the benefit of additional training.
-
-<aside class="research-reports" markdown="1">
-[Full report](https://gist.github.com/lukedhlee/969b5bf852b9d1274ec980996232f7ba).
-</aside>
-
 ### Training a Prompt into the Weights
 
-I also tried training a useful prompt into the weights. A short edit-discipline prompt improved the base by 9–14 points on a development set. For context distillation, I kept the prompt during rollouts and removed it from the context used for the weight update. After 24 updates on 12 Jupiter nodes, the unprompted model scored 29.8%, against 30.2% for the base on the same 120-task panel. The prompted-versus-unprompted likelihood gap shrank 85%, but task success did not improve. Matching the prompted trajectories more closely was not enough.
+A short edit-discipline prompt improved the base by 9–14 points on a development set. I tried transferring that guidance into the weights by keeping it during rollouts and removing it from the context used for the weight update. Without the guidance, the trained model scored 29.8%, against 30.2% for the base. The prompted-versus-unprompted likelihood gap shrank 85%, but task success did not improve.
+
+The turn-by-turn analysis was more revealing. When the same trajectories were rescored with and without the guidance, the largest likelihood difference was on the first action. By turns four to six, that gap was already small even in the starting model. Earlier actions were held fixed, so the history could still carry forward the prompt's initial influence.
 
 <figure class="research-figure">
-<a href="{{ '/assets/img/snowball/prompt-distillation.png' | relative_url }}"><img src="{{ '/assets/img/snowball/prompt-distillation.png' | relative_url }}" alt="Editing guidance improved the starting model from 30.2% to 44.6%, but the context-distilled model scored 29.8% without that guidance." width="1760" height="736" loading="lazy"></a>
-<figcaption>The same 120 development tasks, four attempts per task. The editing prompt helped the starting model, but 24 context-distillation updates did not improve performance without the prompt.</figcaption>
+<a href="{{ '/assets/img/snowball/prompt-distillation.png' | relative_url }}"><img src="{{ '/assets/img/snowball/prompt-distillation.png' | relative_url }}" alt="The likelihood difference from retaining the editing guidance was largest on the first turn and much smaller on later turns, both before and after distillation." width="1760" height="832" loading="lazy"></a>
+<figcaption>The same 152 prompted trajectories, rescored with and without the guidance. The gap measures the prompt's additional influence on the likelihood of the same actions, with the earlier history held fixed.</figcaption>
 </figure>
 
-The broader direction is still worth exploring. [Fast-Slow Training (FST)](https://arxiv.org/abs/2605.12484) interleaves prompt optimization with weight updates, while [P²O](https://arxiv.org/pdf/2603.21877) combines prompt optimization with context distillation. Here I tested one fixed prompt and one distillation configuration, without prompt evolution or a teacher-KL loss. How to turn useful guidance in context into useful behavior in the weights remains an interesting question.
+That raises a question about when guidance is most useful. Later turns are where the agent needs to verify an edit, respond to a failed check, and decide whether the work is complete. One direction worth testing is to nudge the policy at those moments, with targeted reminders tied to what just happened. Combining prompt and weight optimization remains worth exploring, as in [Fast-Slow Training (FST)](https://arxiv.org/abs/2605.12484) and [P²O](https://arxiv.org/pdf/2603.21877). These experiments tested only one fixed initial prompt, leaving guidance across turns as an open direction.
 
 <aside class="research-reports" markdown="1">
 [Full report](https://gist.github.com/lukedhlee/edb2f69d38ed089f71f74ff711281807).
@@ -254,7 +239,9 @@ The next experiments started from Marin's newer [Grug Datakit 09-21](https://git
 
 Teacher-only SFT trains on histories generated by the teacher. At deployment, Snowball creates its own history: different commands, mistaken assumptions, invalid actions, and unfinished fixes. This mismatch is **exposure bias**. A demonstration of the teacher's clean solution may not show how to recover from the situations the student actually encounters.
 
-That motivated **Relay SFT**. Snowball starts the task, and a stronger teacher responds to its attempt. The teacher repairs invalid actions, continues when the context-budget trigger fires, or checks the work when Snowball claims completion. For these experiments the teacher was Qwen3.8-27B. During SFT, Snowball's turns remain as context and only the teacher's turns contribute to the loss.
+Trace analysis identified three major failure modes that were cheap to detect programmatically during online trajectory generation: invalid actions, exhausting the context budget, and premature completion. The harness could flag a rejected action, track context use, or intercept a completion claim. These became the intervention points for **Relay SFT**. A completion claim triggered verification, since it could also be correct.
+
+Snowball starts the task, and a stronger teacher intervenes at those points. The teacher repairs an invalid action, continues when the context-budget trigger fires, or checks the work when Snowball claims completion. For these experiments the teacher was Qwen3.8-27B. During SFT, Snowball's turns remain as context and only the teacher's turns contribute to the loss.
 
 <figure class="research-figure">
 <a href="{{ '/assets/img/snowball/relay-timeline.png' | relative_url }}"><img src="{{ '/assets/img/snowball/relay-timeline.png' | relative_url }}" alt="Teacher-only SFT trains on teacher-generated histories; Relay SFT includes student turns, local teacher repairs, and teacher continuations." width="2409" height="957" loading="lazy"></a>
