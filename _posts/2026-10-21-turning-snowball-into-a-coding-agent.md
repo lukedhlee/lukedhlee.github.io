@@ -256,8 +256,6 @@ The starting policy mattered more than I appreciated at the beginning. GRPO need
 
 Reading traces repeatedly changed the next experiment. It exposed inherited editing habits, broken probability accounting, and the difference between a model finishing an episode and producing a correct result. Having access to the upstream data and code made those investigations possible. Fixing the system and improving the policy were both part of building the expert.
 
-Relay SFT grew out of that process. I wanted demonstrations that addressed what Snowball did after it had already started working. The resulting recipe improved all three evaluations, but the broader lesson I take from the work is to choose the next training intervention by inspecting the current model's attempts. As Marin supplied new checkpoints, I had to check those assumptions again.
-
 I still lack a principled way to decide which tasks should go into SFT and which into RL. The experiments gave me useful heuristics, but I would like a more systematic way to allocate tasks between learning from demonstrations and learning through attempts.
 
 Another direction is making off-policy data more on-policy: adapting demonstrations to the situations the current student actually encounters. Relay SFT was one attempt at this. How much existing data can be adapted, and when is it better to collect new demonstrations from the student’s own attempts? Those are questions I want to work on next.
