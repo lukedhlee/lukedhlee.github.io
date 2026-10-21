@@ -40,7 +40,7 @@ That result took several changes of approach. Snowball itself also changed durin
 <nav class="research-toc" aria-label="Article contents">
 <div class="research-toc-title">Contents</div>
 <ul>
-<li><strong><a href="#starting-with-reinforcement-learning">Starting with RL</a></strong><span class="toc-sub"><a href="#the-pre-rl-probe">Pre-RL probe</a> · <a href="#following-the-behavior-back-to-sft">SFT habits</a> · <a href="#diagnosing-entropy-collapse">Entropy collapse</a> · <a href="#fixing-the-training-stack">Stack fixes</a> · <a href="#what-rl-improved">Results</a> · <a href="#speeding-up-rollouts-without-retraining-the-draft">Speculative decoding</a> · <a href="#finding-useful-training-tasks">Training tasks</a></span></li>
+<li><strong><a href="#starting-with-reinforcement-learning">Starting with RL</a></strong><span class="toc-sub"><a href="#the-pre-rl-probe">Pre-RL probe</a> · <a href="#following-the-behavior-back-to-sft">SFT habits</a> · <a href="#diagnosing-entropy-collapse">Entropy collapse</a> · <a href="#fixing-the-training-stack">Stack fixes</a> · <a href="#what-rl-improved">Results</a> · <a href="#speeding-up-rollouts-without-retraining-the-draft">Speculative decoding</a> · <a href="#finding-useful-training-tasks">Training tasks</a> · <a href="#training-a-prompt-into-the-weights">Prompt distillation</a></span></li>
 <li><strong><a href="#strengthening-the-starting-policy-with-sft">Strengthening the policy with SFT</a></strong><span class="toc-sub"><a href="#better-loss-worse-agent">The Kimi experiment</a> · <a href="#combining-sft-and-rl">SFT → RL</a></span></li>
 <li><strong><a href="#relay-sft">Relay SFT</a></strong><span class="toc-sub"><a href="#bringing-in-the-teacher">Motivation and recipe</a> · <a href="#testing-the-idea">Testing the idea</a></span></li>
 <li><strong><a href="#reflections">Reflections</a></strong></li>
@@ -149,12 +149,21 @@ Rebuilding the stack improved the result further. On a later evaluation set, the
 <figcaption>Matched comparison under the older probe setup: 49.9% → 60.0% on new tasks in repositories used for RL, and 50.3% → 59.5% on tasks in repositories excluded from RL entirely. This is a separate evaluation from the early results above. Several changes landed together, so the gain belongs to the package.</figcaption>
 </figure>
 
+The changes were visible in the traces. Successful attempts took a median of 15 turns, down from 22, and exact repeats of the previous command fell from 2.19 to 0.48 per 100 turns. Gains were largest on tasks where the base often ran out of context: +27 points when it overflowed on 60–90% of attempts, compared with +3 points when it overflowed on fewer than 30%.
+
+This was more than learning to announce completion. The grader already credited correct fixes left in the repository when the context ran out. RL made it more likely that useful work reached a correct fix within the budget. Verification remained a weakness: repository-test use fell, and wrong submissions became more common.
+
+<figure class="research-figure">
+<a href="{{ '/assets/img/snowball/rl-context-gains.png' | relative_url }}"><img src="{{ '/assets/img/snowball/rl-context-gains.png' | relative_url }}" alt="RL gains were largest on tasks where the starting model frequently ran out of context." width="1200" height="600" loading="lazy"></a>
+<figcaption>Starting model versus the new-stack update-24 checkpoint, on 265 held-out tasks with eight attempts each. Tasks are grouped by how often the starting model ran out of context. The pattern is descriptive, rather than an isolated test of the mechanism.</figcaption>
+</figure>
+
 On SWE-bench, the selected RL checkpoint improved from the starting model's 12 correct tasks to 23 of 100. Terminal-Bench did not show a comparable gain.
 
 One tempting context fix also failed. Removing earlier reasoning freed about a third of the window, but the model took more turns, spent 48% more tokens per rollout, and increasingly stopped reasoning. Editing the history changed how it behaved. The score barely moved.
 
 <aside class="research-reports" markdown="1">
-Full reports: [First RL results](https://gist.github.com/lukedhlee/9c19fd9288a94ecfd1dbd6906b0a8dda), [Old versus new stack](https://gist.github.com/lukedhlee/01897efa3ae7c474732c61d35150a43a), [Behavior and optimizer experiments](https://gist.github.com/lukedhlee/9747e8eb423f23ca6627199c2532de47), [Reasoning-history ablation](https://gist.github.com/lukedhlee/565d259cda4c396db9bcba027322186e).
+Full reports: [First RL results](https://gist.github.com/lukedhlee/9c19fd9288a94ecfd1dbd6906b0a8dda), [Old versus new stack](https://gist.github.com/lukedhlee/01897efa3ae7c474732c61d35150a43a), [Why RL improved](https://gist.github.com/lukedhlee/ad3a95fccccb527db66619d6b3667e7d), [Behavior and optimizer experiments](https://gist.github.com/lukedhlee/9747e8eb423f23ca6627199c2532de47), [Reasoning-history ablation](https://gist.github.com/lukedhlee/565d259cda4c396db9bcba027322186e).
 </aside>
 
 ### Speeding Up Rollouts Without Retraining the Draft
@@ -174,26 +183,37 @@ Full reports: [Toolkit and timing](https://gist.github.com/lukedhlee/b161a78a29e
 
 ### Finding Useful Training Tasks
 
-For binary-reward GRPO, a group of attempts that all fail gives no relative reward signal. Neither does a group that all pass. I screened for tasks Snowball could solve sometimes, and later refreshed the curriculum as its capabilities changed.
+GRPO needs differences in reward within a group of attempts. If every attempt fails, or every attempt passes, binary rewards provide no relative signal. A task can be difficult without being useful for the current model to train on.
 
-The task pool grew from 1,003 to 1,247. Continuing the selected checkpoint for another 24 updates gave roughly three points on two held-out splits, but the uncertainty included no improvement. There was no matched continuation on the old pool, either, so this did not isolate the value of the new tasks.
+The pre-RL probe identified 1,003 tasks Snowball solved between one and seven times in eight attempts. This gave us a curriculum based on the model's actual capabilities. As the policy changed, the useful tasks could change too. An initially difficult task might become reliably solvable, while a previously inaccessible task might start producing occasional successes. That motivated refreshing the pool to 1,247 tasks.
 
 <figure class="research-figure">
 <a href="{{ '/assets/img/snowball/curriculum-refresh.png' | relative_url }}"><img src="{{ '/assets/img/snowball/curriculum-refresh.png' | relative_url }}" alt="A larger curriculum produced small gains whose confidence intervals included zero." width="1760" height="880" loading="lazy"></a>
 <figcaption>Adding tasks and continuing training produced a positive but unresolved result. Both ranges include zero.</figcaption>
 </figure>
 
-Hard tasks were not always useful tasks. In a close read of 243 failed attempts across 39 tasks, 40 were attributed to task or sandbox defects. One issue requested a clear error message while its hidden test demanded exact wording. Another task's grader depended on a test helper changed by the reference patch. Two suspected misgrades lacked enough logs to confirm. **The 16% belongs to that audited sample, which over-represented difficult tasks.**
+Another 24 updates improved the two held-out splits by 2.7 and 3.1 percentage points. That was encouraging, but inconclusive. Both uncertainty ranges included no improvement. Without a matched continuation on the original pool, the experiment could not distinguish the benefit of refreshing the curriculum from the benefit of additional training.
+
+<aside class="research-reports" markdown="1">
+[Full report](https://gist.github.com/lukedhlee/969b5bf852b9d1274ec980996232f7ba).
+</aside>
+
+### Training a Prompt into the Weights
 
 I also tried training a useful prompt into the weights. A short edit-discipline prompt improved the base by 9–14 points on a development set. For context distillation, I kept the prompt during rollouts and removed it from the context used for the weight update. After 24 updates on 12 Jupiter nodes, the unprompted model scored 29.8%, against 30.2% for the base on the same 120-task panel. The prompted-versus-unprompted likelihood gap shrank 85%, but task success did not improve. Matching the prompted trajectories more closely was not enough.
 
+<figure class="research-figure">
+<a href="{{ '/assets/img/snowball/prompt-distillation.png' | relative_url }}"><img src="{{ '/assets/img/snowball/prompt-distillation.png' | relative_url }}" alt="Editing guidance improved the starting model from 30.2% to 44.6%, but the context-distilled model scored 29.8% without that guidance." width="1760" height="736" loading="lazy"></a>
+<figcaption>The same 120 development tasks, four attempts per task. The editing prompt helped the starting model, but 24 context-distillation updates did not improve performance without the prompt.</figcaption>
+</figure>
+
 The broader direction is still worth exploring. [Fast-Slow Training (FST)](https://arxiv.org/abs/2605.12484) interleaves prompt optimization with weight updates, while [P²O](https://arxiv.org/pdf/2603.21877) combines prompt optimization with context distillation. Here I tested one fixed prompt and one distillation configuration, without prompt evolution or a teacher-KL loss. How to turn useful guidance in context into useful behavior in the weights remains an interesting question.
 
-The lesson was that the starting policy deserved as much attention as the RL recipe. SFT offered a way to build a stronger coding foundation by learning from demonstrations, including behaviors Snowball rarely discovered on its own. The next experiments focused on whether that foundation would give RL more useful behavior to reinforce.
-
 <aside class="research-reports" markdown="1">
-Full reports: [Curriculum continuation](https://gist.github.com/lukedhlee/969b5bf852b9d1274ec980996232f7ba), [Unwinnable tasks](https://gist.github.com/lukedhlee/9eafb59ad72f08957f2e7fd551c249cb), [Prompt distillation](https://gist.github.com/lukedhlee/edb2f69d38ed089f71f74ff711281807), [Synthesized task-pool audit](https://gist.github.com/lukedhlee/6ad754b83d62536e1976777231c9754e).
+[Full report](https://gist.github.com/lukedhlee/edb2f69d38ed089f71f74ff711281807).
 </aside>
+
+The lesson was that the starting policy deserved as much attention as the RL recipe. SFT offered a way to build a stronger coding foundation by learning from demonstrations, including behaviors Snowball rarely discovered on its own. The next experiments focused on whether that foundation would give RL more useful behavior to reinforce.
 
 ## Strengthening the Starting Policy with SFT
 
@@ -228,7 +248,7 @@ Full reports: [SFT versus RL versus SFT→RL](https://github.com/marin-community
 
 ## Relay SFT
 
-The next experiments started from Marin's newer [Grug Datakit 09-21](https://github.com/marin-community/marin/issues/8089) checkpoint. Standard SFT on Kimi demonstrations alone now reached 41.6% on SWE-bench, against 13.8% for that starting model under the three-run evaluation recipe. The earlier failure did not make the dataset universally unhelpful: the starting checkpoint and training recipe mattered.
+The next experiments started from Marin's newer [Grug Datakit 09-21](https://github.com/marin-community/marin/issues/8089) checkpoint. Kimi demonstrations alone now reached 41.6% on SWE-bench, against 13.8% for that starting model under the three-run evaluation recipe. The earlier failure did not make the dataset universally unhelpful: the starting checkpoint and training recipe mattered.
 
 ### Bringing in the Teacher
 
@@ -252,8 +272,8 @@ On matched CalibForge tasks, trace counts, and pass/fail outcomes, Relay SFT bea
 The best recipe then used the full set of 5,916 relay episodes plus 4,392 Kimi traces. It reached **46.6% on SWE-bench, 18.8% on Terminal-Bench 2.1, and 27.2% on OpenThoughts-TBLite**, the same checkpoint shown in the opening table. The smaller matched-data run is a separate comparison, labeled below.
 
 <figure class="research-figure">
-<a href="{{ '/assets/img/snowball/relay-matched-dots.png' | relative_url }}"><img src="{{ '/assets/img/snowball/relay-matched-dots.png' | relative_url }}" alt="Kimi-only standard SFT, matched teacher-only and Relay SFT comparisons, and the best full-data recipe from the opening table." width="2160" height="1184" loading="lazy"></a>
-<figcaption>Purple bars show standard SFT on Kimi demonstrations alone. Green bars show the best recipe from the opening table. Blue and orange bars show the matched teacher-only and Relay SFT comparisons. Three-run means, with standard errors over tasks.</figcaption>
+<a href="{{ '/assets/img/snowball/relay-matched-dots.png' | relative_url }}"><img src="{{ '/assets/img/snowball/relay-matched-dots.png' | relative_url }}" alt="Matched teacher-only and Relay SFT comparisons alongside the best full-data recipe from the opening table." width="2160" height="1056" loading="lazy"></a>
+<figcaption>The green bars show the best recipe from the opening table. Blue and orange bars show the smaller matched-data comparisons, while the full-data recipe uses more relay episodes. Three-run means, with standard errors over tasks.</figcaption>
 </figure>
 
 Exposure bias motivated the recipe, but these experiments do not isolate it as the mechanism or show that the triggers beat random switching. The broader idea is related to [teacher continuations from student contexts](https://arxiv.org/abs/2607.04574v2) and [Relay-OPD](https://arxiv.org/abs/2607.26057).
@@ -277,6 +297,8 @@ Another direction is making off-policy data more on-policy by adapting demonstra
 The expert checkpoints are public: the [model in the opening table](https://huggingface.co/laion/snowball-67b-a2b-relay-sft-allkimi-step1203), a [similarly performing continuation](https://huggingface.co/laion/snowball-67b-a2b-relay-sft-acont-step999), and the [earlier RL checkpoint](https://huggingface.co/laion/snowball-67b-a2b-rl-r2egym-newstack-step24). The opening model's training set is in [calibforge-relay-traces](https://huggingface.co/datasets/laion/calibforge-relay-traces), under `terminus2_relay_sft`.
 
 I also released an [EAGLE-3 toolkit](https://github.com/lukedhlee/grugmoe-eagle3) and [draft model](https://huggingface.co/laion/snowball-64k-eagle3-draft-r2egym). The frozen draft made matched RL updates arrive 1.42× sooner and held through 60 updates in the tested run. The [R2E-Gym Daytona artifacts](https://huggingface.co/datasets/laion/r2egym-build-artifacts) make 3,020 tasks available from eleven shared images. That pool includes tasks recovered from previously omitted repositories; passing the build gate does not certify that every task is well specified.
+
+Build checks did not catch every task defect. In a close read of 243 failed attempts across 39 tasks, 40 were attributed to task or sandbox defects. One issue requested a clear error message while its hidden test demanded exact wording. Another task's grader depended on a test helper changed by the reference patch. Two suspected misgrades lacked enough logs to confirm. **The 16% belongs to that audited sample, which over-represented difficult tasks.** [Audit details](https://gist.github.com/lukedhlee/9eafb59ad72f08957f2e7fd551c249cb).
 
 Several fixes went upstream to harbor ([#117](https://github.com/marin-community/harbor/pull/117), [#122](https://github.com/marin-community/harbor/pull/122), [#124](https://github.com/marin-community/harbor/pull/124), [#126](https://github.com/marin-community/harbor/pull/126)) and MarinSkyRL ([#517](https://github.com/marin-community/MarinSkyRL/pull/517), [#519](https://github.com/marin-community/MarinSkyRL/pull/519), [#542](https://github.com/marin-community/MarinSkyRL/pull/542)). Ben Feuer also added an upstream [probability-parity guardrail](https://github.com/marin-community/MarinSkyRL/pull/525) that rejects unsupported sampling filters.
 
