@@ -153,13 +153,13 @@ Rebuilding the stack improved the result further. On a later evaluation set, the
 <figcaption>Matched comparison under the older probe setup: 49.9% → 60.0% on new tasks in repositories used for RL, and 50.3% → 59.5% on tasks in repositories excluded from RL entirely. This is a separate evaluation from the early results above. Several changes landed together, so the gain belongs to the package.</figcaption>
 </figure>
 
-The changes were visible in the traces. Successful attempts took a median of 15 turns, down from 22, and exact repeats of the previous command fell from 2.19 to 0.48 per 100 turns. Gains were largest on tasks where the base often ran out of context: +27 points when it overflowed on 60–90% of attempts, compared with +3 points when it overflowed on fewer than 30%.
+The changes were visible in the traces. Successful attempts took a median of 15 turns, down from 22, and exact repeats of the previous command fell from 2.19 to 0.48 per 100 turns. Verification shifted toward self-written repro/check scripts, while use of the repository's tests fell.
 
 This was more than learning to announce completion. The grader already credited correct fixes left in the repository when the context ran out. RL made it more likely that useful work reached a correct fix within the budget. Verification remained a weakness: repository-test use fell, and wrong submissions became more common.
 
 <figure class="research-figure">
-<a href="{{ '/assets/img/snowball/rl-context-gains.png' | relative_url }}"><img src="{{ '/assets/img/snowball/rl-context-gains.png' | relative_url }}" alt="RL gains were largest on tasks where the starting model frequently ran out of context." width="1200" height="570" loading="lazy"></a>
-<figcaption>Starting model versus the new-stack update-24 checkpoint, on 265 held-out tasks with eight attempts each. Tasks are grouped by how often the starting model ran out of context. The pattern is descriptive, rather than an isolated test of the mechanism.</figcaption>
+<a href="{{ '/assets/img/snowball/rl-behavior-changes.png' | relative_url }}"><img src="{{ '/assets/img/snowball/rl-behavior-changes.png' | relative_url }}" alt="Before and after RL: repeated-command attempts fell from 3.3% to 0.6%, self-written check use rose from 90.9% to 98.2%, repository-test use among passing attempts fell from 54.8% to 26.8%, and submission precision fell from 78.9% to 68.6%." width="1760" height="992" loading="lazy"></a>
+<figcaption>Starting model versus new-stack update 24 on the same 441 R2E-Gym tasks, eight attempts each. Each row states its denominator. Submission precision uses the same 247 tasks, but the checkpoints chose different attempts to submit, so this does not isolate coding ability.</figcaption>
 </figure>
 
 On SWE-bench, the selected RL checkpoint improved from the starting model's 12 correct tasks to 23 of 100. Terminal-Bench did not show a comparable gain.
