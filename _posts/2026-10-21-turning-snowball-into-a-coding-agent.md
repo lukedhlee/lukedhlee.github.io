@@ -22,12 +22,12 @@ The final experiments improved all three agent benchmarks I was tracking:
 
 | Model, evaluated with Terminus-2 | SWE-bench Verified random-100 | Terminal-Bench 2.1 | OpenThoughts-TBLite |
 |---|---:|---:|---:|
-| [Snowball 09-21](https://github.com/marin-community/marin/issues/8089#issuecomment-5809285235), starting checkpoint | 13.8% | 6.5% | 11.7% |
+| [Snowball 09-21](https://github.com/marin-community/marin/issues/8089), starting checkpoint | 13.8% | 6.5% | 11.7% |
 | Best recipe (Relay SFT + Kimi demonstrations) | **46.6%** | **18.8%** | **27.2%** |
 
 </div>
 
-*Pass@1, averaged over three evaluation runs. The recipe fine-tunes [Grug Datakit 09-21](https://github.com/marin-community/marin/issues/8089#issuecomment-5809285235) on Relay SFT and Kimi coding demonstrations. These results are from an experimental checkpoint; the final Snowball launch checkpoint is not yet specified.*
+*Pass@1, averaged over three evaluation runs. The recipe fine-tunes [Grug Datakit 09-21](https://github.com/marin-community/marin/issues/8089) on Relay SFT and Kimi coding demonstrations. These results are from an experimental checkpoint; the final Snowball launch checkpoint is not yet specified.*
 
 That result took several changes of approach. Snowball itself also changed during the work, so this is an account of building the expert across successive starting checkpoints.
 
@@ -216,7 +216,7 @@ Full reports: [SFT versus RL versus SFT→RL](https://github.com/marin-community
 
 ## Relay SFT
 
-The next experiments started from Marin's newer [Grug Datakit 09-21](https://github.com/marin-community/marin/issues/8089#issuecomment-5809285235) checkpoint. Kimi demonstrations alone now reached 41.6% on SWE-bench, against 13.8% for that starting model under the three-run evaluation recipe. The earlier failure did not make the dataset universally unhelpful: the starting checkpoint and training recipe mattered.
+The next experiments started from Marin's newer [Grug Datakit 09-21](https://github.com/marin-community/marin/issues/8089) checkpoint. Kimi demonstrations alone now reached 41.6% on SWE-bench, against 13.8% for that starting model under the three-run evaluation recipe. The earlier failure did not make the dataset universally unhelpful: the starting checkpoint and training recipe mattered.
 
 ### Bringing in the Teacher
 
