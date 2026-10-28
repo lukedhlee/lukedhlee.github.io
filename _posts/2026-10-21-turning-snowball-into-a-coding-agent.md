@@ -358,7 +358,7 @@ Some attempts satisfied the verifier without doing the requested work. Trace ins
 
 The credited exploits each added only about half a percentage point to the model’s benchmark score. Direct RL also produced far more failed shortcuts than the other models, including fabricated outputs and copied answer files. All 31 of those attempts failed, so they contributed nothing to its gains.
 
-The training audit found no confirmed case of fabrication earning reward. It found a different problem in R2E-Gym: the task repositories still exposed later Git commits containing the fixes. Agents read those fixes in 39 rewarded rollouts. This was already happening at the first RL update and did not become more common during training; its contribution to success remains unmeasured.
+The training audit found no confirmed case of fabrication earning reward. It found a different problem in R2E-Gym: the task repositories still exposed later Git commits containing the fixes. Agents read those fixes in 39 rewarded rollouts. This was already happening at the first RL update and did not become more common during training.
 
 ## Conclusions
 
