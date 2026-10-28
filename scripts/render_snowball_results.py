@@ -77,33 +77,36 @@ def early_rl():
 def sft_rl():
     data = json.loads((Path(__file__).parent / "data/snowball_rl_checkpoints.json").read_text())
     order = ["CalibForge SFT", data["hero"], "CalibForge + Kimi Relay SFT"]
-    def endpoints(metric):
-        return [data["runs"][name][metric][data["steps"].index(data["selected_steps"][name])] for name in order]
+    step30_color = "#5b8ff9"
     fig, axes = plt.subplots(1, 3, figsize=(16.4, 8.4), sharey=True)
     fig.subplots_adjust(left=.205, right=.98, bottom=.15, top=.80, wspace=.18)
-    fig.text(.205, .94, "Coding-agent SFT and RL continuations",
-             fontsize=21, weight="semibold")
+    fig.text(.205, .94, "Coding-agent SFT and RL continuations", fontsize=21, weight="semibold")
     fig.legend(handles=[Patch(color=BASE, label="Snowball 09-21"),
                         Patch(color=LIGHT, label="Additional SFT"),
-                        Patch(color=BLUE, label="After RL")],
-               loc="upper left", bbox_to_anchor=(.205, .91), ncol=3,
-               frameon=False, fontsize=12, handlelength=1.8, columnspacing=1.8)
-    labels = ["Snowball 09-21\nRL step 30", "CalibForge SFT\nRL step 60",
-              "CalibForge + Kimi SFT\nRL step 60", "CalibForge + Kimi Relay SFT\nRL step 30"]
+                        Patch(color=step30_color, label="RL step 30"),
+                        Patch(color=BLUE, label="RL step 60")],
+               loc="upper left", bbox_to_anchor=(.205, .91), ncol=4,
+               frameon=False, fontsize=12, handlelength=1.8, columnspacing=1.6)
+    labels = ["Snowball 09-21", "CalibForge SFT",
+              "CalibForge + Kimi SFT", "CalibForge + Kimi Relay SFT"]
     panels = [
-        ("Terminal-Bench 2.1", 7.2, [17.4, 18.8, 17.4], endpoints("tb")),
-        ("SWE-bench Verified r100", 12.8, [34.9, 46.5, 47.0], endpoints("swe")),
-        ("OpenThoughts-TBLite", 11.5, [24.4, 33.0, 36.8], endpoints("tblite")),
+        ("Terminal-Bench 2.1", "tb", 7.2, [17.4, 18.8, 17.4], 18.8),
+        ("SWE-bench Verified r100", "swe", 12.8, [34.9, 46.5, 47.0], 30.5),
+        ("OpenThoughts-TBLite", "tblite", 11.5, [24.4, 33.0, 36.8], 45.1),
     ]
-    for ax, (title, base, sft, rl), base_rl in zip(axes, panels, [18.8, 30.5, 45.1]):
+    for ax, (title, metric, base, sft, base_rl) in zip(axes, panels):
         ax.set_title(title, loc="left", fontsize=15, weight="semibold", pad=20)
-        bars = ax.barh([-.16], [base], height=.25, color=BASE)
-        ax.bar_label(bars, fmt="%.1f", padding=5, fontsize=12, color=MUTED)
-        bars = ax.barh([.16], [base_rl], height=.25, color=BLUE)
-        ax.bar_label(bars, fmt="%.1f", padding=5, fontsize=12, color=INK)
-        for values, offset, color in [(sft, -.16, LIGHT), (rl, .16, BLUE)]:
-            bars = ax.barh(np.arange(1, 4) + offset, values, height=.25, color=color)
-            ax.bar_label(bars, fmt="%.1f", padding=5, fontsize=12, color=INK)
+        for y, value, color in [(-.12, base, BASE), (.12, base_rl, step30_color)]:
+            bars = ax.barh([y], [value], height=.18, color=color)
+            ax.bar_label(bars, fmt="%.1f", padding=5, fontsize=12, color=MUTED if color == BASE else INK)
+        for row, (name, sft_value) in enumerate(zip(order, sft), start=1):
+            values = [(row - .24, sft_value, LIGHT),
+                      (row, data["runs"][name][metric][1], step30_color)]
+            if data["runs"][name][metric][2] is not None:
+                values.append((row + .24, data["runs"][name][metric][2], BLUE))
+            for y, value, color in values:
+                bars = ax.barh([y], [value], height=.18, color=color)
+                ax.bar_label(bars, fmt="%.1f", padding=5, fontsize=12, color=INK)
         ax.set_xlim(0, 63)
         ax.set_ylim(3.5, -.5)
         ax.set_yticks(range(4), labels)
@@ -121,7 +124,7 @@ def checkpoint_progress():
     data = json.loads((Path(__file__).parent / "data/snowball_rl_checkpoints.json").read_text())
     fig, axes = plt.subplots(1, 3, figsize=(16.4, 5.3))
     fig.subplots_adjust(left=.065, right=.98, bottom=.16, top=.67, wspace=.25)
-    fig.text(.045, .92, "More RL updates helped some recipes more than others", fontsize=22, weight="semibold")
+    fig.text(.045, .92, "From 30 to 60 RL updates", fontsize=22, weight="semibold")
     styles = [
         ("CalibForge SFT", BASE, "o", "CalibForge"),
         (data["hero"], BLUE, "o", "CalibForge + Kimi (vanilla)"),
@@ -130,14 +133,14 @@ def checkpoint_progress():
     for ax, metric, title in zip(axes, ["tb", "swe", "tblite"], data["metrics"]):
         ax.set_title(title, loc="left", fontsize=14, weight="semibold", pad=16)
         for name, color, marker, label in styles:
-            xy = [(step, value) for step, value in zip(data["steps"], data["runs"][name][metric]) if value is not None]
+            xy = [(step, value) for step, value in zip(data["steps"], data["runs"][name][metric]) if value is not None and step in (30, 60)]
             xs, ys = zip(*xy)
             ax.plot(xs, ys, color=color, marker=marker, markersize=6,
                     lw=2.7 if name == data["hero"] else 1.8, label=label)
             ax.annotate(f"{ys[-1]:.1f}", xy=xy[-1], xytext=(7, 0), textcoords="offset points",
                         va="center", color=color, fontsize=12, weight="semibold")
-        ax.set_xlim(8, 72)
-        ax.set_xticks([12, 30, 60])
+        ax.set_xlim(25, 72)
+        ax.set_xticks([30, 60])
         ax.set_xlabel("RL update", fontsize=12, labelpad=10)
         ax.set_ylim({"tb":(10, 28), "swe":(32, 56), "tblite":(20, 50)}[metric])
         ax.set_ylabel("Pass@1 (%)", fontsize=12)

@@ -272,8 +272,8 @@ We ran 30 GRPO updates using batches of 64 tasks with eight attempts each, a lea
 The figure compares Snowball 09-21, direct RL, and each additional SFT recipe before and after RL. The highlighted run is vanilla CalibForge + Kimi after 60 RL updates, which also supplies the last row of the opening table. Vanilla denotes ordinary teacher-demonstration SFT.
 
 <figure class="research-figure">
-<a href="{{ '/assets/img/snowball/sft-rl-stages.png?v=step60-hero' | relative_url }}"><img src="{{ '/assets/img/snowball/sft-rl-stages.png?v=step60-hero' | relative_url }}" alt="Across three benchmarks, the 09-21 starting model is shown in gray, three additional SFT recipes in cyan, and each recipe followed by RL in blue. The blue bar below the starting model shows direct RL at step 30. CalibForge and vanilla CalibForge plus Kimi use step 60, while Relay uses step 30. Vanilla CalibForge plus Kimi reaches 23.9 percent on Terminal-Bench, 50.5 on SWE-bench, and 41.8 on TBLite." width="2951" height="1512" loading="lazy"></a>
-<figcaption>Pass@1 point estimates with Terminus-2. “Snowball 09-21” is the general-SFT starting checkpoint. Blue bars use step 60 for CalibForge and vanilla CalibForge + Kimi, and step 30 for Relay and direct RL. Starting-policy scores are unchanged.</figcaption>
+<a href="{{ '/assets/img/snowball/sft-rl-stages.png?v=steps30-60' | relative_url }}"><img src="{{ '/assets/img/snowball/sft-rl-stages.png?v=steps30-60' | relative_url }}" alt="Across three benchmarks, the 09-21 starting model is shown in gray, three additional SFT recipes in cyan, and each recipe followed by RL in blue. Lighter blue bars show RL step 30 and darker blue bars show step 60. Direct RL and Relay have step-30 results only. Vanilla CalibForge plus Kimi reaches 23.9 percent on Terminal-Bench, 50.5 on SWE-bench, and 41.8 on TBLite." width="2951" height="1512" loading="lazy"></a>
+<figcaption>Pass@1 point estimates with Terminus-2. “Snowball 09-21” is the general-SFT starting checkpoint. Lighter blue is RL step 30; darker blue is step 60. No step-60 result is available for direct RL or Relay. Starting-policy scores are unchanged.</figcaption>
 </figure>
 
 Vanilla CalibForge + Kimi continued improving through 60 RL updates, reaching **50.5% on SWE-bench**, **23.9% on Terminal-Bench 2.1**, and **41.8% on TBLite**. It now leads the recipes shown on SWE-bench and Terminal-Bench. Direct RL still has the highest TBLite score at 45.1%, without the additional coding-agent demonstrations.
@@ -281,10 +281,10 @@ Vanilla CalibForge + Kimi continued improving through 60 RL updates, reaching **
 More updates did not help every recipe equally. CalibForge-only SFT gained on SWE-bench but lost ground on Terminal-Bench by step 60. The checkpoint progression below shows why the starting policy and training duration need to be considered together.
 
 <details markdown="1">
-<summary>Results at 12, 30, and 60 RL updates</summary>
+<summary>Results at 30 and 60 RL updates</summary>
 
 <figure class="research-figure">
-<a href="{{ '/assets/img/snowball/rl-checkpoint-progress.png' | relative_url }}"><img src="{{ '/assets/img/snowball/rl-checkpoint-progress.png' | relative_url }}" alt="Checkpoint scores for the three SFT recipes at 12, 30, and 60 RL updates. Vanilla CalibForge plus Kimi reaches its highest score on every benchmark at step 60. CalibForge-only Terminal-Bench scores decline. Relay has results through step 30." width="2952" height="954" loading="lazy"></a>
+<a href="{{ '/assets/img/snowball/rl-checkpoint-progress.png?v=steps30-60' | relative_url }}"><img src="{{ '/assets/img/snowball/rl-checkpoint-progress.png?v=steps30-60' | relative_url }}" alt="Checkpoint scores for the three SFT recipes at 30 and 60 RL updates. Vanilla CalibForge plus Kimi reaches its highest score on every benchmark at step 60. CalibForge-only Terminal-Bench scores decline. Relay has results through step 30." width="2952" height="954" loading="lazy"></a>
 <figcaption>Pass@1 with Terminus-2. No step-60 Relay result is available. Lines connect the evaluated checkpoints.</figcaption>
 </figure>
 
