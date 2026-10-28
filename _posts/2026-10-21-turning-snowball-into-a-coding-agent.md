@@ -47,7 +47,7 @@ Both SFT and RL substantially improved Snowball, with different strengths. **RL 
 <li><strong><a href="#starting-with-reinforcement-learning">Starting with RL</a></strong><span class="toc-sub"><a href="#the-pre-rl-probe">Pre-RL probe</a> · <a href="#following-the-behavior-back-to-sft">SFT habits</a> · <a href="#diagnosing-entropy-collapse">Entropy collapse</a> · <a href="#fixing-the-training-stack">Stack fixes</a> · <a href="#what-rl-improved">Results</a> · <a href="#speeding-up-rollouts-without-retraining-the-draft">Speculative decoding</a></span></li>
 <li><strong><a href="#strengthening-the-starting-policy-with-sft">Adding SFT before RL</a></strong><span class="toc-sub"><a href="#earlier-experiments-on-the-stage-3-checkpoint">Earlier experiments</a> · <a href="#additional-sft-on-the-09-21-checkpoint">09-21 SFT</a> · <a href="#one-exploration-learning-to-recover-with-a-teacher">Teacher-guided recovery</a></span></li>
 <li><strong><a href="#rl-from-the-sft-checkpoints">RL from the SFT checkpoints</a></strong></li>
-<li><strong><a href="#looking-behind-the-scores">Looking behind the scores</a></strong></li>
+<li><strong><a href="#what-did-sft-and-rl-actually-teach-snowball-looking-behind-the-final-scores">What did SFT and RL actually teach Snowball: looking behind the final scores</a></strong></li>
 <li><strong><a href="#reflections">Reflections</a></strong></li>
 <li><strong><a href="#what-you-can-reuse">What you can reuse</a></strong></li>
 <li><strong><a href="#acknowledgements">Acknowledgements</a></strong></li>
@@ -273,7 +273,7 @@ The RL runs used the same core recipe: batches of 64 tasks with eight attempts e
 
 RL directly from the 09-21 starting checkpoint reached 30.5% on SWE-bench, 18.8% on Terminal-Bench 2.1, and 45.1% on TBLite. Its TBLite score exceeded every additional SFT recipe, including their RL continuations, and its Terminal-Bench score was close to the best continuation at 19.3%. Additional SFT followed by RL still produced the highest SWE-bench score at 47.0%. These results make the choice of starting policy more interesting than the SFT scores alone suggested.
 
-## Looking Behind the Scores
+## What Did SFT and RL Actually Teach Snowball: Looking Behind the Final Scores
 
 RL directly from Snowball 09-21 matched or came close to the SFT + RL models on terminal tasks, despite skipping the additional demonstrations. We wanted to understand what those demonstrations contributed. Did they teach new knowledge, or change how Snowball approached and executed the work? We used coding agents to compare trajectories and inspect where the two routes succeeded or failed.
 
@@ -284,7 +284,7 @@ Here, **RL** means training directly from Snowball 09-21. **SFT + RL** means one
 Snowball 09-21 already opened a file touched by the reference fix in **78% of SWE-bench attempts**, but edited one in only **38%**. With Kimi demonstrations, those figures reached about **99% and 90%**. Finding relevant code was often possible before additional SFT; making the change and leaving a passing result became much more reliable afterward.
 
 <figure class="research-figure">
-<a href="{{ '/assets/img/snowball/trace-swe-steps.png' | relative_url }}"><img src="{{ '/assets/img/snowball/trace-swe-steps.png' | relative_url }}" alt="SWE-bench execution milestones. Snowball 09-21 opens a relevant file in 78 percent of scored attempts and edits one in 38 percent. Vanilla Kimi SFT reaches 99 and 90 percent respectively, while 47 percent of attempts pass all tests. Direct RL also improves editing and passing." width="2952" height="1404" loading="lazy"></a>
+<a href="{{ '/assets/img/snowball/trace-swe-steps.png?v=three-stages' | relative_url }}"><img src="{{ '/assets/img/snowball/trace-swe-steps.png?v=three-stages' | relative_url }}" alt="SWE-bench execution milestones. Snowball 09-21 opens a relevant file in 78 percent of scored attempts and edits one in 38 percent. Vanilla Kimi SFT reaches 99 and 90 percent respectively and leaves the target tests passing in 51 percent of scored attempts. Direct RL also improves editing and target-test success." width="2952" height="1404" loading="lazy"></a>
 <figcaption>Shares of scored attempts, rather than the task-averaged benchmark scores above. A relevant file is one changed by the reference fix. Edit detection finds 80–89% of actual edits, so that column is a lower bound. These milestones are measured separately, rather than as conditional probabilities.</figcaption>
 </figure>
 

@@ -115,9 +115,9 @@ def swe_steps():
         [98.0, 90.9, 54.5, 47.0],
         [97.0, 87.3, 50.3, 44.2],
     ]
-    fig, axes = plt.subplots(1, 4, figsize=(16.4, 7.8), sharey=True)
+    fig, axes = plt.subplots(1, 3, figsize=(16.4, 7.8), sharey=True)
     fig.subplots_adjust(left=.26, right=.98, bottom=.20, top=.71, wspace=.25)
-    fig.text(.04, .93, "From finding the file to a passing fix", fontsize=25, weight="bold")
+    fig.text(.04, .93, "From finding the file to passing target tests", fontsize=25, weight="bold")
     fig.text(.04, .875, "SWE-bench Verified r100 · Share of scored attempts reaching each milestone",
              fontsize=13, color=MUTED)
     from matplotlib.lines import Line2D
@@ -127,7 +127,7 @@ def swe_steps():
         Line2D([], [], marker="o", ls="", color=BLUE, label="After RL"),
     ], loc="upper left", bbox_to_anchor=(.035, .845), ncol=3, frameon=False, fontsize=12)
     for col, (ax, title) in enumerate(zip(axes, [
-        "Opened a relevant file", "Edited a relevant file", "Target tests passing", "Passed all tests",
+        "Opened a relevant file", "Edited a relevant file", "Target tests passing",
     ])):
         ax.set_title(title, loc="left", fontsize=13, weight="bold", pad=18)
         for row, vals in enumerate(values):
