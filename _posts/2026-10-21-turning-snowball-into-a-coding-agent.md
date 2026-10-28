@@ -225,7 +225,7 @@ For binary-reward GRPO, a group of attempts that all fail has no reward differen
 
 On the older Stage-3 checkpoint, I tried additional SFT on a mixture of OpenThoughts-Agent traces, instruction-following traces, and successful synthesized-task traces, then ran GRPO from that SFT checkpoint.
 
-SFT raised SWE-bench from 14.5% to 24.1%; another 30 GRPO updates brought it to **30.7%**. RL directly from the starting checkpoint scored 25.0% in its earlier evaluation. SFT could provide a better starting policy, and RL could improve it further. Terminal-Bench still showed no improvement.
+SFT raised SWE-bench from 14.5% to 24.1%; another 30 GRPO updates brought it to **30.7%**. RL directly from the starting checkpoint scored 25.0% in its earlier evaluation. SFT could provide a better starting policy, and RL could improve it further.
 
 <figure class="research-figure">
 <a href="{{ '/assets/img/snowball/ota-sft-rl-swe.png?v=crisp-blue' | relative_url }}"><img src="{{ '/assets/img/snowball/ota-sft-rl-swe.png?v=crisp-blue' | relative_url }}" alt="SWE-bench Verified random-100 on the older Stage-3 checkpoint: starting model 14.5%, SFT 24.1%, RL only 25.0%, and SFT followed by RL 30.7%, with 95% Wilson intervals." width="2052" height="1007" loading="lazy"></a>
@@ -285,7 +285,7 @@ More updates did not help every recipe equally. CalibForge-only SFT gained on SW
 
 <figure class="research-figure">
 <a href="{{ '/assets/img/snowball/rl-checkpoint-progress.png?v=steps30-60' | relative_url }}"><img src="{{ '/assets/img/snowball/rl-checkpoint-progress.png?v=steps30-60' | relative_url }}" alt="Checkpoint scores for the three SFT recipes at 30 and 60 RL updates. Vanilla CalibForge plus Kimi reaches its highest score on every benchmark at step 60. CalibForge-only Terminal-Bench scores decline. Relay has results through step 30." width="2952" height="954" loading="lazy"></a>
-<figcaption>Pass@1 with Terminus-2. No step-60 Relay result is available. Lines connect the evaluated checkpoints.</figcaption>
+<figcaption>Pass@1 with Terminus-2. The step-60 evaluation for direct RL is running. Lines connect the evaluated checkpoints.</figcaption>
 </figure>
 
 </details>
