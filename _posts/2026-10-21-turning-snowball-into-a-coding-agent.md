@@ -6,6 +6,11 @@ excerpt: "My first few weeks working on Snowball’s coding-agent capabilities: 
 date: 2026-10-21
 published: true
 reading_time: 14
+authors:
+  - name: Donghyun Lee
+  - name: Harshit Varma
+    url: https://hrshtv.github.io/
+  - name: Alex Dimakis
 ---
 
 <figure class="research-figure research-hero">
