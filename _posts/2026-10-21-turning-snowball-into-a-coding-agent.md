@@ -279,16 +279,18 @@ RL directly from Snowball 09-21 matched or came close to the SFT + RL models on 
 
 Here, **RL** means training directly from Snowball 09-21. **SFT + RL** means one of the three additional SFT recipes followed by RL. For the paired terminal-task reads, we compared newly solved tasks that the starting checkpoint had failed in at least two attempts. Most models had only two evaluation attempts per task, so a task solved by one route alone was a lead to investigate, rather than proof of a different capability.
 
-### Where SFT helped beyond finding the file
+### SFT’s advantage on SWE-bench
 
-Snowball 09-21 already opened a file touched by the reference fix in **78% of SWE-bench attempts**, but edited one in only **38%**. With Kimi demonstrations, those figures reached about **99% and 90%**. Finding relevant code was often possible before additional SFT; making the change and leaving a passing result became much more reliable afterward.
+On SWE-bench, additional coding-agent SFT with CalibForge + Kimi reached **46.5%**, compared with **30.5% for direct RL**. Following that SFT with RL brought the score to **47.0%**. The traces show where the stronger results went with better execution.
+
+Both direct RL and Kimi SFT opened a file touched by the reference fix in about **96–99%** of attempts. The gap appeared afterward. Kimi SFT edited a relevant file in **90%** of attempts, compared with **51%** for direct RL, and left the target tests passing in **51%**, compared with **34%**. Snowball 09-21 started at 78% for opening a relevant file and 38% for editing one.
 
 <figure class="research-figure">
 <a href="{{ '/assets/img/snowball/trace-swe-steps.png?v=three-stages' | relative_url }}"><img src="{{ '/assets/img/snowball/trace-swe-steps.png?v=three-stages' | relative_url }}" alt="SWE-bench execution milestones. Snowball 09-21 opens a relevant file in 78 percent of scored attempts and edits one in 38 percent. Vanilla Kimi SFT reaches 99 and 90 percent respectively and leaves the target tests passing in 51 percent of scored attempts. Direct RL also improves editing and target-test success." width="2952" height="1404" loading="lazy"></a>
 <figcaption>Shares of scored attempts, rather than the task-averaged benchmark scores above. A relevant file is one changed by the reference fix. Edit detection finds 80–89% of actual edits, so that column is a lower bound. These milestones are measured separately, rather than as conditional probabilities.</figcaption>
 </figure>
 
-Direct RL also improved what happened after finding the file, reaching about 51% for editing and 31% for passing. Additional SFT brought larger gains here, but did not make completion claims dependable. Even the Kimi models passed only about half their finished SWE-bench attempts.
+SFT’s score advantage was accompanied by more attempts turning relevant code into an edit and a passing result. These measurements do not isolate the cause of the gap, but they show why finding the right file alone was an incomplete measure of progress. Completion claims remained unreliable even after SFT; the Kimi models passed only about half their finished SWE-bench attempts.
 
 ### Did SFT add knowledge?
 
