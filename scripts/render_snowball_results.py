@@ -11,12 +11,15 @@ import matplotlib
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
+from matplotlib.font_manager import FontProperties
 from matplotlib.patches import Patch
 import numpy as np
 
 
 OUT = Path(__file__).resolve().parents[1] / "assets/img/snowball"
 BASE, LIGHT, BLUE = "#a0a9b5", "#35a9e6", "#2563eb"
+TITLE_FONT = FontProperties(family=["Helvetica Neue", "Arial", "DejaVu Sans"], weight="medium")
+
 INK, MUTED, GRID = "#283747", "#728092", "#edf0f3"
 plt.rcParams.update({
     "font.family": "DejaVu Sans",
@@ -45,9 +48,9 @@ def save(fig, name):
 def stack_comparison():
     data = json.loads((Path(__file__).parent / "data/snowball_stack_progress.json").read_text())
     fig, axes = plt.subplots(1, 2, figsize=(12.4, 5.3), sharey=True)
-    fig.subplots_adjust(left=.075, right=.965, bottom=.17, top=.66, wspace=.20)
-    fig.text(.045, .94, "The rebuilt stack improved faster", fontsize=20, weight="semibold")
-    fig.text(.045, .875, "R2E-Gym · Held-out pass@1 across RL updates", fontsize=12, color=MUTED)
+    fig.subplots_adjust(left=.075, right=.965, bottom=.17, top=.60, wspace=.20)
+    fig.text(.045, .91, "The rebuilt stack improved faster", fontsize=20, fontproperties=TITLE_FONT, va="top")
+    fig.text(.045, .82, "R2E-Gym · Held-out pass@1 across RL updates", fontsize=12, color=MUTED)
     for ax, split in zip(axes, data["splits"]):
         for key, color, label in [("old", BASE, "Old stack"), ("new", BLUE, "New stack")]:
             xs, ys = split[f"{key}_steps"], split[f"{key}_scores"]
@@ -57,7 +60,7 @@ def stack_comparison():
                             textcoords="offset points", ha="center", fontsize=11,
                             color=BLUE if key == "new" else INK)
         ax.set_title(f'{split["title"]} · {split["tasks"]} tasks',
-                     loc="left", fontsize=13, weight="semibold", pad=18)
+                     loc="left", fontsize=13, fontproperties=TITLE_FONT, pad=18)
         ax.set_xlim(-2, 40)
         ax.set_ylim(30, 66)
         ax.set_xticks([0, 12, 24, 36])
@@ -67,7 +70,7 @@ def stack_comparison():
         ax.spines["bottom"].set_visible(False)
         ax.grid(axis="y", color=GRID, linewidth=.8)
     handles, labels = axes[0].get_legend_handles_labels()
-    fig.legend(handles, labels, loc="upper left", bbox_to_anchor=(.04, .82),
+    fig.legend(handles, labels, loc="upper left", bbox_to_anchor=(.04, .78),
                ncol=2, frameon=False, fontsize=12)
     save(fig, "stack-comparison")
 
@@ -76,10 +79,10 @@ def sft_behavior_origin():
     # Published scan: 31,661 SWE traces within 366,154 Stage-3 rows.
     # Preserve the original all-corpus denominator and rounded rates.
     fig, ax = plt.subplots(figsize=(11.6, 4.5))
-    fig.subplots_adjust(left=.33, right=.91, bottom=.18, top=.70)
-    fig.text(.045, .93, "SFT contained the same editing routines",
-             fontsize=19, weight="semibold")
-    fig.text(.045, .83, "Share of the full Stage-3 SFT corpus · 366,154 traces",
+    fig.subplots_adjust(left=.33, right=.91, bottom=.18, top=.66)
+    fig.text(.045, .91, "SFT contained the same editing routines",
+             fontsize=19, fontproperties=TITLE_FONT, va="top")
+    fig.text(.045, .78, "Share of the full Stage-3 SFT corpus · 366,154 traces",
              fontsize=12, color=MUTED)
     labels = ["Write /app/solution.patch", "Write SEARCH/REPLACE blocks",
               "Run patch -pN", "Use a Python rewriter in /tmp"]
@@ -98,11 +101,36 @@ def sft_behavior_origin():
     save(fig, "sft-behavior-origin")
 
 
+def entropy_debugging():
+    data = json.loads((Path(__file__).parent / "data/snowball_entropy_curves.json").read_text())
+    fig, ax = plt.subplots(figsize=(11, 5.5))
+    fig.subplots_adjust(left=.10, right=.97, bottom=.23, top=.70)
+    fig.text(.045, .91, "Removing sampling filters kept entropy stable",
+             fontsize=18, fontproperties=TITLE_FONT, va="top")
+    for key, color, label in [("filtered", "#cb5a52", "Filtered sampling"),
+                              ("full_distribution", BLUE, "Full-distribution sampling")]:
+        ys = [np.nan if y is None else y for y in data[key]["entropy"]]
+        ax.plot(data[key]["steps"], ys, color=color, lw=2.4, label=label)
+    ax.axhline(1, color="#dfe5ec", lw=1, zorder=0)
+    ax.set_xlim(0, 40)
+    ax.set_ylim(.35, 1.15)
+    ax.set_xlabel("RL update", fontsize=12, labelpad=10)
+    ax.set_ylabel("Output entropy / first-update entropy", fontsize=11, labelpad=12)
+    ax.tick_params(length=0, pad=8, labelsize=11)
+    ax.grid(axis="y", color=GRID, lw=.8)
+    ax.spines["bottom"].set_visible(False)
+    fig.legend(*ax.get_legend_handles_labels(), loc="upper left", bbox_to_anchor=(.045, .81),
+               ncol=2, frameon=False, fontsize=11)
+    fig.text(.045, .065, "Same starting model and learning rate. Each curve is normalized to its first update.",
+             fontsize=10, color=MUTED)
+    save(fig, "entropy-debugging")
+
+
 def early_rl():
     fig, ax = plt.subplots(figsize=(9.6, 4.89))
-    fig.subplots_adjust(left=.09, right=.98, bottom=.24, top=.76)
-    fig.text(.045, .94, "Early RL improved success and task coverage",
-             fontsize=17, weight="semibold")
+    fig.subplots_adjust(left=.09, right=.98, bottom=.24, top=.69)
+    fig.text(.045, .91, "Early RL improved success and task coverage",
+             fontsize=17, fontproperties=TITLE_FONT, va="top")
     x = np.arange(2)
     series = [
         ("Starting model", [8.7, 29.8], BASE),
@@ -210,6 +238,7 @@ def checkpoint_progress():
 
 if __name__ == "__main__":
     stack_comparison()
+    entropy_debugging()
     sft_behavior_origin()
     early_rl()
     sft_rl()

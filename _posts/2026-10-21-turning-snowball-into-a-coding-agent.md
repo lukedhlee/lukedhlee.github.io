@@ -37,7 +37,7 @@ Both SFT and RL substantially improved Snowball, with different strengths. **SFT
 
 | Model, evaluated with Terminus-2 | SWE-bench Verified random-100 | Terminal-Bench 2.1 | OpenThoughts-TBLite |
 |---|---:|---:|---:|
-| [Snowball 09-21](https://github.com/marin-community/marin/issues/8089) | 12.8% | 7.2% | 11.5% |
+| [Snowball 09-21](https://huggingface.co/open-athena/Grug-67B-A2B-Datakit-SFT-262K-2026.09.21) | 12.8% | 7.2% | 11.5% |
 | RL | 30.5% | 18.8% | **45.1%** |
 | SFT | 46.5% | 18.8% | 33.0% |
 | SFT + RL (step 60) | **50.5%** | **23.9%** | 41.8% |
@@ -85,7 +85,7 @@ In thirteen of fifteen closely read tasks with both successful and failed attemp
 One recurring failure had a surprisingly specific source. Snowball wrote SEARCH/REPLACE blocks into `/app/solution.patch`, then tried to apply them with Unix `patch`, which does not understand that format. Its Stage-3 SFT data contained 31,661 single-file SWE traces whose instructions explicitly requested that path and format. Here the agent had a full repository and a shell, with no tool to consume those blocks. It was reproducing a procedure from a different task setup.
 
 <figure class="research-figure">
-<a href="{{ '/assets/img/snowball/sft-behavior-origin.png?v=clean-dots' | relative_url }}"><img src="{{ '/assets/img/snowball/sft-behavior-origin.png?v=clean-dots' | relative_url }}" alt="Shares of all Stage-3 SFT traces containing editing routines: solution.patch and SEARCH/REPLACE blocks each 8.6 percent, patch commands 4.6 percent, and Python rewriters 3.5 percent." width="2088" height="810" loading="lazy"></a>
+<a href="{{ '/assets/img/snowball/sft-behavior-origin.png?v=clean-type' | relative_url }}"><img src="{{ '/assets/img/snowball/sft-behavior-origin.png?v=clean-type' | relative_url }}" alt="Shares of all Stage-3 SFT traces containing editing routines: solution.patch and SEARCH/REPLACE blocks each 8.6 percent, patch commands 4.6 percent, and Python rewriters 3.5 percent." width="2088" height="810" loading="lazy"></a>
 <figcaption>The scan covered 31,661 SWE traces within the full Stage-3 corpus. Their instructions explicitly requested the path and edit format Snowball later used in the wrong setting. The figure reports shares of the full corpus; behaviors can overlap.</figcaption>
 </figure>
 
@@ -101,7 +101,7 @@ In the first held-out evaluation, RL nearly doubled pass@1 from 8.7% to 16.6%. B
 
 
 <figure class="research-figure">
-<a href="{{ '/assets/img/snowball/early-rl-labeled.png?v=slim-bars' | relative_url }}"><img src="{{ '/assets/img/snowball/early-rl-labeled.png?v=slim-bars' | relative_url }}" alt="Starting model and two RL checkpoints, labeled by their single-attempt success and task coverage." width="1728" height="880" loading="lazy"></a>
+<a href="{{ '/assets/img/snowball/early-rl-labeled.png?v=clean-type' | relative_url }}"><img src="{{ '/assets/img/snowball/early-rl-labeled.png?v=clean-type' | relative_url }}" alt="Starting model and two RL checkpoints, labeled by their single-attempt success and task coverage." width="1728" height="880" loading="lazy"></a>
 <figcaption>The same 191 held-out tasks, eight attempts each. Both RL recipes also solved tasks the base missed in all eight attempts; this does not mean the base could never solve them.</figcaption>
 </figure>
 
@@ -123,7 +123,7 @@ Our engine-versus-trainer checks missed this because both sides used the same un
 Disabling top-p and top-k aligned sampling with the probabilities used for training and restored full-distribution exploration. Entropy stayed near its starting level beyond the earlier collapse point.
 
 <figure class="research-figure">
-<a href="{{ '/assets/img/snowball/entropy-debugging.png' | relative_url }}"><img src="{{ '/assets/img/snowball/entropy-debugging.png' | relative_url }}" alt="Filtered sampling reduced entropy to about half its initial value, while full-distribution sampling stayed near its starting level." width="1760" height="880" loading="lazy"></a>
+<a href="{{ '/assets/img/snowball/entropy-debugging.png?v=clean-type' | relative_url }}"><img src="{{ '/assets/img/snowball/entropy-debugging.png?v=clean-type' | relative_url }}" alt="Filtered sampling reduced entropy to about half its initial value, while full-distribution sampling stayed near its starting level." width="1980" height="990" loading="lazy"></a>
 <figcaption>The same starting model and learning rate, changing only the sampling settings. Each curve is normalized to its own first update. Entropy stayed stable through update 38 with full-distribution sampling. Curves reproduced from the first RL report.</figcaption>
 </figure>
 
@@ -165,7 +165,7 @@ With these repairs in place, held-out performance improved further. On a later e
 
 
 <figure class="research-figure">
-<a href="{{ '/assets/img/snowball/stack-comparison.png?v=eval-progression' | relative_url }}"><img src="{{ '/assets/img/snowball/stack-comparison.png?v=eval-progression' | relative_url }}" alt="Held-out R2E-Gym pass@1 across RL updates. The new stack improves from the shared starting policy through updates 12 and 24; the old stack is evaluated through update 36. Both held-out splits favor the new stack." width="2232" height="954" loading="lazy"></a>
+<a href="{{ '/assets/img/snowball/stack-comparison.png?v=clean-type' | relative_url }}"><img src="{{ '/assets/img/snowball/stack-comparison.png?v=clean-type' | relative_url }}" alt="Held-out R2E-Gym pass@1 across RL updates. The new stack improves from the shared starting policy through updates 12 and 24; the old stack is evaluated through update 36. Both held-out splits favor the new stack." width="2232" height="954" loading="lazy"></a>
 <figcaption>The same held-out tasks under the older probe setup, with eight attempts per task. Familiar repositories were used during RL; new repositories were excluded entirely. Lines connect evaluated checkpoints. This is a separate evaluation from the early results above. Several changes landed together, so the gain belongs to the package.</figcaption>
 </figure>
 
@@ -215,15 +215,15 @@ Full reports: [SFT versus RL versus SFT→RL](https://github.com/marin-community
 
 ### Additional SFT on the 09-21 Checkpoint
 
-We next moved to Marin’s newer [09-21 checkpoint](https://github.com/marin-community/marin/issues/8089), which had already received general SFT. To give RL a stronger starting policy, we added coding-agent SFT using [Qwen3.8-27B traces on CalibForge tasks](https://huggingface.co/datasets/laion/calibforge-relay-traces), with and without [Kimi coding demonstrations](https://huggingface.co/datasets/open-athena/Kimi-2.5-swesmith-sandboxes-with_tests-oracle_verified_120s-maxeps-32k).
+We next moved to Marin’s newer [09-21 checkpoint](https://huggingface.co/open-athena/Grug-67B-A2B-Datakit-SFT-262K-2026.09.21), which had already received general SFT. To give RL a stronger starting policy, we added coding-agent SFT using [Qwen3.8-27B traces on CalibForge tasks](https://huggingface.co/datasets/laion/calibforge-relay-traces), with and without [Kimi coding demonstrations](https://huggingface.co/datasets/open-athena/Kimi-2.5-swesmith-sandboxes-with_tests-oracle_verified_120s-maxeps-32k).
 
 Additional SFT improved the benchmark scores substantially. For example, vanilla CalibForge + Kimi reached 46.5% on SWE-bench, compared with 12.8% for the starting checkpoint. We then tested whether RL could improve these policies further.
 
 ### One Exploration: Learning to Recover with a Teacher
 
-We also explored demonstrations designed to address exposure bias. During SFT, Snowball learns from teacher-generated histories; during deployment, it must act on histories shaped by its own mistakes. Relay SFT was intended to narrow that gap by showing how a teacher recovers from Snowball’s attempts, and to test whether those demonstrations provide a better starting point for RL.
+We also explored demonstrations designed to address **exposure bias**. During SFT, Snowball learns from teacher-generated histories; during deployment, it must act on histories shaped by its own mistakes. We designed **Relay SFT** to narrow that gap, using teacher continuations of Snowball’s attempts as demonstrations for further SFT before RL.
 
-In our **Relay SFT**, Snowball starts a task and Qwen3.8-27B intervenes after an invalid action, near the context limit, or when Snowball claims completion. The teacher repairs an action, continues the attempt, or checks the work. A completion claim is a reason to check, rather than proof of a mistake. During SFT, student turns provide context and only teacher turns contribute to the loss.
+In our Relay SFT, Snowball starts the task. Qwen3.8-27B takes over after an invalid action, near the context limit, or when Snowball declares it is done. The teacher fixes the action, continues the solution, or verifies the result. We then train on the teacher’s turns, keeping Snowball’s turns as context.
 
 <figure class="research-figure">
 <a href="{{ '/assets/img/snowball/relay-timeline.png?v=crisp-colors' | relative_url }}"><img src="{{ '/assets/img/snowball/relay-timeline.png?v=crisp-colors' | relative_url }}" alt="Teacher-only SFT uses teacher-generated histories. Relay SFT trains teacher actions following the student's attempts." width="2409" height="957" loading="lazy"></a>
