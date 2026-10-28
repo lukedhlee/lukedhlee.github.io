@@ -32,7 +32,7 @@ Here is where one of those recipes stands, compared with the newer Snowball 09-2
 
 </div>
 
-Most of the gain in this comparison came from additional SFT. RL then produced smaller changes, which we are still evaluating. This post follows the work behind those results: diagnosing Snowball’s attempts, fixing the RL infrastructure, and trying SFT followed by RL. It is a preliminary account across successive starting checkpoints, with the direct-RL comparison on 09-21 still underway.
+Most of the gain in this comparison came from additional SFT. RL then produced smaller changes. This post follows the work behind those results: diagnosing Snowball’s attempts, fixing the RL infrastructure, and trying SFT followed by RL. It is a preliminary account across successive starting checkpoints.
 
 <nav class="research-toc" aria-label="Article contents">
 <div class="research-toc-title">Contents</div>
@@ -42,6 +42,7 @@ Most of the gain in this comparison came from additional SFT. RL then produced s
 <li><strong><a href="#rl-from-the-sft-checkpoints">RL from the SFT checkpoints</a></strong></li>
 <li><strong><a href="#reflections">Reflections</a></strong></li>
 <li><strong><a href="#what-you-can-reuse">What you can reuse</a></strong></li>
+<li><strong><a href="#acknowledgements">Acknowledgements</a></strong></li>
 </ul>
 </nav>
 
@@ -264,17 +265,17 @@ The clearest pattern was on TBLite: scores rose after RL for all three starting 
 
 Terminal-Bench 2.1 scores also rose, but the paired changes were small and uncertain. SWE-bench changes were mixed, and all three paired intervals included zero. Most of the selected training tasks were TMax terminal tasks, which may help explain why TBLite moved most, though we have not tested that explanation.
 
-The direct-RL evaluation from the 09-21 starting checkpoint is still pending. That comparison also uses a different task band, so it will compare the practical recipes rather than isolate the effect of SFT under identical RL data. For now, these results show what happened when we continued three demonstration-trained policies with RL. They do not yet establish that SFT followed by RL beats direct RL.
+These experiments show what happened when we continued three demonstration-trained policies with RL.
 
 ## Reflections
 
 We started by trying to improve a coding agent with RL. Much of the early work was making sure the training system preserved the actions the model actually sampled, accounted for their probabilities correctly, and returned rewards we could trust. Those fixes were part of making the experiments useful.
 
-The starting policy mattered too. Additional SFT gave us stronger coding-agent checkpoints, and subsequent RL produced encouraging TBLite gains. The broader results remain mixed, and the direct-RL comparison is still underway. We have more to learn about which demonstrations help and how much those gains can be extended through RL.
+The starting policy mattered too. Additional SFT gave us stronger coding-agent checkpoints, and subsequent RL produced encouraging TBLite gains. The broader results remain mixed. We have more to learn about which demonstrations help and how much those gains can be extended through RL.
 
 Reading traces helped us decide what to try next. They exposed inherited editing habits, unfinished attempts, and unreliable completion claims that aggregate scores alone did not explain. Having access to Snowball’s training data and code made it possible to investigate those behaviors. This post records those first steps. A few questions will guide the next experiments:
 
-**Which demonstrations give RL a better starting point?** We want to compare direct RL with SFT followed by RL, then understand which parts of the demonstration data help. The current results motivate that comparison, but do not settle it.
+**Which demonstrations give RL a better starting point?** Which parts of the demonstration data help most, and how should that data change as the policy improves? Understanding this could help us choose more useful examples for the next round of training.
 
 **Can trace analysis help choose what to teach next?** Reading attempts exposed recurring problems with editing, verification, and completion. Can we measure those behaviors consistently and use them to select useful training examples?
 
@@ -288,3 +289,7 @@ Reading traces helped us decide what to try next. They exposed inherited editing
 - **Data:** [Relay demonstrations](https://huggingface.co/datasets/laion/calibforge-relay-traces) and [R2E-Gym environment artifacts](https://huggingface.co/datasets/laion/r2egym-build-artifacts).
 - **Decoding:** the [EAGLE-3 toolkit](https://github.com/lukedhlee/grugmoe-eagle3) and [draft model](https://huggingface.co/laion/snowball-64k-eagle3-draft-r2egym).
 - **Stack fixes:** [token preservation in Harbor](https://github.com/marin-community/harbor/pull/122) and [probability accounting in MarinSkyRL](https://github.com/marin-community/MarinSkyRL/pull/519).
+
+## Acknowledgements
+
+Thank you to Bespoke Labs for supporting my coding AI plan, Alex Dimakis for his advice, and JSC and TACC for providing compute for this work.
