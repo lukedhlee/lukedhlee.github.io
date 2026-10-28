@@ -150,8 +150,9 @@ def early_rl():
                        "Solved at least once in eight\n(pass@8)"])
     ax.tick_params(axis="both", length=0, pad=8, labelsize=11)
     ax.grid(axis="y", color=GRID, linewidth=.7)
-    ax.legend(loc="lower left", bbox_to_anchor=(0, 1.04), ncol=3,
-              frameon=False, fontsize=10, handlelength=1.5, columnspacing=1.6)
+    fig.legend(*ax.get_legend_handles_labels(), loc="upper left",
+               bbox_to_anchor=(.045, .855), borderaxespad=0, borderpad=0, ncol=3,
+               frameon=False, fontsize=10, handlelength=1.5, columnspacing=1.6)
     fig.text(.045, .065, "Same 191 held-out R2E-Gym tasks, eight samples per task.\n"
              "Blue and cyan denote different experimental RL checkpoints.",
              fontsize=9, color=MUTED, linespacing=1.5)

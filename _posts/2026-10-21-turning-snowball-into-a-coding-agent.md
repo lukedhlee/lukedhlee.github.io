@@ -103,7 +103,7 @@ In the first held-out evaluation, RL nearly doubled pass@1 from 8.7% to 16.6%. B
 
 
 <figure class="research-figure">
-<a href="{{ '/assets/img/snowball/early-rl-labeled.png?v=aligned-type' | relative_url }}"><img src="{{ '/assets/img/snowball/early-rl-labeled.png?v=aligned-type' | relative_url }}" alt="Starting model and two RL checkpoints, labeled by their single-attempt success and task coverage." width="1728" height="880" loading="lazy"></a>
+<a href="{{ '/assets/img/snowball/early-rl-labeled.png?v=left-legend' | relative_url }}"><img src="{{ '/assets/img/snowball/early-rl-labeled.png?v=left-legend' | relative_url }}" alt="Starting model and two RL checkpoints, labeled by their single-attempt success and task coverage." width="1728" height="880" loading="lazy"></a>
 <figcaption>The same 191 held-out tasks, eight attempts each. Both RL recipes also solved tasks the base missed in all eight attempts; this does not mean the base could never solve them.</figcaption>
 </figure>
 
