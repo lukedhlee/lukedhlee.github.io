@@ -228,7 +228,7 @@ We also explored demonstrations designed to address **exposure bias**. During SF
 In our Relay SFT, Snowball starts the task. Qwen3.8-27B takes over after an invalid action, near the context limit, or when Snowball declares it is done. The teacher fixes the action, continues the solution, or verifies the result. We then train on the teacher’s turns, keeping Snowball’s turns as context.
 
 <figure class="research-figure">
-<a href="{{ '/assets/img/snowball/relay-timeline.png?v=crisp-colors' | relative_url }}"><img src="{{ '/assets/img/snowball/relay-timeline.png?v=crisp-colors' | relative_url }}" alt="Teacher-only SFT uses teacher-generated histories. Relay SFT trains teacher actions following the student's attempts." width="2409" height="957" loading="lazy"></a>
+<a href="{{ '/assets/img/snowball/relay-timeline.png?v=plain-annotation' | relative_url }}"><img src="{{ '/assets/img/snowball/relay-timeline.png?v=plain-annotation' | relative_url }}" alt="Teacher-only SFT uses teacher-generated histories. Relay SFT trains teacher actions following the student's attempts." width="2409" height="957" loading="lazy"></a>
 <figcaption>Student turns (S) provide context without training loss. Local repairs (R) and teacher continuations (T) are trained.</figcaption>
 </figure>
 
