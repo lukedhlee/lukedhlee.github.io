@@ -104,57 +104,47 @@ def working_style():
 
 
 def swe_steps():
-    """T5: shares of scored attempts, not task-averaged benchmark scores."""
-    labels = ["Snowball 09-21", "RL", "CalibForge SFT", "+ RL",
-              "CalibForge + Kimi SFT", "+ RL",
-              "CalibForge + Kimi Relay SFT", "+ RL"]
+    """T5 milestones, with each starting policy paired with its RL continuation."""
+    labels = ["Snowball 09-21", "CalibForge SFT",
+              "CalibForge + Kimi SFT", "CalibForge + Kimi Relay SFT"]
     values = [
-        [77.7, 38.0, 14.7, 13.0],
-        [95.9, 50.5, 34.2, 31.1],
-        [97.6, 59.3, 42.8, 35.2],
-        [94.9, 64.0, 42.6, 38.6],
-        [99.5, 89.9, 51.0, 46.5],
-        [96.4, 87.8, 52.8, 47.7],
-        [98.0, 90.9, 54.5, 47.0],
-        [97.0, 87.3, 50.3, 44.2],
+        ([77.7, 38.0, 14.7], [95.9, 50.5, 34.2]),
+        ([97.6, 59.3, 42.8], [94.9, 64.0, 42.6]),
+        ([99.5, 89.9, 51.0], [96.4, 87.8, 52.8]),
+        ([98.0, 90.9, 54.5], [97.0, 87.3, 50.3]),
     ]
-    fig, axes = plt.subplots(1, 3, figsize=(16.4, 7.8), sharey=True)
-    fig.subplots_adjust(left=.26, right=.98, bottom=.20, top=.71, wspace=.25)
-    fig.text(.04, .93, "From finding the file to passing target tests", fontsize=25, weight="bold")
-    fig.text(.04, .875, "SWE-bench Verified r100 · Share of scored attempts reaching each milestone",
+    fig, axes = plt.subplots(1, 3, figsize=(16.4, 6.0), sharey=True)
+    fig.subplots_adjust(left=.235, right=.955, bottom=.15, top=.64, wspace=.20)
+    fig.text(.04, .92, "From finding the file to passing target tests", fontsize=25, weight="bold")
+    fig.text(.04, .855, "SWE-bench Verified r100 · Share of scored attempts reaching each milestone",
              fontsize=15, color=MUTED)
     from matplotlib.lines import Line2D
     fig.legend(handles=[
-        Line2D([], [], marker="o", ls="", color="#a0a9b5", label="Snowball 09-21"),
-        Line2D([], [], marker="o", ls="", color=CYAN, markerfacecolor="white", label="Additional SFT"),
-        Line2D([], [], marker="o", ls="", color=BLUE, label="After RL"),
-    ], loc="upper left", bbox_to_anchor=(.035, .845), ncol=3, frameon=False, fontsize=14)
+        Line2D([], [], marker="o", ls="", color="#a0a9b5", markerfacecolor="white", markersize=8, label="Snowball 09-21"),
+        Line2D([], [], marker="o", ls="", color=CYAN, markerfacecolor="white", markersize=8, label="Additional SFT"),
+        Line2D([], [], marker="o", ls="", color=BLUE, markersize=8, label="After RL"),
+    ], loc="upper left", bbox_to_anchor=(.035, .805), ncol=3, frameon=False, fontsize=14)
     for col, (ax, title) in enumerate(zip(axes, [
         "Opened a relevant file", "Edited a relevant file", "Target tests passing",
     ])):
-        ax.set_title(title, loc="left", fontsize=16, weight="bold", pad=18)
-        for row, vals in enumerate(values):
-            n = vals[col]
-            after_rl = row % 2 == 1
-            color = BLUE if after_rl else ("#a0a9b5" if row == 0 else CYAN)
+        ax.set_title(title, loc="left", fontsize=16, weight="bold", pad=22)
+        for row, (before, after) in enumerate(values):
+            x1, x2 = before[col], after[col]
+            color = "#a0a9b5" if row == 0 else CYAN
             ax.hlines(row, 0, 100, color=LINE, linewidth=.8, zorder=0)
-            ax.scatter(n, row, s=82, facecolors=color if after_rl or row == 0 else "white",
-                       edgecolors=color, linewidths=1.8, zorder=3)
-            ax.text(n + 4, row, f"{n:.1f}", va="center", fontsize=14, color=INK)
-        ax.set_xlim(-2, 121)
-        ax.set_ylim(7.7, -.6)
+            ax.plot([x1, x2], [row, row], color="#aebdd0", lw=2.5, zorder=1)
+            ax.scatter(x1, row, s=100, facecolors="white", edgecolors=color, linewidths=2.1, zorder=3)
+            ax.scatter(x2, row, s=48, facecolors=BLUE, edgecolors=BLUE, zorder=4)
+            ax.text(111, row, f"{x1:.1f} → {x2:.1f}", va="center", fontsize=13, color=INK)
+        ax.set_xlim(-3, 184)
+        ax.set_ylim(3.55, -.55)
         ax.set_xticks([0, 50, 100], ["0%", "50%", "100%"])
-        ax.set_yticks(range(8), labels)
+        ax.set_yticks(range(4), labels)
         ax.tick_params(axis="both", length=0, labelsize=14, pad=9)
         ax.grid(axis="x", color=LINE, linewidth=.8)
         ax.set_axisbelow(True)
         for spine in ax.spines.values():
             spine.set_visible(False)
-        for y in [1.5, 3.5, 5.5]:
-            ax.axhline(y, color=LINE, linewidth=1.1)
-    fig.text(.04, .105, "Relevant file = a file changed by the reference fix. Target tests = the issue's FAIL_TO_PASS tests at the end of the attempt.\n"
-             "Edit detection finds 80–89% of actual edits, so edit shares are lower bounds. Milestones are measured separately.",
-             fontsize=12, color=MUTED, linespacing=1.6)
     save(fig, "trace-swe-steps")
 
 
