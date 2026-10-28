@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2409" height="957" viewBox="0 0 2409 957">
+<rect width="2409" height="957" fill="white"/>
+<defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6" fill="none" stroke="context-stroke" stroke-width="1.5"/></marker></defs>
+<text x="82" y="135" font-family="Arial, sans-serif" font-size="36" fill="#253346" font-weight="700" text-anchor="start">(a) Teacher-only SFT</text>
+<text x="82" y="207" font-family="Arial, sans-serif" font-size="28" fill="#253346" font-weight="400" text-anchor="start">The teacher solves the task alone.</text>
+<text x="82" y="248" font-family="Arial, sans-serif" font-size="28" fill="#253346" font-weight="400" text-anchor="start">Every teacher turn is trained.</text>
+<rect x="735" y="106" width="107" height="102" rx="17" fill="#f59e0b" stroke="#f59e0b" stroke-width="2"/>
+<text x="788.5" y="167" font-family="Arial, sans-serif" font-size="30" fill="white" font-weight="700" text-anchor="middle">T</text>
+<rect x="860" y="106" width="107" height="102" rx="17" fill="#f59e0b" stroke="#f59e0b" stroke-width="2"/>
+<text x="913.5" y="167" font-family="Arial, sans-serif" font-size="30" fill="white" font-weight="700" text-anchor="middle">T</text>
+<rect x="985" y="106" width="107" height="102" rx="17" fill="#f59e0b" stroke="#f59e0b" stroke-width="2"/>
+<text x="1038.5" y="167" font-family="Arial, sans-serif" font-size="30" fill="white" font-weight="700" text-anchor="middle">T</text>
+<rect x="1110" y="106" width="107" height="102" rx="17" fill="#f59e0b" stroke="#f59e0b" stroke-width="2"/>
+<text x="1163.5" y="167" font-family="Arial, sans-serif" font-size="30" fill="white" font-weight="700" text-anchor="middle">T</text>
+<rect x="1235" y="106" width="107" height="102" rx="17" fill="#f59e0b" stroke="#f59e0b" stroke-width="2"/>
+<text x="1288.5" y="167" font-family="Arial, sans-serif" font-size="30" fill="white" font-weight="700" text-anchor="middle">T</text>
+<rect x="1360" y="106" width="107" height="102" rx="17" fill="#f59e0b" stroke="#f59e0b" stroke-width="2"/>
+<text x="1413.5" y="167" font-family="Arial, sans-serif" font-size="30" fill="white" font-weight="700" text-anchor="middle">T</text>
+<rect x="1485" y="106" width="107" height="102" rx="17" fill="#f59e0b" stroke="#f59e0b" stroke-width="2"/>
+<text x="1538.5" y="167" font-family="Arial, sans-serif" font-size="30" fill="white" font-weight="700" text-anchor="middle">T</text>
+<rect x="1610" y="106" width="107" height="102" rx="17" fill="#f59e0b" stroke="#f59e0b" stroke-width="2"/>
+<text x="1663.5" y="167" font-family="Arial, sans-serif" font-size="30" fill="white" font-weight="700" text-anchor="middle">T</text>
+<rect x="1735" y="106" width="107" height="102" rx="17" fill="#f59e0b" stroke="#f59e0b" stroke-width="2"/>
+<text x="1788.5" y="167" font-family="Arial, sans-serif" font-size="30" fill="white" font-weight="700" text-anchor="middle">T</text>
+<rect x="1860" y="106" width="107" height="102" rx="17" fill="#f59e0b" stroke="#f59e0b" stroke-width="2"/>
+<text x="1913.5" y="167" font-family="Arial, sans-serif" font-size="30" fill="white" font-weight="700" text-anchor="middle">T</text>
+<rect x="1985" y="106" width="107" height="102" rx="17" fill="#f59e0b" stroke="#f59e0b" stroke-width="2"/>
+<text x="2038.5" y="167" font-family="Arial, sans-serif" font-size="30" fill="white" font-weight="700" text-anchor="middle">T</text>
+<rect x="2110" y="106" width="107" height="102" rx="17" fill="#f59e0b" stroke="#f59e0b" stroke-width="2"/>
+<text x="2163.5" y="167" font-family="Arial, sans-serif" font-size="30" fill="white" font-weight="700" text-anchor="middle">T</text>
+<path d="M741,227 V237 H2210 V227" fill="none" stroke="#d8e1ec" stroke-width="3"/>
+<text x="1475.5" y="277" font-family="Arial, sans-serif" font-size="25" fill="#b96800" font-weight="400" text-anchor="middle">Teacher-generated history · every turn trained</text>
+<path d="M2285,157 L2344,157" fill="none" stroke="#65758b" stroke-width="3" marker-end="url(#arrow)"/>
+<text x="2315" y="210" font-family="Arial, sans-serif" font-size="24" fill="#65758b" font-weight="400" text-anchor="middle">turns</text>
+<text x="82" y="682" font-family="Arial, sans-serif" font-size="36" fill="#253346" font-weight="700" text-anchor="start">(b) Relay SFT</text>
+<text x="82" y="750" font-family="Arial, sans-serif" font-size="28" fill="#253346" font-weight="400" text-anchor="start">The student starts the task.</text>
+<text x="82" y="791" font-family="Arial, sans-serif" font-size="28" fill="#253346" font-weight="400" text-anchor="start">The teacher repairs an action or</text>
+<text x="82" y="832" font-family="Arial, sans-serif" font-size="28" fill="#253346" font-weight="400" text-anchor="start">checks and continues the work.</text>
+<rect x="735" y="632" width="107" height="102" rx="17" fill="#f1f5f9" stroke="#bac8d8" stroke-width="2"/>
+<text x="788.5" y="693" font-family="Arial, sans-serif" font-size="30" fill="#65758b" font-weight="700" text-anchor="middle">S</text>
+<rect x="860" y="632" width="107" height="102" rx="17" fill="#f1f5f9" stroke="#bac8d8" stroke-width="2"/>
+<text x="913.5" y="693" font-family="Arial, sans-serif" font-size="30" fill="#65758b" font-weight="700" text-anchor="middle">S</text>
+<rect x="985" y="632" width="107" height="102" rx="17" fill="#f1f5f9" stroke="#bac8d8" stroke-width="2"/>
+<text x="1038.5" y="693" font-family="Arial, sans-serif" font-size="30" fill="#65758b" font-weight="700" text-anchor="middle">S</text>
+<rect x="1110" y="632" width="107" height="102" rx="17" fill="#06a9df" stroke="#06a9df" stroke-width="2"/>
+<text x="1163.5" y="693" font-family="Arial, sans-serif" font-size="30" fill="white" font-weight="700" text-anchor="middle">R</text>
+<rect x="1235" y="632" width="107" height="102" rx="17" fill="#f1f5f9" stroke="#bac8d8" stroke-width="2"/>
+<text x="1288.5" y="693" font-family="Arial, sans-serif" font-size="30" fill="#65758b" font-weight="700" text-anchor="middle">S</text>
+<rect x="1360" y="632" width="107" height="102" rx="17" fill="#f1f5f9" stroke="#bac8d8" stroke-width="2"/>
+<text x="1413.5" y="693" font-family="Arial, sans-serif" font-size="30" fill="#65758b" font-weight="700" text-anchor="middle">S</text>
+<rect x="1485" y="632" width="107" height="102" rx="17" fill="#f1f5f9" stroke="#bac8d8" stroke-width="2"/>
+<text x="1538.5" y="693" font-family="Arial, sans-serif" font-size="30" fill="#65758b" font-weight="700" text-anchor="middle">S</text>
+<rect x="1610" y="632" width="107" height="102" rx="17" fill="#2563eb" stroke="#2563eb" stroke-width="2"/>
+<text x="1663.5" y="693" font-family="Arial, sans-serif" font-size="30" fill="white" font-weight="700" text-anchor="middle">T</text>
+<rect x="1735" y="632" width="107" height="102" rx="17" fill="#2563eb" stroke="#2563eb" stroke-width="2"/>
+<text x="1788.5" y="693" font-family="Arial, sans-serif" font-size="30" fill="white" font-weight="700" text-anchor="middle">T</text>
+<rect x="1860" y="632" width="107" height="102" rx="17" fill="#2563eb" stroke="#2563eb" stroke-width="2"/>
+<text x="1913.5" y="693" font-family="Arial, sans-serif" font-size="30" fill="white" font-weight="700" text-anchor="middle">T</text>
+<rect x="1985" y="632" width="107" height="102" rx="17" fill="#2563eb" stroke="#2563eb" stroke-width="2"/>
+<text x="2038.5" y="693" font-family="Arial, sans-serif" font-size="30" fill="white" font-weight="700" text-anchor="middle">T</text>
+<rect x="2110" y="632" width="107" height="102" rx="17" fill="#2563eb" stroke="#2563eb" stroke-width="2"/>
+<text x="2163.5" y="693" font-family="Arial, sans-serif" font-size="30" fill="white" font-weight="700" text-anchor="middle">T</text>
+<text x="1163" y="440" font-family="Arial, sans-serif" font-size="26" fill="#253346" font-weight="400" text-anchor="middle">Invalid action</text>
+<text x="1163" y="474" font-family="Arial, sans-serif" font-size="26" fill="#253346" font-weight="400" text-anchor="middle">One-turn teacher repair (R), trained;</text>
+<text x="1163" y="508" font-family="Arial, sans-serif" font-size="26" fill="#253346" font-weight="400" text-anchor="middle">then the student resumes.</text>
+<path d="M1163,537 L1163,614" fill="none" stroke="#253346" stroke-width="3" marker-end="url(#arrow)"/>
+<rect x="1413" y="287" width="864" height="229" rx="20" fill="#eff6ff" stroke="#c9dcf6" stroke-width="2"/>
+<text x="1475" y="348" font-family="Arial, sans-serif" font-size="30" fill="#253346" font-weight="700" text-anchor="start">Teacher checks or takes over</text>
+<text x="1475" y="400" font-family="Arial, sans-serif" font-size="28" fill="#253346" font-weight="400" text-anchor="start">• Context-budget trigger</text>
+<text x="1475" y="441" font-family="Arial, sans-serif" font-size="28" fill="#253346" font-weight="400" text-anchor="start">• Student claims completion</text>
+<path d="M1598,518 L1598,614" fill="none" stroke="#e76417" stroke-width="3" marker-end="url(#arrow)"/>
+<path d="M1598,619 L1598,744" fill="none" stroke="#e76417" stroke-width="3" stroke-dasharray="8 6"/>
+<text x="1580" y="589" font-family="Arial, sans-serif" font-size="26" fill="#d9540e" font-weight="400" text-anchor="end">handover</text>
+<path d="M741,754 V764 H1585 V754" fill="none" stroke="#d8e1ec" stroke-width="3"/>
+<text x="1163.0" y="804" font-family="Arial, sans-serif" font-size="25" fill="#65758b" font-weight="400" text-anchor="middle">Student turns · context only, no loss</text>
+<path d="M1610,754 V764 H2210 V754" fill="none" stroke="#d8e1ec" stroke-width="3"/>
+<text x="1910.0" y="804" font-family="Arial, sans-serif" font-size="25" fill="#2563eb" font-weight="400" text-anchor="middle">Teacher continuation · trained</text>
+<path d="M2285,683 L2344,683" fill="none" stroke="#65758b" stroke-width="3" marker-end="url(#arrow)"/>
+<text x="2315" y="737" font-family="Arial, sans-serif" font-size="24" fill="#65758b" font-weight="400" text-anchor="middle">turns</text>
+</svg>
