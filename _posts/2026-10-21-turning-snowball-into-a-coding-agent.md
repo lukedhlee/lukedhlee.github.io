@@ -6,7 +6,7 @@ description: "Early experiments, infrastructure fixes, and results from improvin
 excerpt: "My first few weeks working on Snowball’s coding-agent capabilities: getting RL working, adding demonstrations, and trying SFT followed by RL."
 date: 2026-10-21
 published: true
-reading_time: 14
+reading_time: 17
 authors:
   - name: Donghyun Lee
     bold: true
@@ -47,6 +47,7 @@ Both SFT and RL substantially improved Snowball, with different strengths. **RL 
 <li><strong><a href="#starting-with-reinforcement-learning">Starting with RL</a></strong><span class="toc-sub"><a href="#the-pre-rl-probe">Pre-RL probe</a> · <a href="#following-the-behavior-back-to-sft">SFT habits</a> · <a href="#diagnosing-entropy-collapse">Entropy collapse</a> · <a href="#fixing-the-training-stack">Stack fixes</a> · <a href="#what-rl-improved">Results</a> · <a href="#speeding-up-rollouts-without-retraining-the-draft">Speculative decoding</a></span></li>
 <li><strong><a href="#strengthening-the-starting-policy-with-sft">Adding SFT before RL</a></strong><span class="toc-sub"><a href="#earlier-experiments-on-the-stage-3-checkpoint">Earlier experiments</a> · <a href="#additional-sft-on-the-09-21-checkpoint">09-21 SFT</a> · <a href="#one-exploration-learning-to-recover-with-a-teacher">Teacher-guided recovery</a></span></li>
 <li><strong><a href="#rl-from-the-sft-checkpoints">RL from the SFT checkpoints</a></strong></li>
+<li><strong><a href="#similar-scores-different-ways-of-working">Similar scores, different ways of working</a></strong></li>
 <li><strong><a href="#reflections">Reflections</a></strong></li>
 <li><strong><a href="#what-you-can-reuse">What you can reuse</a></strong></li>
 <li><strong><a href="#acknowledgements">Acknowledgements</a></strong></li>
@@ -271,6 +272,46 @@ The RL runs used the same core recipe: batches of 64 tasks with eight attempts e
 RL directly from the 09-21 starting checkpoint reached 30.5% on SWE-bench, 18.8% on Terminal-Bench 2.1, and 45.1% on TBLite. Its TBLite score exceeded every additional SFT recipe, including their RL continuations, and its Terminal-Bench score was close to the best continuation at 19.3%. Additional SFT followed by RL still produced the highest SWE-bench score at 47.0%. These results make the choice of starting policy more interesting than the SFT scores alone suggested.
 
 Most of the selected training tasks were TMax terminal tasks, which may help explain why TBLite moved most, though we have not tested that explanation.
+
+## Similar Scores, Different Ways of Working
+
+Direct RL and SFT + RL ended up close on the terminal benchmarks. That surprised us. Had demonstrations taught Snowball something new, or helped it use what it already knew? The final scores could not answer that question. We used coding agents to compare trajectories, group recurring failures, and identify paired examples for closer inspection.
+
+Here, **RL** means training directly from Snowball 09-21. **SFT + RL** means one of the three additional SFT recipes followed by RL. We compared newly solved tasks that the starting checkpoint had failed in at least two attempts. Most models had only two evaluation attempts per task, so a task solved by one route alone was a lead to investigate, rather than proof of a different capability.
+
+### Having the idea and carrying it through
+
+Two TBLite tasks made the distinction especially clear. In `reverse-engineer-stack-vm`, every SFT + RL attempt encountered the candidate passphrase, but none tested it on the validator. Direct RL tried it and passed both attempts. In `etl_checkpoint_resume_bug`, direct RL found the offending guard in both attempts, but then rewrote the fix or left it as a patch file. All six SFT + RL attempts delivered a passing fix.
+
+<figure class="research-figure">
+<a href="{{ '/assets/img/snowball/trace-paired-examples.png' | relative_url }}"><img src="{{ '/assets/img/snowball/trace-paired-examples.png' | relative_url }}" alt="Two paired TBLite examples. Direct RL tests a visible passphrase and passes 2 of 2 attempts while SFT plus RL passes 0 of 6. On a checkpoint-resume bug, direct RL finds but mishandles the fix and passes 0 of 2, while SFT plus RL passes 6 of 6." width="2412" height="1530" loading="lazy"></a>
+<figcaption>Condensed trace summaries. The SFT + RL column combines two attempts from each of three recipes; direct RL has two attempts. The examples illustrate failures in both directions, not a comparison at equal attempt counts.</figcaption>
+</figure>
+
+Across 20 route-exclusive TBLite tasks we inspected, 19 were classified as execution differences and one remained undetermined. In many, the winning idea appeared in a losing attempt. Others were less conclusive because the winner failed the same test in its other run. These reads gave us little clear evidence that one route had an algorithm or domain fact the other lacked.
+
+### The same solution at a different tempo
+
+We also compared 26 newly solved TBLite tasks where both routes succeeded. Direct RL used fewer output tokens and more shell commands in the median successful trace. Close reads suggested a pattern of shorter reasoning turns interleaved with more experiments, while SFT + RL often worked through more of the solution before acting.
+
+<figure class="research-figure">
+<a href="{{ '/assets/img/snowball/trace-working-style.png' | relative_url }}"><img src="{{ '/assets/img/snowball/trace-working-style.png' | relative_url }}" alt="On 26 shared TBLite successes, median time is 255 seconds for direct RL versus 604 for SFT plus RL; output tokens are 35 thousand versus 92 thousand; shell commands are 61 versus 44." width="2412" height="882" loading="lazy"></a>
+<figcaption>Medians of per-task medians over passing attempts, pooling the three SFT + RL recipes. These describe successful traces, not the cost of training or every attempt. The direction varied by task.</figcaption>
+</figure>
+
+Longer reasoning sometimes paid off. On parking-lot pathfinding, the vanilla Kimi SFT + RL model finished in roughly 100–120 seconds and 6–8 turns, while direct RL took 900–1,100 seconds and 68–83 turns. On shared Terminal-Bench 2.1 successes, direct RL was slower overall. There was no single working style that won everywhere.
+
+### Did SFT add knowledge?
+
+One Terminal-Bench 2.1 task gave us a plausible example. In `sqlite-db-truncate`, the fact that SQLite serial type 7 encodes an eight-byte IEEE double appeared in 12 of 13 SFT-family attempts and none of five starting-model or direct-RL attempts. Direct RL submitted incorrect decoded values rather than being cut off before reaching the problem. SFT may have supplied useful format knowledge here, although its absence from a few attempts does not establish that the other checkpoint lacked it.
+
+The traces also exposed a misleading success. On a Scheme evaluator task, direct RL passed by changing the supplied interpreter that the verifier used, rather than implementing the requested evaluator. We do not count that as evidence of a new skill.
+
+The clearest lesson from these reads was how often a useful idea was already visible before an attempt failed. Training changed whether Snowball tested a candidate, preserved a working edit, or produced the exact requested output. Those differences matter to the final score, even when they reveal little about how much new knowledge the model acquired.
+
+<aside class="research-reports" markdown="1">
+[Full trace analysis](https://claude.ai/artifact/DaJfjrUBBct2AanXpjfeqd), including task overlap, repeated attempts, and the evidence behind the knowledge-versus-execution labels. These are observational trace comparisons; attributing a working style or a specific fact to SFT would require a controlled follow-up.
+</aside>
 
 ## Reflections
 
