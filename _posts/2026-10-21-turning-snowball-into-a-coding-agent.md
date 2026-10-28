@@ -14,15 +14,13 @@ reading_time: 14
 
 [Marin](https://marin.community/)’s ambition is to make the knowledge behind capable AI a public resource. That means sharing how models are built: the data, the experiments, and the decisions along the way, including the ones that turn out to be wrong. Other researchers can then see what happened, question it, and contribute their own ideas.
 
-Training a coding agent still leaves plenty of room for that kind of work. We can give a model a repository, a terminal, and a task, but getting it to reliably finish the job is another matter. It needs to make changes, test them, and recover when something goes wrong.
+Over the past few weeks, we have been collaborating with the Marin team to develop a coding-agent expert for Snowball, Marin’s 67B A2B mixture-of-experts model. Snowball was in its first round of post-training, with early supervised fine-tuning across multiple domains. Our contribution was to build on that starting point and develop its ability to work through coding tasks: navigating repositories, making edits, running tests, and recovering when something goes wrong.
 
-Over the past few weeks, I have been working with Marin’s post-training team to develop a coding-agent expert for Snowball, Marin’s 67B A2B MoE model. Starting from a general-SFT checkpoint, our initial focus was reinforcement learning, and some of the most consequential work happened inside the training system.
+Reading Snowball’s attempts revealed some interesting failure patterns. In an early review, failed attempts often reached the same file, sometimes the same function, as successful ones. The model could describe a plausible fix, yet struggle to put it into the repository. One recurring behavior—writing SEARCH/REPLACE blocks into a patch file that Unix `patch` could not apply—could be traced back to instructions in its SFT data. Having access to the training data let us investigate how a procedure learned in one setting carried over into another.
 
-Early RL runs gave us a puzzle: training reward kept rising, but performance on held-out tasks improved and then fell. Tracking down the cause took us through how the system sampled actions, trained on them, and handled long terminal sessions, uncovering bugs that our usual checks had missed.
+We started with reinforcement learning, which brought its own puzzles. Training reward kept rising while held-out performance improved and then fell. Investigating that divergence uncovered problems in sampling, probability accounting, and the handling of long terminal sessions that our usual checks had missed. Rebuilding the stack improved held-out R2E-Gym performance by about ten percentage points while using half as many nodes. Along the way, speculative decoding helped us run experiments faster.
 
-Rebuilding the stack improved held-out R2E-Gym performance by about ten percentage points while using half as many nodes. We also worked on making experiments faster: in matched timing runs, a speculative-decoding draft reduced the time for three RL updates from 44 to 31 minutes. The same frozen draft remained useful through 60 updates.
-
-RL remained tricky. It needed reliable infrastructure, task environments with trustworthy rewards, and a starting policy that could sometimes solve the tasks. To strengthen that starting policy, we added coding-agent SFT before continuing with RL. Most of the overall improvement came from SFT, with smaller changes from RL on top. The table below shows where one of those recipes stands, compared with Snowball 09-21:
+We also explored what demonstrations could give the starting policy before RL. Additional coding-agent SFT produced the largest overall gains on the newer Snowball 09-21 checkpoint. Continuing with RL brought encouraging improvements on OpenThoughts-TBLite, with smaller or mixed changes elsewhere. The table below shows one of those recipes:
 
 <div class="table-wrap" markdown="1">
 
@@ -34,7 +32,7 @@ RL remained tricky. It needed reliable infrastructure, task environments with tr
 
 </div>
 
-This post follows the work behind those results: diagnosing Snowball’s attempts, fixing the RL infrastructure, and trying SFT followed by RL. It is a preliminary account across successive starting checkpoints.
+This post follows the work behind those results: what we learned from Snowball’s attempts, what it took to get RL working reliably, and how SFT and RL contributed at different stages. It is an account of our first experiments across successive starting checkpoints, including the approaches that helped, the ones that did not, and the questions they opened up.
 
 <nav class="research-toc" aria-label="Article contents">
 <div class="research-toc-title">Contents</div>
