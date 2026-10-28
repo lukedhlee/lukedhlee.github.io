@@ -26,7 +26,7 @@ We collaborated with the Marin team, starting from an early checkpoint that had 
 
 Some of the most interesting lessons came from reading the model’s attempts. Snowball could find the relevant function and describe a plausible fix, yet struggle to apply it. Other failures led us into the training system itself, where rising reward could hide falling held-out performance. Understanding these patterns helped us decide what to teach the model and what to fix around it.
 
-Below, we share what those experiments taught us about developing a coding agent, from inspecting inherited habits and getting RL working reliably to testing what additional demonstrations could contribute. Both additional SFT and RL brought substantial gains on the newer Snowball checkpoint, but their strengths differed across benchmarks. RL directly from the starting checkpoint reached the highest TBLite score, while additional SFT followed by RL reached the highest SWE-bench score. That leaves an interesting question about how to divide training compute and tasks between the two. The table shows one of the SFT recipes alongside direct RL.
+Both SFT and RL substantially improved Snowball, with different strengths. **RL alone reached the highest TBLite score**, while **SFT + RL reached the highest SWE-bench score**. These results leave us asking how to divide training compute and tasks between SFT and RL. Below, we share the experiments and debugging that led us here.
 
 <div class="table-wrap" markdown="1">
 
