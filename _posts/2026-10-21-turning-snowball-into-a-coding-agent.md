@@ -8,6 +8,7 @@ published: true
 reading_time: 14
 authors:
   - name: Donghyun Lee
+    bold: true
   - name: Harshit Varma
     url: https://hrshtv.github.io/
   - name: Alex Dimakis
