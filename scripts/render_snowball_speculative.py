@@ -17,7 +17,7 @@ assert len(steps)==60 and min(steps)==1 and max(steps)==60
 ink,muted,grid,blue,gray='#18212C','#64748B','#E8EDF3','#3677C4','#B7C1CD'
 plt.rcParams.update({'font.family':'DejaVu Sans','font.size':12,'text.color':ink,'axes.labelcolor':ink,'xtick.color':muted,'ytick.color':muted,'axes.spines.top':False,'axes.spines.right':False,'axes.edgecolor':'#CBD5E1','savefig.facecolor':'white'})
 fig=plt.figure(figsize=(15.4,6.6),facecolor='white')
-fig.text(.045,.91,'Train the draft once, then keep using it during RL',ha='left',va='top',fontsize=22,fontproperties=TITLE_FONT)
+fig.text(.045,.91,'Speculative decoding speedup and draft stability',ha='left',va='top',fontsize=22,fontproperties=TITLE_FONT)
 l=fig.add_axes([.095,.23,.275,.52]);r=fig.add_axes([.55,.23,.41,.52])
 l.set_title('1.42× faster updates',loc='left',fontsize=15,fontproperties=TITLE_FONT,pad=12)
 r.set_title('The frozen draft held through 60 updates',loc='left',fontsize=15,fontproperties=TITLE_FONT,pad=12)

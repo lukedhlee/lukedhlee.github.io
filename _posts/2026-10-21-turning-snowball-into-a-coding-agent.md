@@ -186,7 +186,7 @@ Long agent rollouts also made each experiment expensive. The pre-RL probe suppli
 The same frozen draft remained effective through 60 RL updates, with no decline in accepted tokens per verification step. At update 36, 86% of Snowball's weights were still bit-identical to the starting checkpoint. This limited weight movement offers one explanation for the stable acceptance. [NeMo RL's experiments](https://arxiv.org/html/2604.26779#S3.SS3) likewise found little benefit from online draft updates when the draft was already trained on the policy's in-domain outputs.
 
 <figure class="research-figure">
-<a href="{{ '/assets/img/snowball/speculative-decoding.png?v=aligned-type' | relative_url }}"><img src="{{ '/assets/img/snowball/speculative-decoding.png?v=aligned-type' | relative_url }}" alt="A frozen speculative-decoding draft accelerated RL updates and maintained acceptance through 60 updates." width="2772" height="1188" loading="lazy"></a>
+<a href="{{ '/assets/img/snowball/speculative-decoding.png?v=descriptive-title' | relative_url }}"><img src="{{ '/assets/img/snowball/speculative-decoding.png?v=descriptive-title' | relative_url }}" alt="A frozen speculative-decoding draft accelerated RL updates and maintained acceptance through 60 updates." width="2772" height="1188" loading="lazy"></a>
 <figcaption>The timing comparison and the 60-update acceptance trace come from separate experiments. A frozen draft holding here does not establish that it will hold under every RL recipe.</figcaption>
 </figure>
 
