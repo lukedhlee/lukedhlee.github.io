@@ -25,9 +25,9 @@ authors:
 <a href="{{ '/assets/img/snowball/snowball-coding-workshop.png' | relative_url }}"><img src="{{ '/assets/img/snowball/snowball-coding-workshop.png' | relative_url }}" alt="Snowball learns its craft at a coding workbench, using an example book and terminal to build and test a glowing blue machine in a snowy mountain workshop." width="1672" height="941" loading="eager"></a>
 </figure>
 
-[Marin](https://marin.community/)’s ambition is to make the knowledge behind capable AI a public resource. That means sharing the data, experiments, and decisions that go into building models, including the ones that turn out to be wrong. This post shares our contribution to that effort through developing a coding-agent expert for Snowball, Marin’s 67B A2B mixture-of-experts model.
+[Marin](https://marin.community/)’s ambition is to make the knowledge behind capable AI a public resource. That means sharing the data, experiments, and decisions that go into building models, including the ones that turn out to be wrong.
 
-We collaborated with the Marin team, starting from an early checkpoint that had received general supervised fine-tuning across multiple domains. Our task was to develop its ability to solve coding and terminal tasks. We explored reinforcement learning, additional coding-agent SFT, and SFT followed by RL.
+We worked with the Marin team to improve coding and terminal performance in Snowball, Marin’s 67B A2B mixture-of-experts model. Our starting checkpoint had received early general supervised fine-tuning across multiple domains. We explored reinforcement learning, additional coding-agent SFT, and SFT followed by RL.
 
 Some of the most interesting lessons came from reading the model’s attempts. Snowball could find the relevant function and describe a plausible fix, yet struggle to apply it. Other failures led us into the training system itself, where rising reward could hide falling held-out performance. Understanding these patterns helped us decide what to teach the model and what to fix around it.
 
