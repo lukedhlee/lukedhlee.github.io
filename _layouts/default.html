@@ -12,7 +12,7 @@
     {% if page.layout == 'research' %}<link rel="stylesheet" href="{{ '/assets/css/research.css' | relative_url }}">{% endif %}
     <link rel="alternate" type="application/atom+xml" title="{{ site.title }}" href="{{ '/feed.xml' | relative_url }}">
   </head>
-  <body>
+  <body{% if page.color_theme == 'snowball' %} class="snowball-theme"{% endif %}>
     <header class="site-header">
       <a class="site-title" href="{{ '/' | relative_url }}">{{ site.title }}</a>
       <nav class="site-nav" aria-label="Main navigation">

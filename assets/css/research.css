@@ -1,4 +1,21 @@
 .research-post { --reading-width: var(--max-width); }
+.snowball-theme {
+  --bg: #f8fafc;
+  --text: #202a35;
+  --muted: #607084;
+  --line: #dce5ee;
+  --accent: #376d9f;
+  --accent-strong: #285680;
+}
+.snowball-theme .research-header h1,
+.snowball-theme .research-content h2,
+.snowball-theme .research-content h3 { color: #263e56; }
+.snowball-theme .research-toc,
+.snowball-theme .research-content th { background: #edf3f9; }
+.snowball-theme .research-content code,
+.snowball-theme .research-content pre { background: #eaf0f6; }
+.snowball-theme .research-content pre code { background: transparent; }
+.snowball-theme .research-reports { border-left-color: #9bb8d3; }
 .research-header { max-width: var(--reading-width); margin: 0 auto 40px; }
 .research-header .back-link { margin-bottom: 30px; }
 .research-header h1 { font-size: clamp(34px, 5vw, 56px); line-height: 1.12; text-wrap: balance; }

@@ -1,5 +1,6 @@
 ---
 layout: research
+color_theme: snowball
 title: "Turning Snowball into a Coding Agent: A Post-Training Journey"
 description: "Early experiments, infrastructure fixes, and results from improving Snowball with SFT and RL."
 excerpt: "My first few weeks working on Snowball’s coding-agent capabilities: getting RL working, adding demonstrations, and trying SFT followed by RL."
