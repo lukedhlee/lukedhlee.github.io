@@ -49,7 +49,7 @@ Both SFT and RL substantially improved Snowball, with different strengths. **SFT
 <nav class="research-toc" aria-label="Article contents">
 <div class="research-toc-title">Contents</div>
 <ul>
-<li><strong><a href="#starting-with-reinforcement-learning">Starting with RL</a></strong><span class="toc-sub"><a href="#the-pre-rl-probe">Pre-RL probe</a> · <a href="#following-the-behavior-back-to-sft">SFT habits</a> · <a href="#diagnosing-entropy-collapse">Entropy collapse</a> · <a href="#fixing-the-training-stack">Stack fixes</a> · <a href="#what-rl-improved">Results</a> · <a href="#speeding-up-rollouts-without-retraining-the-draft">Speculative decoding</a></span></li>
+<li><strong><a href="#starting-with-reinforcement-learning">Starting with RL</a></strong><span class="toc-sub"><a href="#the-pre-rl-probe">Pre-RL probe</a> · <a href="#following-the-behavior-back-to-sft">SFT habits</a> · <a href="#early-rl-gains">Early gains</a> · <a href="#diagnosing-entropy-collapse">Entropy collapse</a> · <a href="#fixing-the-training-stack">Stack fixes and results</a> · <a href="#speeding-up-rollouts-without-retraining-the-draft">Speculative decoding</a></span></li>
 <li><strong><a href="#training-with-sft-and-rl">Training with SFT and RL</a></strong><span class="toc-sub"><a href="#earlier-experiments-on-the-stage-3-checkpoint">Earlier experiments</a> · <a href="#additional-sft-on-the-09-21-checkpoint">09-21 SFT</a> · <a href="#one-exploration-learning-to-recover-with-a-teacher">Teacher-guided recovery</a> · <a href="#rl-on-the-mixed-task-pool">RL setup</a></span></li>
 <li><strong><a href="#results-so-far">Results so far</a></strong></li>
 <li><strong><a href="#what-did-sft-and-rl-actually-teach-snowball-looking-behind-the-scores">What did SFT and RL actually teach Snowball: looking behind the scores</a></strong></li>
@@ -93,9 +93,26 @@ The corpus also retained unfinished trajectories: 70% of its medium-difficulty s
 [Full report](https://claude.ai/artifact/TefbJfphaTBsYFtFgrNgMY).
 </aside>
 
+### Early RL Gains
+
+In the first held-out evaluation, RL nearly doubled pass@1 from 8.7% to 16.6%. Before RL, 91% of attempts exhausted the 64k context window while the agent was still working. One RL recipe brought that down to 56%, making it more likely that useful work reached a result within the window.
+
+
+<figure class="research-figure">
+<a href="{{ '/assets/img/snowball/early-rl-labeled.png?v=slim-bars' | relative_url }}"><img src="{{ '/assets/img/snowball/early-rl-labeled.png?v=slim-bars' | relative_url }}" alt="Starting model and two RL checkpoints, labeled by their single-attempt success and task coverage." width="1728" height="880" loading="lazy"></a>
+<figcaption>The same 191 held-out tasks, eight attempts each. Both RL recipes also solved tasks the base missed in all eight attempts; this does not mean the base could never solve them.</figcaption>
+</figure>
+
+The early RL recipes also made source edits and test runs more common. Finishing more often came with different trade-offs. In the checkpoint with higher pass@1, correctness among attempts that declared completion fell from 39% to 29%. The checkpoint with higher pass@8 increased completion while keeping that figure around 41%. RL could teach the agent to finish without reliably teaching it to judge whether the work was correct. That judgment needed to be checked separately from the headline score.
+
+<figure class="research-figure">
+<a href="{{ '/assets/img/snowball/rl-behavior-changes.png?v=results-labels' | relative_url }}"><img src="{{ '/assets/img/snowball/rl-behavior-changes.png?v=results-labels' | relative_url }}" alt="Early RL behavior: more completion claims, fewer context overflows, more source edits and pytest runs. Completion accuracy fell for one RL checkpoint and held near the starting model for the other." width="1760" height="960" loading="lazy"></a>
+<figcaption>The same 191-task evaluation as the first results above, with eight attempts per task. Gray is the starting model. Of the two RL checkpoints, blue has higher pass@1 and orange has higher pass@8. The last row is conditional on declaring completion.</figcaption>
+</figure>
+
 ### Diagnosing Entropy Collapse
 
-Those traces helped explain Snowball’s starting behavior. Once RL began, another pattern emerged: held-out performance improved and then fell while training reward kept rising. Output entropy dropped to roughly half its starting value. Lowering the learning rate delayed the collapse without fixing it.
+Those early gains did not always last. In some runs, held-out performance improved and then fell while training reward kept rising. Output entropy dropped to roughly half its starting value. Lowering the learning rate delayed the collapse without fixing it.
 
 We found a mismatch in the rollout probabilities. Top-p and top-k filtering changed which tokens could be sampled, but the engine reported their probabilities before filtering. The trainer used those reported probabilities to correct for differences between the rollout and training policies, so its correction did not match how the tokens were actually sampled.
 
@@ -114,7 +131,7 @@ Disabling top-p and top-k aligned sampling with the probabilities used for train
 
 ### Fixing the Training Stack
 
-Some apparent model failures were bugs in the system around it. I found and fixed problems that the loss curve did not reveal:
+The sampling mismatch was one of several problems in the training stack. Some apparent model failures came from bugs in the system around it:
 
 <div class="table-wrap" markdown="1">
 
@@ -142,24 +159,7 @@ The text looks identical, but the trainer now sees a token the model never sampl
 [Full report](https://gist.github.com/lukedhlee/ad3a95fccccb527db66619d6b3667e7d).
 </aside>
 
-### What RL Improved
-
-In the first held-out evaluation, RL nearly doubled pass@1 from 8.7% to 16.6%. Before RL, 91% of attempts exhausted the 64k context window while the agent was still working. One RL recipe brought that down to 56%, making it more likely that useful work reached a result within the window.
-
-
-<figure class="research-figure">
-<a href="{{ '/assets/img/snowball/early-rl-labeled.png?v=slim-bars' | relative_url }}"><img src="{{ '/assets/img/snowball/early-rl-labeled.png?v=slim-bars' | relative_url }}" alt="Starting model and two RL checkpoints, labeled by their single-attempt success and task coverage." width="1728" height="880" loading="lazy"></a>
-<figcaption>The same 191 held-out tasks, eight attempts each. Both RL recipes also solved tasks the base missed in all eight attempts; this does not mean the base could never solve them.</figcaption>
-</figure>
-
-The early RL recipes also made source edits and test runs more common. Finishing more often came with different trade-offs. In the checkpoint with higher pass@1, correctness among attempts that declared completion fell from 39% to 29%. The checkpoint with higher pass@8 increased completion while keeping that figure around 41%. RL could teach the agent to finish without reliably teaching it to judge whether the work was correct. That judgment needed to be checked separately from the headline score.
-
-<figure class="research-figure">
-<a href="{{ '/assets/img/snowball/rl-behavior-changes.png?v=results-labels' | relative_url }}"><img src="{{ '/assets/img/snowball/rl-behavior-changes.png?v=results-labels' | relative_url }}" alt="Early RL behavior: more completion claims, fewer context overflows, more source edits and pytest runs. Completion accuracy fell for one RL checkpoint and held near the starting model for the other." width="1760" height="960" loading="lazy"></a>
-<figcaption>The same 191-task evaluation as the first results above, with eight attempts per task. Gray is the starting model. Of the two RL checkpoints, blue has higher pass@1 and orange has higher pass@8. The last row is conditional on declaring completion.</figcaption>
-</figure>
-
-Rebuilding the stack improved the result further. On a later evaluation set, the new stack was already ahead at update 12 and reached about ten points above the old stack by update 24.
+With these repairs in place, held-out performance improved further. On a later evaluation set, the new stack was already ahead at update 12 and reached about ten points above the old stack by update 24.
 
 
 <figure class="research-figure">
