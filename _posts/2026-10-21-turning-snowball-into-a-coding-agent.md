@@ -292,7 +292,7 @@ The two routes found relevant files at similar rates. SFT’s higher SWE-bench s
 
 ### Did SFT add knowledge?
 
-One Terminal-Bench 2.1 task gave us a plausible example. In `sqlite-db-truncate`, the fact that SQLite serial type 7 encodes an eight-byte IEEE double appeared in 12 of 13 SFT-family attempts and none of five starting-model or direct-RL attempts. Direct RL submitted incorrect decoded values rather than being cut off before reaching the problem. SFT may have supplied useful format knowledge here, although its absence from a few attempts does not establish that the other checkpoint lacked it.
+The clearest knowledge difference appeared in `sqlite-db-truncate`, a Terminal-Bench 2.1 task. The rule that SQLite serial type 7 encodes an eight-byte IEEE double appeared in **12 of 13 SFT-family attempts** and **none of five starting-model or direct-RL attempts**. Direct RL finished using incorrect decoding rules and submitted wrong values. The SFT-family models consistently used the correct format knowledge, even though they did not always complete the task successfully.
 
 Other apparent knowledge differences became less clear when we read both routes' attempts:
 
