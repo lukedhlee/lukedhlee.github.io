@@ -319,11 +319,11 @@ The clearest lesson from these reads was how often a useful idea was already vis
 
 ## Reflections
 
-Agent-assisted trace analysis could help us choose the next training experiment. We would like agents to investigate whether failures reflect missing knowledge or unreliable execution, then prepare targeted demonstrations, runnable environments, and verifiers. The test would be whether training on those examples improves the intended behavior on held-out tasks.
+Agent-assisted trace analysis offers a direction for adaptive training. Agents could diagnose missing knowledge or unreliable execution, prepare targeted demonstrations and runnable environments, and test whether subsequent training improves the intended behavior on held-out tasks. The reward-hacking example also motivates verifiers that distinguish solving a task from exploiting its evaluation.
 
-We still do not know which tasks deserve demonstrations and which are better learned through RL. SFT changes the starting policy, which also changes the tasks that provide useful reward signals. Comparing the two at a fixed total compute budget should account for both the data we generate and the rollouts we train on, rather than treating task selection and the SFT–RL split as separate decisions.
+How to allocate data and compute between SFT and RL remains open. SFT changes the policy and, with it, which tasks provide useful reward signals. A controlled comparison at fixed total compute could vary both the demonstration mix and the RL task pool, including the cost of generating data. This would help identify which tasks benefit from demonstrations, which support direct RL, and when to switch between them.
 
-Snowball started with general SFT across several domains. We measured its coding and terminal gains, but not what happened to its other abilities. From a continual-learning perspective, the next evaluation should track both specialization and retention. That would tell us whether coding-agent training needs rehearsal data from earlier domains, and how much.
+Domain-specific gains also raise a continual-learning question. Coding and terminal improvements alone do not reveal whether earlier abilities were preserved. Evaluating retention across the original domains could establish whether specialization requires rehearsal data, and how that data should share the training budget.
 
 ## What you can reuse
 
