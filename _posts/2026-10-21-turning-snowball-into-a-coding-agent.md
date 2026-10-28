@@ -195,26 +195,6 @@ The same frozen draft remained effective through 60 RL updates, with no decline 
 Full reports: [Toolkit and timing](https://gist.github.com/lukedhlee/b161a78a29e2c42b08a157aaaea6438b), [Frozen draft during RL](https://gist.github.com/lukedhlee/bd14e461b13557a3a541e721fcda643e), [Initial pilot](https://gist.github.com/lukedhlee/f02dc181b7383e47908091b565cf8619).
 </aside>
 
-<details markdown="1">
-<summary>Another exploration: training an editing prompt into the weights</summary>
-
-A short edit-discipline prompt improved the base by 9–14 points on a development set. I tried transferring that guidance into the weights by keeping it during rollouts and removing it from the context used for the weight update. Without the guidance, the trained model scored 29.8%, against 30.2% for the base. The prompted-versus-unprompted likelihood gap shrank 85%, but task success did not improve.
-
-The turn-by-turn analysis was more revealing. When the same trajectories were rescored with and without the guidance, the largest likelihood difference was on the first action. By turns four to six, that gap was already small even in the starting model. Earlier actions were held fixed, so the history could still carry forward the prompt's initial influence.
-
-<figure class="research-figure">
-<a href="{{ '/assets/img/snowball/prompt-distillation.png' | relative_url }}"><img src="{{ '/assets/img/snowball/prompt-distillation.png' | relative_url }}" alt="The likelihood difference from retaining the editing guidance was largest on the first turn and much smaller on later turns, both before and after distillation." width="1760" height="832" loading="lazy"></a>
-<figcaption>The same 152 prompted trajectories, rescored with and without the guidance. The gap measures the prompt's additional influence on the likelihood of the same actions, with the earlier history held fixed.</figcaption>
-</figure>
-
-That raises a question about when guidance is most useful. Later turns are where the agent needs to verify an edit, respond to a failed check, and decide whether the work is complete. One direction worth testing is to nudge the policy at those moments, with targeted reminders tied to what just happened. Combining prompt and weight optimization remains worth exploring, as in [Fast-Slow Training (FST)](https://arxiv.org/abs/2605.12484) and [P²O](https://arxiv.org/pdf/2603.21877). These experiments tested only one fixed initial prompt, leaving guidance across turns as an open direction.
-
-<aside class="research-reports" markdown="1">
-[Full report](https://gist.github.com/lukedhlee/edb2f69d38ed089f71f74ff711281807).
-</aside>
-
-</details>
-
 These experiments brought us back to the starting policy. RL could reinforce useful attempts, but demonstrations offered a way to teach behaviors that Snowball rarely produced on its own. We wanted to see whether additional SFT could give RL a better place to start.
 
 ## Training with SFT and RL
@@ -266,6 +246,26 @@ We next ran GRPO on a mixture of R2E-Gym repository tasks and TMax terminal task
 We probed the vanilla CalibForge epoch-7 model eight times per task and selected tasks it solved between one and six times. This produced a learnable band of 1,833 tasks, comprising 453 R2E-Gym tasks and 1,380 TMax tasks. All three additional-SFT models used this band for RL.
 
 We ran 30 GRPO updates using batches of 64 tasks with eight attempts each, a learning rate of 5e-7, and a 64k context window. For comparison, we also trained Snowball 09-21 directly with RL. We extended the CalibForge and vanilla CalibForge + Kimi runs to 60 updates.
+
+<details markdown="1">
+<summary>Another exploration: training an editing prompt into the weights</summary>
+
+A short edit-discipline prompt improved the base by 9–14 points on a development set. I tried transferring that guidance into the weights by keeping it during rollouts and removing it from the context used for the weight update. Without the guidance, the trained model scored 29.8%, against 30.2% for the base. The prompted-versus-unprompted likelihood gap shrank 85%, but task success did not improve.
+
+The turn-by-turn analysis was more revealing. When the same trajectories were rescored with and without the guidance, the largest likelihood difference was on the first action. By turns four to six, that gap was already small even in the starting model. Earlier actions were held fixed, so the history could still carry forward the prompt's initial influence.
+
+<figure class="research-figure">
+<a href="{{ '/assets/img/snowball/prompt-distillation.png' | relative_url }}"><img src="{{ '/assets/img/snowball/prompt-distillation.png' | relative_url }}" alt="The likelihood difference from retaining the editing guidance was largest on the first turn and much smaller on later turns, both before and after distillation." width="1760" height="832" loading="lazy"></a>
+<figcaption>The same 152 prompted trajectories, rescored with and without the guidance. The gap measures the prompt's additional influence on the likelihood of the same actions, with the earlier history held fixed.</figcaption>
+</figure>
+
+That raises a question about when guidance is most useful. Later turns are where the agent needs to verify an edit, respond to a failed check, and decide whether the work is complete. One direction worth testing is to nudge the policy at those moments, with targeted reminders tied to what just happened. Combining prompt and weight optimization remains worth exploring, as in [Fast-Slow Training (FST)](https://arxiv.org/abs/2605.12484) and [P²O](https://arxiv.org/pdf/2603.21877). These experiments tested only one fixed initial prompt, leaving guidance across turns as an open direction.
+
+<aside class="research-reports" markdown="1">
+[Full report](https://gist.github.com/lukedhlee/edb2f69d38ed089f71f74ff711281807).
+</aside>
+
+</details>
 
 ## Results So Far
 
