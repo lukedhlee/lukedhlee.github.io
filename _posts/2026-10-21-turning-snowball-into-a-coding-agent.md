@@ -32,8 +32,6 @@ Here is where one of those recipes stands, compared with the newer Snowball 09-2
 
 </div>
 
-*Preliminary pass@1 point estimates from the October 27 readout. Both expert rows follow the same vanilla CalibForge + Kimi recipe, before and after RL. Evaluation coverage and uncertainty are discussed [below](#rl-from-the-sft-checkpoints).*
-
 Most of the gain in this comparison came from additional SFT. RL then produced smaller changes, which we are still evaluating. This post follows the work behind those results: diagnosing Snowball’s attempts, fixing the RL infrastructure, and trying SFT followed by RL. It is a preliminary account across successive starting checkpoints, with the direct-RL comparison on 09-21 still underway.
 
 <nav class="research-toc" aria-label="Article contents">
