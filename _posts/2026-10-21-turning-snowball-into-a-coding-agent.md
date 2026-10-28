@@ -94,7 +94,7 @@ Those traces helped explain Snowball’s starting behavior. Once RL began, anoth
 
 We found a mismatch in the rollout probabilities. Top-p and top-k filtering changed which tokens could be sampled, but the engine reported their probabilities before filtering. The trainer used those reported probabilities to correct for differences between the rollout and training policies, so its correction did not match how the tokens were actually sampled.
 
-Our engine-versus-trainer checks missed this because both sides used the same unfiltered probabilities. **They checked numerical agreement, but not whether those probabilities described the sampling process.**
+Our engine-versus-trainer checks missed this because both sides used the same unfiltered probabilities. They checked numerical agreement, but not whether those probabilities described the sampling process.
 
 Disabling top-p and top-k aligned sampling with the probabilities used for training and restored full-distribution exploration. Entropy stayed near its starting level beyond the earlier collapse point.
 
