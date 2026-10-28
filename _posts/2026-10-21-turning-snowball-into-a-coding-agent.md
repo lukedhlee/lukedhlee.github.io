@@ -11,6 +11,7 @@ authors:
   - name: Harshit Varma
     url: https://hrshtv.github.io/
   - name: Alex Dimakis
+    url: https://people.eecs.berkeley.edu/~alexdimakis/
 ---
 
 <figure class="research-figure research-hero">
