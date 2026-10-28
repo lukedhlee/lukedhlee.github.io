@@ -52,9 +52,10 @@ def early_rl():
         ("RL: higher pass@1", [16.6, 39.8], BLUE),
         ("RL: higher pass@8", [15.2, 42.9], LIGHT),
     ]
-    width = .23
+    width = .13
+    spacing = .17
     for i, (label, values, color) in enumerate(series):
-        bars = ax.bar(x + (i - 1) * width, values, width, color=color, label=label)
+        bars = ax.bar(x + (i - 1) * spacing, values, width, color=color, label=label)
         ax.bar_label(bars, labels=[f"{v:.1f}%" for v in values],
                      padding=5, fontsize=11, color=INK)
     ax.set_ylim(0, 60)
