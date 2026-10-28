@@ -85,8 +85,8 @@ In thirteen of fifteen closely read tasks with both successful and failed attemp
 One recurring failure had a surprisingly specific source. Snowball wrote SEARCH/REPLACE blocks into `/app/solution.patch`, then tried to apply them with Unix `patch`, which does not understand that format. Its Stage-3 SFT data contained 31,661 single-file SWE traces whose instructions explicitly requested that path and format. Here the agent had a full repository and a shell, with no tool to consume those blocks. It was reproducing a procedure from a different task setup.
 
 <figure class="research-figure">
-<a href="{{ '/assets/img/snowball/sft-behavior-origin.png' | relative_url }}"><img src="{{ '/assets/img/snowball/sft-behavior-origin.png' | relative_url }}" alt="The patch-file and SEARCH/REPLACE behaviors appeared in the upstream SFT traces." width="1728" height="720" loading="lazy"></a>
-<figcaption>The SWE slice explicitly requested the same path and edit format that Snowball later used in the wrong setting. These behaviors can overlap.</figcaption>
+<a href="{{ '/assets/img/snowball/sft-behavior-origin.png?v=clean-dots' | relative_url }}"><img src="{{ '/assets/img/snowball/sft-behavior-origin.png?v=clean-dots' | relative_url }}" alt="Shares of all Stage-3 SFT traces containing editing routines: solution.patch and SEARCH/REPLACE blocks each 8.6 percent, patch commands 4.6 percent, and Python rewriters 3.5 percent." width="2088" height="810" loading="lazy"></a>
+<figcaption>The scan covered 31,661 SWE traces within the full Stage-3 corpus. Their instructions explicitly requested the path and edit format Snowball later used in the wrong setting. The figure reports shares of the full corpus; behaviors can overlap.</figcaption>
 </figure>
 
 The corpus also retained unfinished trajectories: 70% of its medium-difficulty synthetic traces never declared completion. That was consistent with Snowball's tendency to keep working until its window filled, though it did not isolate the cause. Marin's commitment to open training data made it possible to inspect what Snowball had seen and better understand the habits it brought into these tasks.
@@ -169,7 +169,7 @@ With these repairs in place, held-out performance improved further. On a later e
 <figcaption>The same held-out tasks under the older probe setup, with eight attempts per task. Familiar repositories were used during RL; new repositories were excluded entirely. Lines connect evaluated checkpoints. This is a separate evaluation from the early results above. Several changes landed together, so the gain belongs to the package.</figcaption>
 </figure>
 
-The traces showed how the rebuilt stack helped. On the 441-task probe, successful attempts took a median of **15 turns instead of 22**, and the rate of repeated commands fell by more than fourfold. More attempts reached a working fix within the context budget.
+The traces showed how the rebuilt stack helped. On the 441-task probe, successful attempts took a median of 15 turns instead of 22, and the rate of repeated commands fell by more than fourfold. More attempts reached a working fix within the context budget.
 
 Verification became less reliable, however. Agents relied more on self-written checks and less on the repository's tests, and incorrect submissions became more common. The gains came from getting useful work done sooner; checking that work remained a separate weakness.
 

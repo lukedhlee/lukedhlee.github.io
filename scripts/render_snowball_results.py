@@ -72,6 +72,32 @@ def stack_comparison():
     save(fig, "stack-comparison")
 
 
+def sft_behavior_origin():
+    # Published scan: 31,661 SWE traces within 366,154 Stage-3 rows.
+    # Preserve the original all-corpus denominator and rounded rates.
+    fig, ax = plt.subplots(figsize=(11.6, 4.5))
+    fig.subplots_adjust(left=.33, right=.91, bottom=.18, top=.70)
+    fig.text(.045, .93, "SFT contained the same editing routines",
+             fontsize=19, weight="semibold")
+    fig.text(.045, .83, "Share of the full Stage-3 SFT corpus · 366,154 traces",
+             fontsize=12, color=MUTED)
+    labels = ["Write /app/solution.patch", "Write SEARCH/REPLACE blocks",
+              "Run patch -pN", "Use a Python rewriter in /tmp"]
+    values = [8.6, 8.6, 4.6, 3.5]
+    for y, value in enumerate(values):
+        ax.hlines(y, 0, 10, color=GRID, lw=1)
+        ax.scatter(value, y, s=65, color=BLUE, zorder=3)
+        ax.annotate(f"{value:.1f}%", (value, y), xytext=(11, 0),
+                    textcoords="offset points", va="center", fontsize=13, color=INK)
+    ax.set_yticks(range(4), labels, fontsize=12, color=INK)
+    ax.set_ylim(3.5, -.5)
+    ax.set_xlim(0, 10.5)
+    ax.set_xticks([0, 2, 4, 6, 8, 10], ["0%", "2%", "4%", "6%", "8%", "10%"])
+    ax.tick_params(length=0, pad=12, labelsize=12)
+    ax.spines["bottom"].set_visible(False)
+    save(fig, "sft-behavior-origin")
+
+
 def early_rl():
     fig, ax = plt.subplots(figsize=(9.6, 4.89))
     fig.subplots_adjust(left=.09, right=.98, bottom=.24, top=.76)
@@ -184,6 +210,7 @@ def checkpoint_progress():
 
 if __name__ == "__main__":
     stack_comparison()
+    sft_behavior_origin()
     early_rl()
     sft_rl()
     checkpoint_progress()
