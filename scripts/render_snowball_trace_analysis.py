@@ -198,9 +198,6 @@ def failure_modes():
             spine.set_visible(False)
         n1, n2 = modes[0]["n_trials"][before], modes[0]["n_trials"][after]
         ax.set_xlabel(f"n = {n1} → {n2} attempts", fontsize=11, color=MUTED, labelpad=18)
-    fig.text(.035, .105, "Numbers show before → after RL, rounded to whole percentages. Patterns overlap and can also occur in passing attempts.\n"
-             "The final row counts failed submissions after an apparently successful self-check. These are trace patterns, not isolated causes of failure.",
-             fontsize=11, color=MUTED, linespacing=1.6)
     save(fig, "trace-failure-modes")
 
 
