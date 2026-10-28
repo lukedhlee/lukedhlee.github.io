@@ -165,19 +165,19 @@ def failure_modes():
         ("CalibForge SFT", "cv7", "v7rl30"),
         ("CalibForge + Kimi\nSFT", "vkimicf2", "vkrl30"),
     ]
-    fig, axes = plt.subplots(1, 3, figsize=(16.4, 8.2), sharey=True)
-    fig.subplots_adjust(left=.235, right=.985, top=.70, bottom=.27, wspace=.24)
-    fig.text(.035, .94, "How failure patterns changed with RL", fontsize=25, weight="bold")
-    fig.text(.035, .885, "OpenThoughts-TBLite · Share of all scored attempts with each pattern",
-             fontsize=14, color=MUTED)
+    fig, axes = plt.subplots(1, 3, figsize=(16.4, 7.6), sharey=True)
+    fig.subplots_adjust(left=.235, right=.985, top=.70, bottom=.15, wspace=.24)
+    fig.text(.5, .94, "How failure patterns changed with RL", fontsize=25, weight="bold", ha="center")
+    fig.text(.5, .88, "OpenThoughts-TBLite · Share of all scored attempts with each pattern",
+             fontsize=14, color=MUTED, ha="center")
     from matplotlib.lines import Line2D
     fig.legend(handles=[
         Line2D([], [], marker="o", ls="", color="#a0a9b5", markerfacecolor="white", markersize=8, label="Starting checkpoint"),
         Line2D([], [], marker="o", ls="", color=CYAN, markerfacecolor="white", markersize=8, label="Additional SFT"),
         Line2D([], [], marker="o", ls="", color=BLUE, markersize=8, label="After RL"),
-    ], loc="upper left", bbox_to_anchor=(.03, .855), ncol=3, frameon=False, fontsize=13)
+    ], loc="upper center", bbox_to_anchor=(.5, .84), ncol=3, frameon=False, fontsize=13)
     for ax, (title, before, after) in zip(axes, routes):
-        ax.set_title(title, fontsize=14, loc="left", weight="bold", pad=22)
+        ax.set_title(title, fontsize=14, loc="center", weight="bold", pad=22)
         before_color = "#a0a9b5" if before == "base0921" else CYAN
         for y, mode in enumerate(modes):
             a = 100 * mode["counts"][before] / mode["n_trials"][before]
