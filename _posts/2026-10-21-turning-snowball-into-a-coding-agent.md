@@ -340,15 +340,11 @@ The clearest lesson from these reads was how often a useful idea was already vis
 
 ## Reflections
 
-One result I keep coming back to is that our engine-versus-trainer checks passed while the sampling probabilities were still wrong. Both sides agreed on the same unfiltered distribution, so agreement never tested the assumption we actually needed. When a run loses held-out performance, I would now check what each diagnostic establishes before changing the learning rate again. A healthy-looking check can leave an important part of the training loop untested.
+Agent-assisted trace analysis could help us choose the next training experiment. We would like agents to investigate whether failures reflect missing knowledge or unreliable execution, then prepare targeted demonstrations, runnable environments, and verifiers. The test would be whether training on those examples improves the intended behavior on held-out tasks.
 
-The behavioral results also changed what I would look for in a better checkpoint. RL helped Snowball finish more often, but in one early recipe, a completion claim became less trustworthy. Later runs used fewer repository tests even as task success improved. Those observations leave a specific weakness to investigate. Can we improve how the agent checks its work and responds to failed checks, while preserving the gains in solving tasks within budget?
+We still do not know which tasks deserve demonstrations and which are better learned through RL. SFT changes the starting policy, which also changes the tasks that provide useful reward signals. Comparing the two at a fixed total compute budget should account for both the data we generate and the rollouts we train on, rather than treating task selection and the SFT–RL split as separate decisions.
 
-The direct RL results changed how I think about additional SFT. A higher score before RL did not guarantee a higher score afterward. On TBLite, RL from the general-SFT checkpoint outperformed every additional SFT recipe we tried, even after their RL continuations. On SWE-bench, additional SFT remained valuable. We have not yet compared these routes at matched total compute, so the next experiment should give them the same training budget and vary how much goes to demonstrations versus rollouts. Task allocation belongs in that comparison too. Which tasks benefit from a demonstration first, and which provide useful reward signals for RL right away? Our current task bands depend on the starting policy, so changing the SFT recipe also changes which tasks RL can learn from.
-
-Relay SFT is one possible way to connect the two stages by teaching recovery from states Snowball actually reaches. The corrected comparisons did not establish a consistent advantage over ordinary demonstrations. I would now test it on a narrower behavior, such as recovery after a failed edit, and measure both the behavior itself and what subsequent RL gains from it.
-
-Marin’s open data made this kind of investigation possible. We could follow an odd editing habit back to the instructions that taught it. That is the kind of connection I would like to make more often in future experiments. Reading traces already helped us form hypotheses; the next step is to test whether acting on those diagnoses produces improvements that carry beyond the examples we inspected.
+Snowball started with general SFT across several domains. We measured its coding and terminal gains, but not what happened to its other abilities. From a continual-learning perspective, the next evaluation should track both specialization and retention. That would tell us whether coding-agent training needs rehearsal data from earlier domains, and how much.
 
 ## What you can reuse
 
