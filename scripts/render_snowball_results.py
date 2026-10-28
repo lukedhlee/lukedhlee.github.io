@@ -213,7 +213,7 @@ def sft_rl():
         ("OpenThoughts-TBLite", "tblite", 11.5, [24.4, 33.0, 36.8], 45.1),
     ]
     for ax, (title, metric, base, sft, base_rl) in zip(axes, panels):
-        ax.set_title(title, loc="left", fontsize=15, weight="semibold", pad=20)
+        ax.set_title(title, loc="left", fontsize=15, weight="semibold", pad=10)
         for y, value, color in [(-.12, base, BASE), (.12, base_rl, step30_color)]:
             bars = ax.barh([y], [value], height=.18, color=color)
             ax.bar_label(bars, fmt="%.1f", padding=5, fontsize=12, color=MUTED if color == BASE else INK)
