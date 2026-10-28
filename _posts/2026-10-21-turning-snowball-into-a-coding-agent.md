@@ -61,6 +61,8 @@ Both SFT and RL substantially improved Snowball, with different strengths. **SFT
 
 ## Starting with Reinforcement Learning
 
+These early experiments used the older Stage-3 checkpoint to study Snowball’s behavior and get RL working reliably. The main comparison of SFT and RL later in the post uses the newer Snowball 09-21 checkpoint.
+
 ### The Pre-RL Probe
 
 Before running RL, it helps to understand what the starting model can already do. That means asking how many tasks it can sometimes solve, what its common failures are, and whether it lacks coding knowledge or struggles to put that knowledge into practice. The answers help decide whether to change the task pool, the training recipe, or the starting model.
@@ -172,12 +174,10 @@ In the later 441-task probes, successful attempts took a median of 15 turns, dow
 This was more than learning to announce completion. The grader already credited correct fixes left in the repository when the context ran out. RL made it more likely that useful work reached a correct fix within the budget. Verification remained a weakness: repository-test use fell, and wrong submissions became more common.
 
 
-On SWE-bench, the selected RL checkpoint improved from the starting model's 12 correct tasks to 23 of 100. Terminal-Bench did not show a comparable gain.
-
-One tempting context fix also failed. Removing earlier reasoning freed about a third of the window, but the model took more turns, spent 48% more tokens per rollout, and increasingly stopped reasoning. Editing the history changed how it behaved. The score barely moved.
+On SWE-bench, the selected RL checkpoint improved from the starting model's 12 correct tasks to 23 of 100.
 
 <aside class="research-reports" markdown="1">
-Full reports: [First RL results](https://gist.github.com/lukedhlee/9c19fd9288a94ecfd1dbd6906b0a8dda), [Old versus new stack](https://gist.github.com/lukedhlee/01897efa3ae7c474732c61d35150a43a), [Why RL improved](https://gist.github.com/lukedhlee/ad3a95fccccb527db66619d6b3667e7d), [Behavior and optimizer experiments](https://gist.github.com/lukedhlee/9747e8eb423f23ca6627199c2532de47), [Reasoning-history ablation](https://gist.github.com/lukedhlee/565d259cda4c396db9bcba027322186e).
+Full reports: [First RL results](https://gist.github.com/lukedhlee/9c19fd9288a94ecfd1dbd6906b0a8dda), [Old versus new stack](https://gist.github.com/lukedhlee/01897efa3ae7c474732c61d35150a43a), [Why RL improved](https://gist.github.com/lukedhlee/ad3a95fccccb527db66619d6b3667e7d), [Behavior and optimizer experiments](https://gist.github.com/lukedhlee/9747e8eb423f23ca6627199c2532de47).
 </aside>
 
 ### Speeding Up Rollouts Without Retraining the Draft
@@ -276,7 +276,7 @@ Instruction following was a possible bottleneck. Even with the prompt, only **15
 
 ## Results So Far
 
-The figure compares Snowball 09-21, direct RL, and each additional SFT recipe before and after RL. The highlighted run is vanilla CalibForge + Kimi after 60 RL updates, which also supplies the last row of the opening table. Vanilla denotes ordinary teacher-demonstration SFT.
+The results and trace comparisons from here onward use **Snowball 09-21**. The figure compares this starting checkpoint, direct RL, and each additional SFT recipe before and after RL. The highlighted run is vanilla CalibForge + Kimi after 60 RL updates, which also supplies the last row of the opening table. Vanilla denotes ordinary teacher-demonstration SFT.
 
 <figure class="research-figure">
 <a href="{{ '/assets/img/snowball/sft-rl-stages.png?v=steps30-60' | relative_url }}"><img src="{{ '/assets/img/snowball/sft-rl-stages.png?v=steps30-60' | relative_url }}" alt="Across three benchmarks, the 09-21 starting model is shown in gray, three additional SFT recipes in cyan, and each recipe followed by RL in blue. Lighter blue bars show RL step 30 and darker blue bars show step 60. Direct RL and Relay have step-30 results only. Vanilla CalibForge plus Kimi reaches 23.9 percent on Terminal-Bench, 50.5 on SWE-bench, and 41.8 on TBLite." width="2951" height="1512" loading="lazy"></a>
