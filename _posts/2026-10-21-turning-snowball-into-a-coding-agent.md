@@ -261,7 +261,7 @@ We probed the vanilla CalibForge epoch-7 model eight times per task and selected
 The RL runs used the same core recipe: batches of 64 tasks with eight attempts each, a learning rate of 5e-7, and a 64k context window. The figure compares the 09-21 starting model with each additional SFT recipe and its RL continuation. Vanilla denotes ordinary teacher-demonstration SFT.
 
 <figure class="research-figure">
-<a href="{{ '/assets/img/snowball/sft-rl-stages.png?v=crisp-blue' | relative_url }}"><img src="{{ '/assets/img/snowball/sft-rl-stages.png?v=crisp-blue' | relative_url }}" alt="Across three benchmarks, the 09-21 starting model is shown in gray, three additional SFT recipes in cyan, and each recipe followed by RL in blue. TBLite scores rise after RL in all three recipes, while SWE-bench changes are mixed." width="2951" height="1512" loading="lazy"></a>
+<a href="{{ '/assets/img/snowball/sft-rl-stages.png?v=clean-labels' | relative_url }}"><img src="{{ '/assets/img/snowball/sft-rl-stages.png?v=clean-labels' | relative_url }}" alt="Across three benchmarks, the 09-21 starting model is shown in gray, three additional SFT recipes in cyan, and each recipe followed by RL in blue. TBLite scores rise after RL in all three recipes, while SWE-bench changes are mixed." width="2951" height="1512" loading="lazy"></a>
 <figcaption>Pass@1 point estimates with Terminus-2. “Starting model” is the 09-21 general-SFT checkpoint. Blue bars follow 30 RL updates. Two evaluation repetitions per SFT/RL model, except three for the vanilla CalibForge SFT model. Scores use available scored attempts, so task coverage differs slightly. Paired uncertainty is discussed below. Results recorded October 27, 2026.</figcaption>
 </figure>
 

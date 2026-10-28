@@ -83,7 +83,7 @@ def sft_rl():
                         Patch(color=BLUE, label="SFT + RL")],
                loc="upper left", bbox_to_anchor=(.205, .91), ncol=3,
                frameon=False, fontsize=13, handlelength=1.8, columnspacing=2.4)
-    labels = ["09-21 starting model", "CalibForge\nvanilla SFT · epoch 7",
+    labels = ["09-21 starting model", "CalibForge\nvanilla SFT",
               "CalibForge + Kimi\nvanilla SFT", "CalibForge + Kimi\nRelay SFT"]
     panels = [
         ("Terminal-Bench 2.1", 7.2, [17.4, 18.8, 17.4], [20.5, 19.9, 20.9]),
