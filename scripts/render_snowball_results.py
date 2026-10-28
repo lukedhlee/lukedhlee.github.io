@@ -1,4 +1,4 @@
-"""Render the published Snowball point estimates with a restrained blue theme.
+"""Render the published Snowball point estimates with clear blue accents.
 
 Values reproduce the existing figures, not a new evaluation or aggregation.
 Run from any directory with matplotlib and numpy installed.
@@ -15,7 +15,7 @@ import numpy as np
 
 
 OUT = Path(__file__).resolve().parents[1] / "assets/img/snowball"
-BASE, LIGHT, BLUE = "#cbd1d8", "#9bb5ca", "#416c91"
+BASE, LIGHT, BLUE = "#a0a9b5", "#35a9e6", "#2563eb"
 INK, MUTED, GRID = "#283747", "#728092", "#edf0f3"
 plt.rcParams.update({
     "font.family": "DejaVu Sans",
@@ -67,7 +67,7 @@ def early_rl():
     ax.legend(loc="lower left", bbox_to_anchor=(0, 1.04), ncol=3,
               frameon=False, fontsize=10, handlelength=1.5, columnspacing=1.6)
     fig.text(.045, .065, "Same 191 held-out R2E-Gym tasks, eight samples per task.\n"
-             "The two blue shades denote different experimental RL checkpoints.",
+             "Blue and cyan denote different experimental RL checkpoints.",
              fontsize=9, color=MUTED, linespacing=1.5)
     save(fig, "early-rl-labeled")
 
