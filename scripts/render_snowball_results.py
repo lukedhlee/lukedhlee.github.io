@@ -104,7 +104,7 @@ def sft_behavior_origin():
 def entropy_debugging():
     data = json.loads((Path(__file__).parent / "data/snowball_entropy_curves.json").read_text())
     fig, ax = plt.subplots(figsize=(11, 5.5))
-    fig.subplots_adjust(left=.10, right=.97, bottom=.23, top=.70)
+    fig.subplots_adjust(left=.10, right=.97, bottom=.23, top=.77)
     fig.text(.045, .91, "Removing sampling filters kept entropy stable",
              fontsize=18, fontproperties=TITLE_FONT, va="top")
     for key, color, label in [("filtered", "#cb5a52", "Filtered sampling"),
@@ -161,7 +161,7 @@ def early_rl():
 
 def behavior_changes():
     fig, ax = plt.subplots(figsize=(11, 6))
-    fig.subplots_adjust(left=.32, right=.96, bottom=.19, top=.78)
+    fig.subplots_adjust(left=.32, right=.96, bottom=.19, top=.85)
     labels = ["Declared completion", "Ran out of context\nwhile still working",
               "Edited a repository\nsource file", "Ran pytest", "Correct when it\ndeclared completion"]
     before = [9.3, 91.1, 59.8, 35.7, 38.7]

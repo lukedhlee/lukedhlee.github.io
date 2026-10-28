@@ -110,7 +110,7 @@ In the first held-out evaluation, RL nearly doubled pass@1 from 8.7% to 16.6%. B
 The early RL recipes also made source edits and test runs more common. Finishing more often came with different trade-offs. In the checkpoint with higher pass@1, correctness among attempts that declared completion fell from 39% to 29%. The checkpoint with higher pass@8 increased completion while keeping that figure around 41%. RL could teach the agent to finish without reliably teaching it to judge whether the work was correct. That judgment needed to be checked separately from the headline score.
 
 <figure class="research-figure">
-<a href="{{ '/assets/img/snowball/rl-behavior-changes.png?v=aligned-type' | relative_url }}"><img src="{{ '/assets/img/snowball/rl-behavior-changes.png?v=aligned-type' | relative_url }}" alt="Early RL behavior: more completion claims, fewer context overflows, more source edits and pytest runs. Completion accuracy fell for one RL checkpoint and held near the starting model for the other." width="1980" height="1080" loading="lazy"></a>
+<a href="{{ '/assets/img/snowball/rl-behavior-changes.png?v=spacing-refined' | relative_url }}"><img src="{{ '/assets/img/snowball/rl-behavior-changes.png?v=spacing-refined' | relative_url }}" alt="Early RL behavior: more completion claims, fewer context overflows, more source edits and pytest runs. Completion accuracy fell for one RL checkpoint and held near the starting model for the other." width="1980" height="1080" loading="lazy"></a>
 <figcaption>The same 191-task evaluation as the first results above, with eight attempts per task. Gray is the starting model. Of the two RL checkpoints, blue has higher pass@1 and orange has higher pass@8. The last row is conditional on declaring completion.</figcaption>
 </figure>
 
@@ -125,7 +125,7 @@ Our engine-versus-trainer checks missed this because both sides used the same un
 Disabling top-p and top-k aligned sampling with the probabilities used for training and restored full-distribution exploration. Entropy stayed near its starting level beyond the earlier collapse point.
 
 <figure class="research-figure">
-<a href="{{ '/assets/img/snowball/entropy-debugging.png?v=clean-type' | relative_url }}"><img src="{{ '/assets/img/snowball/entropy-debugging.png?v=clean-type' | relative_url }}" alt="Filtered sampling reduced entropy to about half its initial value, while full-distribution sampling stayed near its starting level." width="1980" height="990" loading="lazy"></a>
+<a href="{{ '/assets/img/snowball/entropy-debugging.png?v=spacing-refined' | relative_url }}"><img src="{{ '/assets/img/snowball/entropy-debugging.png?v=spacing-refined' | relative_url }}" alt="Filtered sampling reduced entropy to about half its initial value, while full-distribution sampling stayed near its starting level." width="1980" height="990" loading="lazy"></a>
 <figcaption>The same starting model and learning rate, changing only the sampling settings. Each curve is normalized to its own first update. Entropy stayed stable through update 38 with full-distribution sampling. Curves reproduced from the first RL report.</figcaption>
 </figure>
 
@@ -207,7 +207,7 @@ On the older Stage-3 checkpoint, I tried additional SFT on a mixture of OpenThou
 SFT raised SWE-bench from 14.5% to 24.1%; another 30 GRPO updates brought it to 30.7%. RL directly from the starting checkpoint scored 25.0% in its earlier evaluation. SFT could provide a better starting policy, and RL could improve it further.
 
 <figure class="research-figure">
-<a href="{{ '/assets/img/snowball/ota-sft-rl-swe.png?v=matched-title-size' | relative_url }}"><img src="{{ '/assets/img/snowball/ota-sft-rl-swe.png?v=matched-title-size' | relative_url }}" alt="SWE-bench Verified random-100 on the older Stage-3 checkpoint: starting model 14.5%, SFT 24.1%, RL only 25.0%, and SFT followed by RL 30.7%, with 95% Wilson intervals." width="2052" height="1007" loading="lazy"></a>
+<a href="{{ '/assets/img/snowball/ota-sft-rl-swe.png?v=spacing-refined' | relative_url }}"><img src="{{ '/assets/img/snowball/ota-sft-rl-swe.png?v=spacing-refined' | relative_url }}" alt="SWE-bench Verified random-100 on the older Stage-3 checkpoint: starting model 14.5%, SFT 24.1%, RL only 25.0%, and SFT followed by RL 30.7%, with 95% Wilson intervals." width="2052" height="1007" loading="lazy"></a>
 <figcaption>All rows use Eval Policy v0.1. The starting model, SFT, and SFT→RL results pool three evaluation runs; RL-alone is one earlier run at lower concurrency. Treat its comparison as approximate rather than a paired test. Lines show 95% intervals.</figcaption>
 </figure>
 
@@ -335,7 +335,7 @@ Longer reasoning sometimes paid off. On parking-lot pathfinding, the vanilla Kim
 The starting checkpoint often struggled to get actions executed at all. On TBLite, invalid action formats appeared in roughly four out of five attempts. Direct RL reduced that to about 2%, while additional SFT almost eliminated it. Both routes also made claims of completion without doing any work much rarer.
 
 <figure class="research-figure">
-<a href="{{ '/assets/img/snowball/trace-failure-modes.png?v=aligned-type' | relative_url }}"><img src="{{ '/assets/img/snowball/trace-failure-modes.png?v=aligned-type' | relative_url }}" alt="Five TBLite trace patterns before and after RL. Direct RL reduces invalid action formats from 81 to 2 percent of attempts. Turns reaching the token limit decline from 53 to 36 percent for CalibForge plus Kimi, but remain near 68 percent for CalibForge-only SFT. Summarization handoffs also decline for CalibForge plus Kimi. Unfinished shell commands persist, while failed submissions after successful self-checks become more common in the Kimi models." width="2952" height="1404" loading="lazy"></a>
+<a href="{{ '/assets/img/snowball/trace-failure-modes.png?v=spacing-refined' | relative_url }}"><img src="{{ '/assets/img/snowball/trace-failure-modes.png?v=spacing-refined' | relative_url }}" alt="Five TBLite trace patterns before and after RL. Direct RL reduces invalid action formats from 81 to 2 percent of attempts. Turns reaching the token limit decline from 53 to 36 percent for CalibForge plus Kimi, but remain near 68 percent for CalibForge-only SFT. Summarization handoffs also decline for CalibForge plus Kimi. Unfinished shell commands persist, while failed submissions after successful self-checks become more common in the Kimi models." width="2952" height="1404" loading="lazy"></a>
 <figcaption>Percentages use all scored attempts for each model, rather than only its failures. A single attempt can exhibit several patterns, including on attempts that eventually pass. The self-check mismatch counts only failed submissions. Labels come from the trace detectors and spot checks described in the failure-mode analysis.</figcaption>
 </figure>
 

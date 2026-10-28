@@ -172,7 +172,7 @@ def failure_modes():
         Line2D([], [], marker="o", ls="", color=BLUE, markersize=8, label="After RL"),
     ], loc="upper left", bbox_to_anchor=(.04, .78), ncol=3, frameon=False, fontsize=13)
     for ax, (title, before, after) in zip(axes, routes):
-        ax.set_title(title, fontsize=14, loc="left", fontproperties=TITLE_FONT, pad=22)
+        ax.set_title(title, fontsize=17, loc="left", fontfamily=TITLE_FONT.get_family(), fontweight="medium", pad=10)
         before_color = "#a0a9b5" if before == "base0921" else CYAN
         for y, mode in enumerate(modes):
             a = 100 * mode["counts"][before] / mode["n_trials"][before]
