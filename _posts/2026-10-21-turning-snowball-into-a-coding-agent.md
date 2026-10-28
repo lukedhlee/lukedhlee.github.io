@@ -202,7 +202,7 @@ For binary-reward GRPO, a group of attempts that all fail has no reward differen
 
 On the older Stage-3 checkpoint, I tried additional SFT on a mixture of OpenThoughts-Agent traces, instruction-following traces, and successful synthesized-task traces, then ran GRPO from that SFT checkpoint.
 
-SFT raised SWE-bench from 14.5% to 24.1%; another 30 GRPO updates brought it to **30.7%**. RL directly from the starting checkpoint scored 25.0% in its earlier evaluation. SFT could provide a better starting policy, and RL could improve it further.
+SFT raised SWE-bench from 14.5% to 24.1%; another 30 GRPO updates brought it to 30.7%. RL directly from the starting checkpoint scored 25.0% in its earlier evaluation. SFT could provide a better starting policy, and RL could improve it further.
 
 <figure class="research-figure">
 <a href="{{ '/assets/img/snowball/ota-sft-rl-swe.png?v=crisp-blue' | relative_url }}"><img src="{{ '/assets/img/snowball/ota-sft-rl-swe.png?v=crisp-blue' | relative_url }}" alt="SWE-bench Verified random-100 on the older Stage-3 checkpoint: starting model 14.5%, SFT 24.1%, RL only 25.0%, and SFT followed by RL 30.7%, with 95% Wilson intervals." width="2052" height="1007" loading="lazy"></a>
