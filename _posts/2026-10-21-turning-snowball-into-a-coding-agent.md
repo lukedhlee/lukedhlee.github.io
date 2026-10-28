@@ -47,7 +47,7 @@ Both SFT and RL substantially improved Snowball, with different strengths. **RL 
 <li><strong><a href="#starting-with-reinforcement-learning">Starting with RL</a></strong><span class="toc-sub"><a href="#the-pre-rl-probe">Pre-RL probe</a> · <a href="#following-the-behavior-back-to-sft">SFT habits</a> · <a href="#diagnosing-entropy-collapse">Entropy collapse</a> · <a href="#fixing-the-training-stack">Stack fixes</a> · <a href="#what-rl-improved">Results</a> · <a href="#speeding-up-rollouts-without-retraining-the-draft">Speculative decoding</a></span></li>
 <li><strong><a href="#strengthening-the-starting-policy-with-sft">Adding SFT before RL</a></strong><span class="toc-sub"><a href="#earlier-experiments-on-the-stage-3-checkpoint">Earlier experiments</a> · <a href="#additional-sft-on-the-09-21-checkpoint">09-21 SFT</a> · <a href="#one-exploration-learning-to-recover-with-a-teacher">Teacher-guided recovery</a></span></li>
 <li><strong><a href="#rl-from-the-sft-checkpoints">RL from the SFT checkpoints</a></strong></li>
-<li><strong><a href="#similar-scores-different-ways-of-working">Similar scores, different ways of working</a></strong></li>
+<li><strong><a href="#looking-behind-the-scores">Looking behind the scores</a></strong></li>
 <li><strong><a href="#reflections">Reflections</a></strong></li>
 <li><strong><a href="#what-you-can-reuse">What you can reuse</a></strong></li>
 <li><strong><a href="#acknowledgements">Acknowledgements</a></strong></li>
@@ -273,7 +273,7 @@ The RL runs used the same core recipe: batches of 64 tasks with eight attempts e
 
 RL directly from the 09-21 starting checkpoint reached 30.5% on SWE-bench, 18.8% on Terminal-Bench 2.1, and 45.1% on TBLite. Its TBLite score exceeded every additional SFT recipe, including their RL continuations, and its Terminal-Bench score was close to the best continuation at 19.3%. Additional SFT followed by RL still produced the highest SWE-bench score at 47.0%. These results make the choice of starting policy more interesting than the SFT scores alone suggested.
 
-## Similar Scores, Different Ways of Working
+## Looking Behind the Scores
 
 RL directly from Snowball 09-21 matched or came close to the SFT + RL models on terminal tasks, despite skipping the additional demonstrations. We wanted to understand what those demonstrations contributed. Did they teach new knowledge, or change how Snowball approached and executed the work? We used coding agents to compare trajectories and inspect where the two routes succeeded or failed.
 
