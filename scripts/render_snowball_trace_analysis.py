@@ -1,7 +1,8 @@
 """Figures for the paired trace reads, 2026-10-28.
 
 Source: OpenThoughts-Agent/ai_memory/active/snowball-blog/results/2026-10-27/
-trace_analysis/reports/tblite.md, section 9. Labels summarize traces; they are
+trace_analysis/reports/tblite.md, section 9, and TRACE_ANALYSIS.md, table T5.
+Labels summarize traces; they are
 not verbatim model quotations. Shared-success metrics are medians of per-task
 medians over passing attempts, not a matched-compute training comparison.
 """
@@ -99,6 +100,62 @@ def working_style():
     save(fig, "trace-working-style")
 
 
+def swe_steps():
+    """T5: shares of scored attempts, not task-averaged benchmark scores."""
+    labels = ["Snowball 09-21", "RL", "CalibForge SFT", "+ RL",
+              "CalibForge + Kimi SFT", "+ RL",
+              "CalibForge + Kimi Relay SFT", "+ RL"]
+    values = [
+        [77.7, 38.0, 14.7, 13.0],
+        [95.9, 50.5, 34.2, 31.1],
+        [97.6, 59.3, 42.8, 35.2],
+        [94.9, 64.0, 42.6, 38.6],
+        [99.5, 89.9, 51.0, 46.5],
+        [96.4, 87.8, 52.8, 47.7],
+        [98.0, 90.9, 54.5, 47.0],
+        [97.0, 87.3, 50.3, 44.2],
+    ]
+    fig, axes = plt.subplots(1, 4, figsize=(16.4, 7.8), sharey=True)
+    fig.subplots_adjust(left=.26, right=.98, bottom=.20, top=.71, wspace=.25)
+    fig.text(.04, .93, "From finding the file to a passing fix", fontsize=25, weight="bold")
+    fig.text(.04, .875, "SWE-bench Verified r100 · Share of scored attempts reaching each milestone",
+             fontsize=13, color=MUTED)
+    from matplotlib.lines import Line2D
+    fig.legend(handles=[
+        Line2D([], [], marker="o", ls="", color="#a0a9b5", label="Snowball 09-21"),
+        Line2D([], [], marker="o", ls="", color=CYAN, markerfacecolor="white", label="Additional SFT"),
+        Line2D([], [], marker="o", ls="", color=BLUE, label="After RL"),
+    ], loc="upper left", bbox_to_anchor=(.035, .845), ncol=3, frameon=False, fontsize=12)
+    for col, (ax, title) in enumerate(zip(axes, [
+        "Opened a relevant file", "Edited a relevant file", "Target tests passing", "Passed all tests",
+    ])):
+        ax.set_title(title, loc="left", fontsize=13, weight="bold", pad=18)
+        for row, vals in enumerate(values):
+            n = vals[col]
+            after_rl = row % 2 == 1
+            color = BLUE if after_rl else ("#a0a9b5" if row == 0 else CYAN)
+            ax.hlines(row, 0, 100, color=LINE, linewidth=.8, zorder=0)
+            ax.scatter(n, row, s=62, facecolors=color if after_rl or row == 0 else "white",
+                       edgecolors=color, linewidths=1.8, zorder=3)
+            ax.text(n + 4, row, f"{n:.1f}", va="center", fontsize=10, color=INK)
+        ax.set_xlim(-2, 121)
+        ax.set_ylim(7.7, -.6)
+        ax.set_xticks([0, 50, 100], ["0%", "50%", "100%"])
+        ax.set_yticks(range(8), labels)
+        ax.tick_params(axis="both", length=0, labelsize=11, pad=9)
+        ax.grid(axis="x", color=LINE, linewidth=.8)
+        ax.set_axisbelow(True)
+        for spine in ax.spines.values():
+            spine.set_visible(False)
+        for y in [1.5, 3.5, 5.5]:
+            ax.axhline(y, color=LINE, linewidth=1.1)
+    fig.text(.04, .105, "Relevant file = a file changed by the reference fix. Target tests = the issue's FAIL_TO_PASS tests at the end of the attempt.\n"
+             "Edit detection finds 80–89% of actual edits, so edit shares are lower bounds. Milestones are measured separately.",
+             fontsize=11, color=MUTED, linespacing=1.6)
+    save(fig, "trace-swe-steps")
+
+
 if __name__ == "__main__":
     cases()
     working_style()
+    swe_steps()
