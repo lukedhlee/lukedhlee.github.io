@@ -1,0 +1,35 @@
+{
+  "source": "Horizon paired_jobs/swe_s[01]_vkrl{30,60}_r[12]_mixrl_20261027; original trace_feat, heldout_feat, taxonomy tax.py and cmdclass.py",
+  "summary": {
+    "vkrl30": {
+      "n_attempts": 197,
+      "n_tasks": 99,
+      "counts": {
+        "opened": 190,
+        "edited": 173,
+        "target_tests_passing": 104
+      },
+      "percentages": {
+        "opened": 96.4,
+        "edited": 87.8,
+        "target_tests_passing": 52.8
+      },
+      "task_averaged_score": 47.5
+    },
+    "vkrl60": {
+      "n_attempts": 198,
+      "n_tasks": 99,
+      "counts": {
+        "opened": 192,
+        "edited": 183,
+        "target_tests_passing": 111
+      },
+      "percentages": {
+        "opened": 97.0,
+        "edited": 92.4,
+        "target_tests_passing": 56.1
+      },
+      "task_averaged_score": 51.0
+    }
+  }
+}
