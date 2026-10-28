@@ -163,8 +163,8 @@ Rebuilding the stack improved the result further. On a later evaluation set, the
 
 
 <figure class="research-figure">
-<a href="{{ '/assets/img/snowball/stack-comparison.png' | relative_url }}"><img src="{{ '/assets/img/snowball/stack-comparison.png' | relative_url }}" alt="Old versus new training stack on two held-out R2E-Gym splits." width="1728" height="880" loading="lazy"></a>
-<figcaption>Matched comparison under the older probe setup: 49.9% → 60.0% on new tasks in repositories used for RL, and 50.3% → 59.5% on tasks in repositories excluded from RL entirely. This is a separate evaluation from the early results above. Several changes landed together, so the gain belongs to the package.</figcaption>
+<a href="{{ '/assets/img/snowball/stack-comparison.png?v=clean-blue' | relative_url }}"><img src="{{ '/assets/img/snowball/stack-comparison.png?v=clean-blue' | relative_url }}" alt="Old versus new training stack on two held-out R2E-Gym splits, with about ten points higher pass@1 using half as many nodes." width="2088" height="936" loading="lazy"></a>
+<figcaption>Matched comparison under the older probe setup, with eight attempts per task: 49.9% → 60.0% on new tasks in repositories used for RL, and 50.3% → 59.5% on tasks in repositories excluded from RL entirely. This is a separate evaluation from the early results above. Several changes landed together, so the gain belongs to the package.</figcaption>
 </figure>
 
 In the later 441-task probes, successful attempts took a median of 15 turns, down from 22, and exact repeats of the previous command fell from 2.19 to 0.48 per 100 turns. Verification shifted toward self-written repro/check scripts, while use of the repository's tests fell.

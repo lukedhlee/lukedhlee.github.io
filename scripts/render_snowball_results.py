@@ -42,6 +42,37 @@ def save(fig, name):
     plt.close(fig)
 
 
+def stack_comparison():
+    fig, ax = plt.subplots(figsize=(11.6, 5.2))
+    fig.subplots_adjust(left=.085, right=.97, bottom=.18, top=.73)
+    fig.text(.045, .94, "About ten points higher with half the nodes",
+             fontsize=19, weight="semibold")
+    fig.text(.045, .875, "R2E-Gym · Held-out pass@1",
+             fontsize=12, color=MUTED)
+    x = np.arange(2)
+    for offset, values, color, label in [
+        (-.11, [49.9, 50.3], BASE, "Old stack · 40 nodes · update 36"),
+        (.11, [60.0, 59.5], BLUE, "New stack · 20 nodes · update 24"),
+    ]:
+        bars = ax.bar(x + offset, values, width=.18, color=color, label=label)
+        ax.bar_label(bars, labels=[f"{v:.1f}%" for v in values],
+                     padding=7, fontsize=14, color=INK)
+    ax.set_xlim(-.55, 1.55)
+    ax.set_ylim(0, 72)
+    ax.set_yticks([0, 20, 40, 60], ["0%", "20%", "40%", "60%"])
+    ax.set_xticks(x, ["Familiar repositories\n150 held-out tasks",
+                      "New repositories\n115 held-out tasks"])
+    ax.tick_params(axis="both", length=0, pad=10, labelsize=12)
+    ax.tick_params(axis="x", colors=INK)
+    ax.spines["bottom"].set_visible(False)
+    ax.grid(axis="y", color=GRID, linewidth=.8)
+    handles, labels = ax.get_legend_handles_labels()
+    fig.legend(handles, labels, loc="upper left", bbox_to_anchor=(.04, .825),
+               ncol=2, frameon=False, fontsize=11, handlelength=1.4,
+               columnspacing=2.8)
+    save(fig, "stack-comparison")
+
+
 def early_rl():
     fig, ax = plt.subplots(figsize=(9.6, 4.89))
     fig.subplots_adjust(left=.09, right=.98, bottom=.24, top=.76)
@@ -153,6 +184,7 @@ def checkpoint_progress():
 
 
 if __name__ == "__main__":
+    stack_comparison()
     early_rl()
     sft_rl()
     checkpoint_progress()
