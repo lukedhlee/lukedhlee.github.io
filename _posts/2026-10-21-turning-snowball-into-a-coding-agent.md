@@ -294,30 +294,9 @@ The two routes found relevant files at similar rates. SFT’s higher SWE-bench s
 
 The clearest knowledge difference appeared in `sqlite-db-truncate`, a Terminal-Bench 2.1 task. The rule that SQLite serial type 7 encodes an eight-byte IEEE double appeared in **12 of 13 SFT-family attempts** and **none of five starting-model or direct-RL attempts**. Direct RL finished using incorrect decoding rules and submitted wrong values. The SFT-family models consistently used the correct format knowledge, even though they did not always complete the task successfully.
 
-Other apparent knowledge differences became less clear when we read both routes' attempts:
+Other gains came from using knowledge already visible in Snowball 09-21. On `react-typescript-debugg`, the starting checkpoint proposed the needed React type-version pin in all three attempts but failed the task each time. Direct RL later passed one of two attempts. On `sakila-sqlite-queries`, the starting checkpoint wrote a correct query that failed the speed requirement; direct RL passed both attempts.
 
-<div class="table-wrap" markdown="1">
-
-| Task won by SFT + RL | What direct RL already attempted | What went wrong |
-|---|---|---|
-| Battery optimization | Dijkstra's algorithm in both attempts | Used the wrong cost or mishandled the output file. |
-| JWT API with Redis | The same Flask, PyJWT, and Redis stack | An import error broke the implementation, followed by a debugging timeout. |
-| Filesystem recovery | Base64 decoding and reversal, including combinations of the two | Did not recover the required flag. |
-
-</div>
-
-These are useful contrasts with SQLite. A failed implementation can look like missing knowledge in the score, even when the model's attempts contain the needed algorithm or components.
-
-Two TBLite tasks made the distinction especially clear. In `reverse-engineer-stack-vm`, every SFT + RL attempt encountered the candidate passphrase, but none tested it on the validator. Direct RL tried it and passed both attempts. In `etl_checkpoint_resume_bug`, direct RL found the offending guard in both attempts, but then rewrote the fix or left it as a patch file. All six SFT + RL attempts delivered a passing fix.
-
-<figure class="research-figure">
-<a href="{{ '/assets/img/snowball/trace-paired-examples.png' | relative_url }}"><img src="{{ '/assets/img/snowball/trace-paired-examples.png' | relative_url }}" alt="Two paired TBLite examples. Direct RL tests a visible passphrase and passes 2 of 2 attempts while SFT plus RL passes 0 of 6. On a checkpoint-resume bug, direct RL finds but mishandles the fix and passes 0 of 2, while SFT plus RL passes 6 of 6." width="2412" height="1530" loading="lazy"></a>
-<figcaption>Condensed trace summaries. The SFT + RL column combines two attempts from each of three recipes; direct RL has two attempts. The examples illustrate failures in both directions, not a comparison at equal attempt counts.</figcaption>
-</figure>
-
-Across 20 route-exclusive TBLite tasks we inspected, 19 were classified as execution differences and one remained undetermined. In many, the winning idea appeared in a losing attempt. Others were less conclusive because the winner failed the same test in its other run. These reads gave us little clear evidence that one route had an algorithm or domain fact the other lacked.
-
-**Neither route reliably carried a useful idea through to a correct result.** The paired examples expose a weakness in both directions, rather than establishing that either training method resolves it.
+The comparison with the starting checkpoint matters. SQLite decoding showed a specific fact used consistently after SFT. The React and SQL examples showed useful knowledge already present before RL, with later training producing successful execution. A higher score can reflect either change, and the traces help us distinguish them.
 
 ### The same solution at a different tempo
 
@@ -330,7 +309,7 @@ We also compared 26 newly solved TBLite tasks where both routes succeeded. Direc
 
 Longer reasoning sometimes paid off. On parking-lot pathfinding, the vanilla Kimi SFT + RL model finished in roughly 100–120 seconds and 6–8 turns, while direct RL took 900–1,100 seconds and 68–83 turns. On shared Terminal-Bench 2.1 successes, direct RL was slower overall. There was no single working style that won everywhere.
 
-The traces also exposed a misleading success. On a Scheme evaluator task, direct RL passed by changing the supplied interpreter that the verifier used, rather than implementing the requested evaluator. We do not count that as evidence of a new skill.
+The traces also exposed an evaluation reward hack. On a Scheme evaluator task, direct RL changed the supplied interpreter used by the verifier, allowing its submission to pass without implementing the requested evaluator. That pass does not demonstrate the intended capability.
 
 The clearest lesson from these reads was how often a useful idea was already visible before an attempt failed. Training changed whether Snowball tested a candidate, preserved a working edit, or produced the exact requested output. Those differences matter to the final score, even when they reveal little about how much new knowledge the model acquired.
 
