@@ -74,18 +74,16 @@ def early_rl():
 
 
 def sft_rl():
-    fig, axes = plt.subplots(1, 3, figsize=(16.4, 9.6), sharey=True)
+    fig, axes = plt.subplots(1, 3, figsize=(16.4, 8.4), sharey=True)
     fig.subplots_adjust(left=.205, right=.98, bottom=.15, top=.80, wspace=.18)
     fig.text(.205, .94, "Coding-agent SFT and RL continuations",
              fontsize=21, weight="semibold")
     fig.legend(handles=[Patch(color=BASE, label="09-21 starting model"),
                         Patch(color=LIGHT, label="SFT"),
-                        Patch(color=BLUE, label="SFT + RL"),
-                        Patch(facecolor="#f59e0b", edgecolor="#ad6500", hatch="///",
-                              label="Base + RL (partial)")],
-               loc="upper left", bbox_to_anchor=(.205, .91), ncol=4,
+                        Patch(color=BLUE, label="After RL")],
+               loc="upper left", bbox_to_anchor=(.205, .91), ncol=3,
                frameon=False, fontsize=12, handlelength=1.8, columnspacing=1.8)
-    labels = ["09-21 starting model", "Base + RL\n(provisional)", "CalibForge\nvanilla SFT",
+    labels = ["09-21 starting model", "CalibForge\nvanilla SFT",
               "CalibForge + Kimi\nvanilla SFT", "CalibForge + Kimi\nRelay SFT"]
     panels = [
         ("Terminal-Bench 2.1", 7.2, [17.4, 18.8, 17.4], [20.5, 19.9, 20.9]),
@@ -95,26 +93,23 @@ def sft_rl():
     for ax, (title, base, sft, rl), provisional, count in zip(
             axes, panels, [16.7, 31.4, 52.0], [21, 97, 76]):
         ax.set_title(title, loc="left", fontsize=15, weight="semibold", pad=20)
-        bars = ax.barh([0], [base], height=.28, color=BASE)
+        bars = ax.barh([-.16], [base], height=.25, color=BASE)
         ax.bar_label(bars, fmt="%.1f", padding=5, fontsize=12, color=MUTED)
-        bars = ax.barh([1], [provisional], height=.28, color="#f59e0b",
-                       edgecolor="#ad6500", linewidth=.6, hatch="///")
+        bars = ax.barh([.16], [provisional], height=.25, color=BLUE)
         ax.bar_label(bars, labels=[f"{provisional:.1f}*"], padding=5, fontsize=12, color=INK)
-        ax.text(0, 1.36, f"Partial · {count} tasks", fontsize=10, color="#985b00")
         for values, offset, color in [(sft, -.16, LIGHT), (rl, .16, BLUE)]:
-            bars = ax.barh(np.arange(2, 5) + offset, values, height=.25, color=color)
+            bars = ax.barh(np.arange(1, 4) + offset, values, height=.25, color=color)
             ax.bar_label(bars, fmt="%.1f", padding=5, fontsize=12, color=INK)
         ax.set_xlim(0, 63)
-        ax.set_ylim(4.5, -.35)
-        ax.set_yticks(range(5), labels)
+        ax.set_ylim(3.5, -.5)
+        ax.set_yticks(range(4), labels)
         ax.set_xticks([0, 20, 40], ["0%", "20%", "40%"])
         ax.tick_params(axis="both", length=0, pad=10, labelsize=12)
         ax.grid(axis="x", color=GRID, linewidth=.7)
         ax.axhline(.5, color=GRID, linewidth=.8)
-        ax.axhline(1.5, color=GRID, linewidth=.8)
         ax.set_xlabel("Pass@1 (%)", fontsize=12, labelpad=12)
     axes[0].tick_params(axis="y", labelcolor=INK)
-    fig.text(.205, .035, "* Base + RL is provisional. Benchmark coverage differs; these partial scores are not a matched comparison.",
+    fig.text(.205, .035, "* Base + RL is provisional: 21 Terminal-Bench, 97 SWE-bench, 76 TBLite tasks. Coverage differs from other models.",
              fontsize=11, color=MUTED)
     save(fig, "sft-rl-stages")
 
