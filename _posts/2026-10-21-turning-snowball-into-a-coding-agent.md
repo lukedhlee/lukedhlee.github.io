@@ -26,7 +26,7 @@ We collaborated with the Marin team, starting from an early checkpoint that had 
 
 Some of the most interesting lessons came from reading the model’s attempts. Snowball could find the relevant function and describe a plausible fix, yet struggle to apply it. Other failures led us into the training system itself, where rising reward could hide falling held-out performance. Understanding these patterns helped us decide what to teach the model and what to fix around it.
 
-Below, we share what those experiments taught us about developing a coding agent, from inspecting inherited habits and getting RL working reliably to testing what additional demonstrations could contribute. Additional SFT brought the largest overall gains on the newer Snowball checkpoint, while RL afterward showed encouraging improvements on TBLite and mixed results elsewhere. The table shows one of those recipes.
+Below, we share what those experiments taught us about developing a coding agent, from inspecting inherited habits and getting RL working reliably to testing what additional demonstrations could contribute. Both additional SFT and RL brought substantial gains on the newer Snowball checkpoint, but their strengths differed across benchmarks. RL directly from the starting checkpoint reached the highest TBLite score, while additional SFT followed by RL reached the highest SWE-bench score. That leaves an interesting question about how to divide training compute and tasks between the two. The table shows one of the SFT recipes alongside direct RL.
 
 <div class="table-wrap" markdown="1">
 
@@ -268,7 +268,7 @@ The RL runs used the same core recipe: batches of 64 tasks with eight attempts e
 <figcaption>Pass@1 point estimates with Terminus-2. “Starting model” is the 09-21 general-SFT checkpoint. Blue bars follow 30 RL updates, including RL directly from the starting model.</figcaption>
 </figure>
 
-TBLite scores rose after RL across all three additional SFT recipes. SWE-bench changes were mixed, while Terminal-Bench scores changed less. RL directly from the 09-21 starting checkpoint reached 30.5% on SWE-bench, 18.8% on Terminal-Bench 2.1, and 45.1% on TBLite.
+RL directly from the 09-21 starting checkpoint reached 30.5% on SWE-bench, 18.8% on Terminal-Bench 2.1, and 45.1% on TBLite. Its TBLite score exceeded every additional SFT recipe, including their RL continuations, and its Terminal-Bench score was close to the best continuation at 19.3%. Additional SFT followed by RL still produced the highest SWE-bench score at 47.0%. These results make the choice of starting policy more interesting than the SFT scores alone suggested.
 
 Most of the selected training tasks were TMax terminal tasks, which may help explain why TBLite moved most, though we have not tested that explanation.
 
@@ -278,7 +278,9 @@ One result I keep coming back to is that our engine-versus-trainer checks passed
 
 The behavioral results also changed what I would look for in a better checkpoint. RL helped Snowball finish more often, but in one early recipe, a completion claim became less trustworthy. Later runs used fewer repository tests even as task success improved. Those observations leave a specific weakness to investigate. Can we improve how the agent checks its work and responds to failed checks, while preserving the gains in solving tasks within budget?
 
-Additional SFT gave us much stronger starting policies, but these experiments do not tell us which demonstrations were responsible. Relay SFT tried to teach recovery from states Snowball actually reached. That remains an interesting hypothesis, especially given the gap between locating a fix and carrying it through, but the corrected comparisons did not establish a consistent advantage over ordinary demonstrations. A useful follow-up would compare demonstrations for a specific behavior, such as recovery after a failed edit, and check whether that behavior improves on held-out tasks.
+The direct RL results changed how I think about additional SFT. A higher score before RL did not guarantee a higher score afterward. On TBLite, RL from the general-SFT checkpoint outperformed every additional SFT recipe we tried, even after their RL continuations. On SWE-bench, additional SFT remained valuable. We have not yet compared these routes at matched total compute, so the next experiment should give them the same training budget and vary how much goes to demonstrations versus rollouts. Task allocation belongs in that comparison too. Which tasks benefit from a demonstration first, and which provide useful reward signals for RL right away? Our current task bands depend on the starting policy, so changing the SFT recipe also changes which tasks RL can learn from.
+
+Relay SFT is one possible way to connect the two stages by teaching recovery from states Snowball actually reaches. The corrected comparisons did not establish a consistent advantage over ordinary demonstrations. I would now test it on a narrower behavior, such as recovery after a failed edit, and measure both the behavior itself and what subsequent RL gains from it.
 
 Marin’s open data made this kind of investigation possible. We could follow an odd editing habit back to the instructions that taught it. That is the kind of connection I would like to make more often in future experiments. Reading traces already helped us form hypotheses; the next step is to test whether acting on those diagnoses produces improvements that carry beyond the examples we inspected.
 
