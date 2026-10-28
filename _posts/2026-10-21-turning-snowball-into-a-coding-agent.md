@@ -258,9 +258,11 @@ Earlier reports: [Relay design](https://gist.github.com/lukedhlee/d8fc1454ed134e
 
 ## RL from the SFT Checkpoints
 
-We next ran GRPO on a mixture of R2E-Gym repository tasks and TMax terminal tasks. The motivation was to let the demonstration-trained policies learn from their own attempts and task rewards. The mixed task pool contained 3,832 tasks. A held-out set of 426 tasks was excluded from band selection and training.
+We next ran GRPO on a mixture of R2E-Gym repository tasks and TMax terminal tasks. The motivation was to let the demonstration-trained policies learn from their own attempts and task rewards. The mixed task pool contained 3,832 tasks, comprising 1,104 R2E-Gym tasks and 2,728 TMax tasks. A held-out set of 426 tasks was excluded from band selection and training.
 
-We probed the vanilla CalibForge epoch-7 model eight times per task and selected tasks it solved between one and six times. This produced a training band of 1,833 tasks, which all three SFT arms used. A separate probe of the 09-21 starting checkpoint produced a smaller band of 1,082 tasks. That probe had incomplete task coverage, so the band sizes are descriptive rather than a controlled measurement of how much SFT expanded capability. Many tasks in the SFT band were tasks the starting model failed in all eight attempts.
+We probed the vanilla CalibForge epoch-7 model eight times per task and selected tasks it solved between one and six times. This produced a learnable band of 1,833 tasks, comprising 453 R2E-Gym tasks and 1,380 TMax tasks. All three additional-SFT models used this band for RL.
+
+Direct RL from Snowball 09-21 used its own probe and the same selection rule, yielding 1,082 tasks, comprising 280 R2E-Gym tasks and 802 TMax tasks. The two bands overlapped on 705 tasks, and we kept their natural source proportions without rebalancing. The starting-checkpoint probe had incomplete task coverage, so the band sizes are not a controlled measurement of how much SFT expanded capability. Many tasks in the SFT band were tasks the starting model failed in all eight attempts.
 
 The RL runs used the same core recipe: batches of 64 tasks with eight attempts each, a learning rate of 5e-7, and a 64k context window. The figure compares the 09-21 starting model with each additional SFT recipe and its RL continuation. Vanilla denotes ordinary teacher-demonstration SFT.
 
@@ -270,8 +272,6 @@ The RL runs used the same core recipe: batches of 64 tasks with eight attempts e
 </figure>
 
 RL directly from the 09-21 starting checkpoint reached 30.5% on SWE-bench, 18.8% on Terminal-Bench 2.1, and 45.1% on TBLite. Its TBLite score exceeded every additional SFT recipe, including their RL continuations, and its Terminal-Bench score was close to the best continuation at 19.3%. Additional SFT followed by RL still produced the highest SWE-bench score at 47.0%. These results make the choice of starting policy more interesting than the SFT scores alone suggested.
-
-Most of the selected training tasks were TMax terminal tasks, which may help explain why TBLite moved most, though we have not tested that explanation.
 
 ## Similar Scores, Different Ways of Working
 
