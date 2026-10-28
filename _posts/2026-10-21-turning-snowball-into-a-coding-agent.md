@@ -205,7 +205,7 @@ On the older Stage-3 checkpoint, I tried additional SFT on a mixture of OpenThou
 SFT raised SWE-bench from 14.5% to 24.1%; another 30 GRPO updates brought it to 30.7%. RL directly from the starting checkpoint scored 25.0% in its earlier evaluation. SFT could provide a better starting policy, and RL could improve it further.
 
 <figure class="research-figure">
-<a href="{{ '/assets/img/snowball/ota-sft-rl-swe.png?v=slimmer-rows' | relative_url }}"><img src="{{ '/assets/img/snowball/ota-sft-rl-swe.png?v=slimmer-rows' | relative_url }}" alt="SWE-bench Verified random-100 on the older Stage-3 checkpoint: starting model 14.5%, SFT 24.1%, RL only 25.0%, and SFT followed by RL 30.7%, with 95% Wilson intervals." width="2052" height="1007" loading="lazy"></a>
+<a href="{{ '/assets/img/snowball/ota-sft-rl-swe.png?v=centered-rows' | relative_url }}"><img src="{{ '/assets/img/snowball/ota-sft-rl-swe.png?v=centered-rows' | relative_url }}" alt="SWE-bench Verified random-100 on the older Stage-3 checkpoint: starting model 14.5%, SFT 24.1%, RL only 25.0%, and SFT followed by RL 30.7%, with 95% Wilson intervals." width="2052" height="1007" loading="lazy"></a>
 <figcaption>All rows use Eval Policy v0.1. The starting model, SFT, and SFT→RL results pool three evaluation runs; RL-alone is one earlier run at lower concurrency. Treat its comparison as approximate rather than a paired test. Lines show 95% intervals.</figcaption>
 </figure>
 

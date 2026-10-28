@@ -16,7 +16,7 @@ labels=['Starting model','SFT on OpenThoughts mix','RL only','SFT + RL']
 counts=[(43,297),(72,299),(25,100),(92,300)]
 colors=['#a0a9b5','#35a9e6','#f59e0b','#2563eb']
 plt.rcParams.update({'font.family':'DejaVu Sans','font.size':14,'text.color':'#18212C','axes.labelcolor':'#18212C','xtick.color':'#64748B','ytick.color':'#18212C','axes.spines.top':False,'axes.spines.right':False,'axes.spines.left':False,'axes.edgecolor':'#CBD5E1','savefig.facecolor':'white'})
-fig,ax=plt.subplots(figsize=(11.4,5.6));fig.subplots_adjust(left=.34,right=.94,bottom=.19,top=.69)
+fig,ax=plt.subplots(figsize=(11.4,5.6));fig.subplots_adjust(left=.30,right=.90,bottom=.19,top=.75)
 for i,((k,n),color) in enumerate(zip(counts,colors)):
  v=k/n;z=1.959963984540054;d=1+z*z/n;c=(v+z*z/(2*n))/d;h=z*sqrt(v*(1-v)/n+z*z/(4*n*n))/d
  lo,hi=c-h,c+h;y=3-i
