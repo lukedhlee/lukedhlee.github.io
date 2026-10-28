@@ -12,15 +12,13 @@ reading_time: 14
 <a href="{{ '/assets/img/snowball/snowball-coding-workshop.png' | relative_url }}"><img src="{{ '/assets/img/snowball/snowball-coding-workshop.png' | relative_url }}" alt="Snowball learns its craft at a coding workbench, using an example book and terminal to build and test a glowing blue machine in a snowy mountain workshop." width="1672" height="941" loading="eager"></a>
 </figure>
 
-[Marin](https://marin.community/)’s ambition is to make the knowledge behind capable AI a public resource. That means sharing the data, experiments, and decisions that go into building models, including the ones that turn out to be wrong. Other researchers can then see what happened, question it, and contribute their own ideas.
+[Marin](https://marin.community/)’s ambition is to make the knowledge behind capable AI a public resource. That means sharing the data, experiments, and decisions that go into building models, including the ones that turn out to be wrong. This post shares our contribution to that effort through developing a coding-agent expert for Snowball, Marin’s 67B A2B mixture-of-experts model.
 
-Over the past few weeks, we have been collaborating with the Marin team to develop a coding-agent expert for Snowball, Marin’s 67B A2B mixture-of-experts model. Snowball was in its first round of post-training, with early supervised fine-tuning across multiple domains. We wanted to build on that starting point and teach it to work through coding tasks. That meant navigating repositories, making edits, running tests, and recovering when something went wrong.
+We collaborated with the Marin team, starting from an early checkpoint that had received general supervised fine-tuning across multiple domains. Our task was to develop its ability to work through coding problems in a repository. We explored reinforcement learning, additional coding-agent SFT, and SFT followed by RL.
 
-Reading Snowball’s attempts revealed some interesting failure patterns. In an early review, failed attempts often reached the same file, sometimes the same function, as successful ones. The model could describe a plausible fix, yet struggle to put it into the repository. For example, it repeatedly wrote SEARCH/REPLACE blocks into a patch file that Unix `patch` could not apply. We traced that behavior back to instructions in its SFT data. Having access to the training data let us investigate how a procedure learned in one setting carried over into another.
+Some of the most interesting lessons came from reading the model’s attempts. Snowball could find the relevant function and describe a plausible fix, yet struggle to apply it. Other failures led us into the training system itself, where rising reward could hide falling held-out performance. Understanding these patterns helped us decide what to teach the model and what to fix around it.
 
-We started with reinforcement learning, which brought its own puzzles. Training reward kept rising while held-out performance improved and then fell. Investigating that divergence uncovered problems in sampling, probability accounting, and the handling of long terminal sessions that our usual checks had missed. Rebuilding the stack improved held-out R2E-Gym performance by about ten percentage points while using half as many nodes. Along the way, speculative decoding helped us run experiments faster.
-
-We also explored what demonstrations could give the starting policy before RL. Additional coding-agent SFT produced the largest overall gains on the newer Snowball 09-21 checkpoint. Continuing with RL brought encouraging improvements on OpenThoughts-TBLite, with smaller or mixed changes elsewhere. The table below shows one of those recipes.
+Below, we share what those experiments taught us about developing a coding agent, from inspecting inherited habits and getting RL working reliably to testing what additional demonstrations could contribute. Additional SFT brought the largest overall gains on the newer Snowball checkpoint, while RL afterward showed encouraging improvements on TBLite and mixed results elsewhere. The table shows one of those recipes.
 
 <div class="table-wrap" markdown="1">
 
@@ -31,8 +29,6 @@ We also explored what demonstrations could give the starting policy before RL. A
 | SFT + RL coding expert | **47.5%** | **19.9%** | **38.5%** |
 
 </div>
-
-This post follows the work behind those results. We share what we learned from Snowball’s attempts, what it took to get RL working reliably, and how SFT and RL contributed at different stages. These first experiments span successive starting checkpoints, and we discuss the approaches that helped, the ones that did not, and the questions they opened up.
 
 <nav class="research-toc" aria-label="Article contents">
 <div class="research-toc-title">Contents</div>
