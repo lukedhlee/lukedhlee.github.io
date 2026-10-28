@@ -108,9 +108,6 @@ def working_style():
 
 def swe_steps():
     """T5 milestones, with each starting policy paired with its RL continuation."""
-    step60 = json.loads((Path(__file__).parent / "data/snowball_swe_step60.json").read_text())["summary"]["vkrl60"]["percentages"]
-    extra = [step60[k] for k in ["opened", "edited", "target_tests_passing"]]
-    deep_blue = "#173f9f"
     labels = ["Snowball 09-21", "CalibForge SFT",
               "CalibForge + Kimi SFT", "CalibForge + Kimi Relay SFT"]
     values = [
@@ -129,8 +126,7 @@ def swe_steps():
         Line2D([], [], marker="o", ls="", color="#a0a9b5", markerfacecolor="white", markersize=8, label="Snowball 09-21"),
         Line2D([], [], marker="o", ls="", color=CYAN, markerfacecolor="white", markersize=8, label="Additional SFT"),
         Line2D([], [], marker="o", ls="", color=BLUE, markersize=8, label="RL step 30"),
-        Line2D([], [], marker="D", ls="", color=deep_blue, markersize=7, label="RL step 60 (vanilla Kimi)"),
-    ], loc="upper left", bbox_to_anchor=(.04, .75), ncol=4, frameon=False, fontsize=12)
+    ], loc="upper left", bbox_to_anchor=(.04, .75), ncol=3, frameon=False, fontsize=12)
     for col, (ax, title) in enumerate(zip(axes, [
         "Opened a relevant file", "Edited a relevant file", "Target tests passing",
     ])):
@@ -142,14 +138,7 @@ def swe_steps():
             ax.plot([x1, x2], [row, row], color="#aebdd0", lw=2.5, zorder=1)
             ax.scatter(x1, row, s=100, facecolors="white", edgecolors=color, linewidths=2.1, zorder=3)
             ax.scatter(x2, row, s=48, facecolors=BLUE, edgecolors=BLUE, zorder=4)
-            if row == 2:
-                x3 = extra[col]
-                ax.plot([x2, x3], [row, row], color=deep_blue, lw=1.5, zorder=2)
-                ax.scatter(x3, row, s=55, marker="D", color=deep_blue, zorder=5)
-                ax.text(111, row - .14, f"{x1:.1f} → {x2:.1f}", va="center", fontsize=13, color=INK)
-                ax.text(111, row + .23, f"Step 60: {x3:.1f}", va="center", fontsize=12, color=deep_blue)
-            else:
-                ax.text(111, row, f"{x1:.1f} → {x2:.1f}", va="center", fontsize=13, color=INK)
+            ax.text(111, row, f"{x1:.1f} → {x2:.1f}", va="center", fontsize=13, color=INK)
         ax.set_xlim(-3, 184)
         ax.set_ylim(3.55, -.55)
         ax.set_xticks([0, 50, 100], ["0%", "50%", "100%"])

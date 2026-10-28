@@ -296,7 +296,7 @@ More updates did not help every recipe equally. CalibForge-only SFT gained on SW
 
 ## What Did SFT and RL Actually Teach Snowball: Looking Behind the Scores
 
-At 30 RL updates, direct RL from Snowball 09-21 matched or came close to the SFT + RL models on terminal tasks, despite skipping the additional demonstrations. The trace inspections below compare these 30-update checkpoints with their starting policies; the SWE-bench figure also includes the vanilla Kimi run at update 60. We wanted to understand what those demonstrations contributed. Did they teach new knowledge, or change how Snowball approached and executed the work? We used coding agents to compare trajectories and inspect where the two routes succeeded or failed.
+At 30 RL updates, direct RL from Snowball 09-21 matched or came close to the SFT + RL models on terminal tasks, despite skipping the additional demonstrations. The trace inspections below compare these 30-update checkpoints with their starting policies. We wanted to understand what those demonstrations contributed. Did they teach new knowledge, or change how Snowball approached and executed the work? We used coding agents to compare trajectories and inspect where the two routes succeeded or failed.
 
 ### SFT’s advantage on SWE-bench
 
@@ -305,11 +305,11 @@ On SWE-bench, additional coding-agent SFT with CalibForge + Kimi reached **46.5%
 Both direct RL and Kimi SFT nearly always opened a file touched by the reference fix. The gap appeared afterward. Kimi SFT edited a relevant file **almost twice as often** and left the target tests passing **about 1.5 times as often** as direct RL.
 
 <figure class="research-figure">
-<a href="{{ '/assets/img/snowball/trace-swe-steps.png?v=aligned-type' | relative_url }}"><img src="{{ '/assets/img/snowball/trace-swe-steps.png?v=aligned-type' | relative_url }}" alt="SWE-bench execution milestones. Snowball 09-21 opens a relevant file in 78 percent of scored attempts and edits one in 38 percent. Vanilla Kimi SFT reaches 99 and 90 percent respectively and leaves the target tests passing in 51 percent of scored attempts. At RL step 60, vanilla Kimi reaches 97.0 percent opened, 92.4 percent edited, and 56.1 percent target tests passing." width="2952" height="1080" loading="lazy"></a>
-<figcaption>Open circles show the starting policies, blue dots show RL update 30, and dark-blue diamonds add update 60 for vanilla CalibForge + Kimi. Values are shares of scored attempts, rather than the task-averaged benchmark scores above. A relevant file is one changed by the reference fix. Edit detection finds 80–89% of actual edits, so that column is a lower bound. These milestones are measured separately, rather than as conditional probabilities.</figcaption>
+<a href="{{ '/assets/img/snowball/trace-swe-steps.png?v=step30-only' | relative_url }}"><img src="{{ '/assets/img/snowball/trace-swe-steps.png?v=step30-only' | relative_url }}" alt="SWE-bench execution milestones. Snowball 09-21 opens a relevant file in 78 percent of scored attempts and edits one in 38 percent. Vanilla Kimi SFT reaches 99 and 90 percent respectively and leaves the target tests passing in 51 percent of scored attempts." width="2952" height="1080" loading="lazy"></a>
+<figcaption>Open circles show the starting policies and blue dots show RL update 30. Values are shares of scored attempts, rather than the task-averaged benchmark scores above. A relevant file is one changed by the reference fix. Edit detection finds 80–89% of actual edits, so that column is a lower bound. These milestones are measured separately, rather than as conditional probabilities.</figcaption>
 </figure>
 
-The two routes found relevant files at similar rates. SFT’s higher SWE-bench score went with more attempts editing those files and leaving the target tests passing. The step-60 overlay extends this pattern, with both editing and target-test success improving alongside the benchmark score.
+The two routes found relevant files at similar rates. SFT’s higher SWE-bench score went with more attempts editing those files and leaving the target tests passing.
 
 ### Did SFT add knowledge?
 
