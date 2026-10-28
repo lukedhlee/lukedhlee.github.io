@@ -42,8 +42,8 @@ Before running RL, it helps to understand what the starting model can already do
 I started with [Snowball's Stage-3 Nemotron-Terminal SFT checkpoint](https://github.com/marin-community/marin/issues/8225). Before training, I sampled R2E-Gym tasks eight times each and used coding agents to inspect the traces. Only 36% of fully sampled tasks had both successes and failures, the useful band for binary-reward GRPO.
 
 <figure class="research-figure">
-<a href="{{ '/assets/img/snowball/pre-rl-probe.png?v=success-distribution' | relative_url }}"><img src="{{ '/assets/img/snowball/pre-rl-probe.png?v=success-distribution' | relative_url }}" alt="Distribution of successes out of eight attempts: 62.9% of tasks had no successes and 36.2% had one to seven. Successful attempts more often edited the repository and ran a test." width="3060" height="1170" loading="lazy"></a>
-<figcaption>The original probe, before the terminal-screen fix. The right panel compares attempts on tasks solved one to three times in eight tries. These historical measurements are not directly comparable with the later RL evaluations.</figcaption>
+<a href="{{ '/assets/img/snowball/pre-rl-probe.png?v=clean-distribution' | relative_url }}"><img src="{{ '/assets/img/snowball/pre-rl-probe.png?v=clean-distribution' | relative_url }}" alt="Distribution of successes out of eight attempts: 62.9% of tasks had no successes and 36.2% had one to seven. Successful attempts more often edited the repository and ran a test." width="3060" height="1080" loading="lazy"></a>
+<figcaption>The original probe: 4,206 tasks sampled eight times, before the terminal-screen fix. Dots show observed percentages and the curve joins the discrete bins. Right: 8,641 attempts on tasks solved one to three times in eight tries, with overlapping behavior categories. These historical measurements are separate from the later RL evaluations.</figcaption>
 </figure>
 
 In thirteen of fifteen closely read tasks with both successful and failed attempts, the losers reached the same file, usually the same function, as the winner. Often they could describe the fix. Getting it into the repository was another matter.
@@ -199,25 +199,7 @@ For binary-reward GRPO, a group of attempts that all fail has no reward differen
 
 ### Earlier Experiments on the Stage-3 Checkpoint
 
-Our first SFT experiments used the older Stage-3 starting model from the RL experiments above. They gave us reasons to keep exploring SFT, but also showed that fitting demonstrations better did not guarantee a better agent.
-
-#### Better Loss, Worse Agent
-
-On the older starting checkpoint, Kimi SWE-smith demonstrations looked promising by loss: every one of 628 held-out trajectories became easier for the model to predict. SWE-bench went backwards, from 12 correct tasks to 7 of 100.
-
-<figure class="research-figure">
-<a href="{{ '/assets/img/snowball/kimi-fit-versus-agent.png' | relative_url }}"><img src="{{ '/assets/img/snowball/kimi-fit-versus-agent.png' | relative_url }}" alt="Held-out demonstration loss improved while SWE-bench task performance declined." width="1760" height="704" loading="lazy"></a>
-</figure>
-
-The transcripts were more informative than the loss. The model declared completion on 96 of 99 inspected trials; only 7% of those declarations were correct. A data audit found that 39% of the training traces were failed attempts that still ended by declaring completion. I had trained on those endings too. Subsequent RL recovered performance, but did not establish an advantage over starting RL from the original checkpoint.
-
-<aside class="research-reports" markdown="1">
-Full reports: [Kimi training and fit](https://gist.github.com/lukedhlee/5bbf6bdd183b7f9047790cbb61c55011), [Kimi SFT and subsequent RL](https://gist.github.com/lukedhlee/48185da748a200d44f7fe31431054e37), [Trace-level behavior](https://gist.github.com/lukedhlee/ec30c26faedd2a85baa3dd1d212d9efa).
-</aside>
-
-#### Combining SFT and RL
-
-The OpenThoughts experiments worked better. I fine-tuned the same older starting checkpoint on a mixture of OpenThoughts-Agent traces, instruction-following traces, and successful synthesized-task traces, then ran GRPO from that SFT checkpoint.
+On the older Stage-3 checkpoint, I tried additional SFT on a mixture of OpenThoughts-Agent traces, instruction-following traces, and successful synthesized-task traces, then ran GRPO from that SFT checkpoint.
 
 SFT raised SWE-bench from 14.5% to 24.1%; another 30 GRPO updates brought it to **30.7%**. RL directly from the starting checkpoint scored 25.0% in its earlier evaluation. SFT could provide a better starting policy, and RL could improve it further. Terminal-Bench still showed no improvement.
 
@@ -261,19 +243,12 @@ We next ran GRPO on a mixture of R2E-Gym repository tasks and TMax terminal task
 
 We probed the vanilla CalibForge epoch-7 model eight times per task and selected tasks it solved between one and six times. This produced a training band of 1,833 tasks, which all three SFT arms used. A separate probe of the 09-21 starting checkpoint produced a smaller band of 1,082 tasks. That probe had incomplete task coverage, so the band sizes are descriptive rather than a controlled measurement of how much SFT expanded capability. Many tasks in the SFT band were tasks the starting model failed in all eight attempts.
 
-The RL runs used the same core recipe: batches of 64 tasks with eight attempts each, a learning rate of 5e-7, and a 64k context window. The table shows each SFT checkpoint before and after RL. Vanilla denotes ordinary teacher-demonstration SFT.
+The RL runs used the same core recipe: batches of 64 tasks with eight attempts each, a learning rate of 5e-7, and a 64k context window. The figure compares the 09-21 starting model with each additional SFT recipe and its RL continuation. Vanilla denotes ordinary teacher-demonstration SFT.
 
-<div class="table-wrap" markdown="1">
-
-| Starting policy | Terminal-Bench 2.1, SFT → RL | SWE-bench Verified random-100, SFT → RL | OpenThoughts-TBLite, SFT → RL |
-|---|---:|---:|---:|
-| Vanilla CalibForge, epoch 7 | 17.4% → 20.5% | 34.9% → 38.4% | 24.4% → 31.9% |
-| Vanilla CalibForge + Kimi | 18.8% → 19.9% | 46.5% → 47.5% | 33.0% → 38.5% |
-| Relay CalibForge + Kimi | 17.4% → 20.9% | 47.0% → 44.4% | 36.8% → 45.0% |
-
-</div>
-
-*Preliminary pass@1 results after 30 RL updates, evaluated with Terminus-2. Two evaluation repetitions per model, except three for the vanilla CalibForge starting policy. Scores average each task’s available scored attempts. Tasks without any verifier reward are excluded. The scored task sets differ slightly, so subtracting displayed scores need not equal the paired differences discussed below. Results recorded October 27, 2026.*
+<figure class="research-figure">
+<a href="{{ '/assets/img/snowball/sft-rl-stages.png' | relative_url }}"><img src="{{ '/assets/img/snowball/sft-rl-stages.png' | relative_url }}" alt="Across three benchmarks, the 09-21 starting model is shown in gray, three additional SFT recipes in blue, and each recipe followed by RL in orange. TBLite scores rise after RL in all three recipes, while SWE-bench changes are mixed." width="2951" height="1116" loading="lazy"></a>
+<figcaption>Pass@1 point estimates with Terminus-2. “Starting model” is the 09-21 general-SFT checkpoint. Orange bars follow 30 RL updates. Two evaluation repetitions per SFT/RL model, except three for the vanilla CalibForge SFT model. Scores use available scored attempts, so task coverage differs slightly. Paired uncertainty is discussed below. Results recorded October 27, 2026.</figcaption>
+</figure>
 
 The clearest pattern was on TBLite: scores rose after RL for all three starting policies. On tasks scored for both models, the gains were 6.5 points for vanilla CalibForge, 5.6 for vanilla plus Kimi, and 8.9 for Relay plus Kimi. Only the last gain had a paired 95% bootstrap interval entirely above zero, at [+0.6, +17.2] points. The other two intervals included zero. This is encouraging early evidence that RL can add to these SFT policies, rather than an established improvement for every recipe.
 
@@ -287,20 +262,19 @@ We started by trying to improve a coding agent with RL. Much of the early work w
 
 The starting policy mattered too. Additional SFT gave us stronger coding-agent checkpoints, and subsequent RL produced encouraging TBLite gains. The broader results remain mixed, and the direct-RL comparison is still underway. We have more to learn about which demonstrations help and how much those gains can be extended through RL.
 
-Reading traces helped us decide what to try next. They exposed inherited editing habits, unfinished attempts, and unreliable completion claims that aggregate scores alone did not explain. Having access to Snowball’s training data and code made it possible to investigate those behaviors. This post records those first steps, with the hope that the experiments and artifacts help others building on the same stack.
+Reading traces helped us decide what to try next. They exposed inherited editing habits, unfinished attempts, and unreliable completion claims that aggregate scores alone did not explain. Having access to Snowball’s training data and code made it possible to investigate those behaviors. This post records those first steps. A few questions will guide the next experiments:
+
+**Which demonstrations give RL a better starting point?** We want to compare direct RL with SFT followed by RL, then understand which parts of the demonstration data help. The current results motivate that comparison, but do not settle it.
+
+**Can trace analysis help choose what to teach next?** Reading attempts exposed recurring problems with editing, verification, and completion. Can we measure those behaviors consistently and use them to select useful training examples?
+
+**When should help come through the harness or the weights?** Prompts, tool changes, and teacher interventions can all influence an attempt. We want to understand which improvements need training and which can be provided effectively during execution.
+
+**Can AI help with the experimental process?** Agents already helped inspect traces. A longer-term direction is to have them propose targeted interventions and small tests, with reliable evaluation to check whether the proposed changes help.
 
 ## What you can reuse
 
-Earlier expert checkpoints are public: an [SFT checkpoint](https://huggingface.co/laion/snowball-67b-a2b-relay-sft-allkimi-step1203), a [similarly performing continuation](https://huggingface.co/laion/snowball-67b-a2b-relay-sft-acont-step999), and the [earlier RL checkpoint](https://huggingface.co/laion/snowball-67b-a2b-rl-r2egym-newstack-step24). That SFT checkpoint’s training set is in [calibforge-relay-traces](https://huggingface.co/datasets/laion/calibforge-relay-traces), under `terminus2_relay_sft`. The new SFT → RL checkpoints reported above have not yet been uploaded.
-
-I also released an [EAGLE-3 toolkit](https://github.com/lukedhlee/grugmoe-eagle3) and [draft model](https://huggingface.co/laion/snowball-64k-eagle3-draft-r2egym). The frozen draft made matched RL updates arrive 1.42× sooner and held through 60 updates in the tested run. The [R2E-Gym Daytona artifacts](https://huggingface.co/datasets/laion/r2egym-build-artifacts) make 3,020 tasks available from eleven shared images. That pool includes tasks recovered from previously omitted repositories; passing the build gate does not certify that every task is well specified.
-
-Build checks did not catch every task defect. In a close read of 243 failed attempts across 39 tasks, 40 were attributed to task or sandbox defects. One issue requested a clear error message while its hidden test demanded exact wording. Another task's grader depended on a test helper changed by the reference patch. Two suspected misgrades lacked enough logs to confirm. **The 16% belongs to that audited sample, which over-represented difficult tasks.** [Audit details](https://gist.github.com/lukedhlee/9eafb59ad72f08957f2e7fd551c249cb).
-
-Several fixes went upstream to harbor ([#117](https://github.com/marin-community/harbor/pull/117), [#122](https://github.com/marin-community/harbor/pull/122), [#124](https://github.com/marin-community/harbor/pull/124), [#126](https://github.com/marin-community/harbor/pull/126)) and MarinSkyRL ([#517](https://github.com/marin-community/MarinSkyRL/pull/517), [#519](https://github.com/marin-community/MarinSkyRL/pull/519), [#542](https://github.com/marin-community/MarinSkyRL/pull/542)). Ben Feuer also added an upstream [probability-parity guardrail](https://github.com/marin-community/MarinSkyRL/pull/525) that rejects unsupported sampling filters.
-
-David Hall recently wrote about the missing [posttraining data commons](https://marin.community/blog/2026/10/15/there-is-no-posttraining-data-commons/). Working on this expert made that problem concrete for me. A task needs a working environment, a meaningful requirement, and a grader worth trusting. A demonstration needs to teach behavior the student can use. Sharing those pieces, including the experiments that failed, is part of what I wanted to contribute to Marin.
-
-<aside class="research-reports" markdown="1">
-Full reports: [R2E-Gym on Daytona](https://gist.github.com/lukedhlee/b84aab48a67861b94d10ebc9b1ef77b8), [Evaluation policy](https://gist.github.com/lukedhlee/d152f86a58e8619a988361e1502f9e55), [Earlier experiment index (historical)](https://gist.github.com/lukedhlee/b509ed9dca3adf98414a9c7f93e27b2c).
-</aside>
+- **Models:** earlier [SFT](https://huggingface.co/laion/snowball-67b-a2b-relay-sft-allkimi-step1203) and [RL](https://huggingface.co/laion/snowball-67b-a2b-rl-r2egym-newstack-step24) checkpoints. The new SFT + RL checkpoints above are not yet uploaded.
+- **Data:** [Relay demonstrations](https://huggingface.co/datasets/laion/calibforge-relay-traces) and [R2E-Gym environment artifacts](https://huggingface.co/datasets/laion/r2egym-build-artifacts).
+- **Decoding:** the [EAGLE-3 toolkit](https://github.com/lukedhlee/grugmoe-eagle3) and [draft model](https://huggingface.co/laion/snowball-64k-eagle3-draft-r2egym).
+- **Stack fixes:** [token preservation in Harbor](https://github.com/marin-community/harbor/pull/122) and [probability accounting in MarinSkyRL](https://github.com/marin-community/MarinSkyRL/pull/519).
