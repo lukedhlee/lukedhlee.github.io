@@ -45,9 +45,9 @@ Both SFT and RL substantially improved Snowball, with different strengths. **RL 
 <div class="research-toc-title">Contents</div>
 <ul>
 <li><strong><a href="#starting-with-reinforcement-learning">Starting with RL</a></strong><span class="toc-sub"><a href="#the-pre-rl-probe">Pre-RL probe</a> · <a href="#following-the-behavior-back-to-sft">SFT habits</a> · <a href="#diagnosing-entropy-collapse">Entropy collapse</a> · <a href="#fixing-the-training-stack">Stack fixes</a> · <a href="#what-rl-improved">Results</a> · <a href="#speeding-up-rollouts-without-retraining-the-draft">Speculative decoding</a></span></li>
-<li><strong><a href="#strengthening-the-starting-policy-with-sft">Adding SFT before RL</a></strong><span class="toc-sub"><a href="#earlier-experiments-on-the-stage-3-checkpoint">Earlier experiments</a> · <a href="#additional-sft-on-the-09-21-checkpoint">09-21 SFT</a> · <a href="#one-exploration-learning-to-recover-with-a-teacher">Teacher-guided recovery</a></span></li>
-<li><strong><a href="#rl-from-the-sft-checkpoints">RL from the SFT checkpoints</a></strong></li>
-<li><strong><a href="#what-did-sft-and-rl-actually-teach-snowball-looking-behind-the-final-scores">What did SFT and RL actually teach Snowball: looking behind the final scores</a></strong></li>
+<li><strong><a href="#training-with-sft-and-rl">Training with SFT and RL</a></strong><span class="toc-sub"><a href="#earlier-experiments-on-the-stage-3-checkpoint">Earlier experiments</a> · <a href="#additional-sft-on-the-09-21-checkpoint">09-21 SFT</a> · <a href="#one-exploration-learning-to-recover-with-a-teacher">Teacher-guided recovery</a> · <a href="#rl-on-the-mixed-task-pool">RL setup</a></span></li>
+<li><strong><a href="#results-so-far">Results so far</a></strong></li>
+<li><strong><a href="#what-did-sft-and-rl-actually-teach-snowball-looking-behind-the-scores">What did SFT and RL actually teach Snowball: looking behind the scores</a></strong></li>
 <li><strong><a href="#conclusions">Conclusions</a></strong></li>
 <li><strong><a href="#what-you-can-reuse">What you can reuse</a></strong></li>
 <li><strong><a href="#acknowledgements">Acknowledgements</a></strong></li>
@@ -212,7 +212,7 @@ That raises a question about when guidance is most useful. Later turns are where
 
 These experiments brought us back to the starting policy. RL could reinforce useful attempts, but demonstrations offered a way to teach behaviors that Snowball rarely produced on its own. We wanted to see whether additional SFT could give RL a better place to start.
 
-## Strengthening the Starting Policy with SFT
+## Training with SFT and RL
 
 For binary-reward GRPO, a group of attempts that all fail has no reward difference to learn from. Additional SFT might make more tasks sometimes solvable, giving RL more useful attempts to reinforce. That was our motivation for adding demonstrations, rather than continuing to change only the RL recipe.
 
@@ -254,13 +254,17 @@ This was one exploration alongside ordinary SFT. Earlier comparisons looked prom
 Earlier reports: [Relay design](https://gist.github.com/lukedhlee/d8fc1454ed134eff585448c4982458c9), [Initial results, before the corrected comparisons](https://gist.github.com/lukedhlee/8669f5b6f97e4e3bae72344a8fd51f4b). These historical results should be read separately from the newer experiments below.
 </aside>
 
-## RL from the SFT Checkpoints
+### RL on the Mixed Task Pool
 
 We next ran GRPO on a mixture of R2E-Gym repository tasks and TMax terminal tasks. The motivation was to let the demonstration-trained policies learn from their own attempts and task rewards. The mixed task pool contained 3,832 tasks, comprising 1,104 R2E-Gym tasks and 2,728 TMax tasks. A held-out set of 426 tasks was excluded from band selection and training.
 
 We probed the vanilla CalibForge epoch-7 model eight times per task and selected tasks it solved between one and six times. This produced a learnable band of 1,833 tasks, comprising 453 R2E-Gym tasks and 1,380 TMax tasks. All three additional-SFT models used this band for RL.
 
-We ran 30 GRPO updates using batches of 64 tasks with eight attempts each, a learning rate of 5e-7, and a 64k context window. For comparison, we also trained Snowball 09-21 directly with RL. The figure shows the starting checkpoint, the additional SFT recipes, and their RL continuations. Vanilla denotes ordinary teacher-demonstration SFT.
+We ran 30 GRPO updates using batches of 64 tasks with eight attempts each, a learning rate of 5e-7, and a 64k context window. For comparison, we also trained Snowball 09-21 directly with RL.
+
+## Results So Far
+
+The figure compares Snowball 09-21, direct RL, and each additional SFT recipe before and after RL. Vanilla denotes ordinary teacher-demonstration SFT.
 
 <figure class="research-figure">
 <a href="{{ '/assets/img/snowball/sft-rl-stages.png?v=consistent-recipe-names' | relative_url }}"><img src="{{ '/assets/img/snowball/sft-rl-stages.png?v=consistent-recipe-names' | relative_url }}" alt="Across three benchmarks, the 09-21 starting model is shown in gray, three additional SFT recipes in cyan, and each recipe followed by RL in blue. The blue bar below the starting model shows RL directly from Snowball 09-21. TBLite scores rise after RL in all three SFT recipes, while SWE-bench changes are mixed." width="2951" height="1512" loading="lazy"></a>
@@ -269,7 +273,7 @@ We ran 30 GRPO updates using batches of 64 tasks with eight attempts each, a lea
 
 RL directly from the 09-21 starting checkpoint reached 30.5% on SWE-bench, 18.8% on Terminal-Bench 2.1, and 45.1% on TBLite. Its TBLite score exceeded every additional SFT recipe, including their RL continuations, and its Terminal-Bench score was close to the best continuation at 19.3%. Additional SFT followed by RL still produced the highest SWE-bench score at 47.0%. These results make the choice of starting policy more interesting than the SFT scores alone suggested.
 
-## What Did SFT and RL Actually Teach Snowball: Looking Behind the Final Scores
+## What Did SFT and RL Actually Teach Snowball: Looking Behind the Scores
 
 RL directly from Snowball 09-21 matched or came close to the SFT + RL models on terminal tasks, despite skipping the additional demonstrations. We wanted to understand what those demonstrations contributed. Did they teach new knowledge, or change how Snowball approached and executed the work? We used coding agents to compare trajectories and inspect where the two routes succeeded or failed.
 
@@ -296,11 +300,11 @@ The examples suggest two different kinds of improvement. In the database-recover
 
 ### How the agents worked differently
 
-We also compared 26 newly solved TBLite tasks where both routes succeeded. Direct RL used fewer output tokens and more shell commands in the median successful trace. Close reads suggested a pattern of shorter reasoning turns interleaved with more experiments, while SFT + RL often worked through more of the solution before acting.
+We also compared 26 newly solved TBLite tasks where both routes succeeded. The median turn counts were similar, but direct RL used fewer output tokens and more shell commands. Reasoning made up about 42% of its output characters, compared with 69% for SFT + RL. Close reads suggested a pattern of shorter reasoning turns interleaved with more experiments, while SFT + RL often worked through more of the solution before acting.
 
 <figure class="research-figure">
-<a href="{{ '/assets/img/snowball/trace-working-style.png' | relative_url }}"><img src="{{ '/assets/img/snowball/trace-working-style.png' | relative_url }}" alt="On 26 shared TBLite successes, median time is 255 seconds for direct RL versus 604 for SFT plus RL; output tokens are 35 thousand versus 92 thousand; shell commands are 61 versus 44." width="2412" height="882" loading="lazy"></a>
-<figcaption>Medians of per-task medians over passing attempts, pooling the three SFT + RL recipes. These describe successful traces, not the cost of training or every attempt. The direction varied by task.</figcaption>
+<a href="{{ '/assets/img/snowball/trace-working-style.png?v=turns-reasoning' | relative_url }}"><img src="{{ '/assets/img/snowball/trace-working-style.png?v=turns-reasoning' | relative_url }}" alt="On 26 shared TBLite successes, median time is 255 seconds for direct RL versus 604 for SFT plus RL; agent turns are 28.5 versus 31; output tokens are 35 thousand versus 92 thousand; reasoning shares are 42 versus 69 percent of output characters; shell commands are 61 versus 44." width="2952" height="882" loading="lazy"></a>
+<figcaption>Medians of per-task medians over passing attempts, pooling the three SFT + RL recipes. Reasoning share is measured in output characters. These describe successful traces, not the cost of training or every attempt. The direction varied by task.</figcaption>
 </figure>
 
 Longer reasoning sometimes paid off. On parking-lot pathfinding, the vanilla Kimi SFT + RL model finished in roughly 100–120 seconds and 6–8 turns, while direct RL took 900–1,100 seconds and 68–83 turns. On shared Terminal-Bench 2.1 successes, direct RL was slower overall. There was no single working style that won everywhere.
@@ -310,7 +314,7 @@ Longer reasoning sometimes paid off. On parking-lot pathfinding, the vanilla Kim
 The starting checkpoint often struggled to get actions executed at all. On TBLite, invalid action formats appeared in roughly four out of five attempts. Direct RL reduced that to about 2%, while additional SFT almost eliminated it. Both routes also made claims of completion without doing any work much rarer.
 
 <figure class="research-figure">
-<a href="{{ '/assets/img/snowball/trace-failure-modes.png?v=aligned-lines' | relative_url }}"><img src="{{ '/assets/img/snowball/trace-failure-modes.png?v=aligned-lines' | relative_url }}" alt="Five TBLite trace patterns before and after RL. Direct RL reduces invalid action formats from 81 to 2 percent of attempts. Turns reaching the token limit decline from 53 to 36 percent for CalibForge plus Kimi, but remain near 68 percent for CalibForge-only SFT. Summarization handoffs also decline for CalibForge plus Kimi. Unfinished shell commands persist, while failed submissions after successful self-checks become more common in the Kimi models." width="2952" height="1404" loading="lazy"></a>
+<a href="{{ '/assets/img/snowball/trace-failure-modes.png?v=balanced-margins' | relative_url }}"><img src="{{ '/assets/img/snowball/trace-failure-modes.png?v=balanced-margins' | relative_url }}" alt="Five TBLite trace patterns before and after RL. Direct RL reduces invalid action formats from 81 to 2 percent of attempts. Turns reaching the token limit decline from 53 to 36 percent for CalibForge plus Kimi, but remain near 68 percent for CalibForge-only SFT. Summarization handoffs also decline for CalibForge plus Kimi. Unfinished shell commands persist, while failed submissions after successful self-checks become more common in the Kimi models." width="2952" height="1404" loading="lazy"></a>
 <figcaption>Percentages use all scored attempts for each model, rather than only its failures. A single attempt can exhibit several patterns, including on attempts that eventually pass. The self-check mismatch counts only failed submissions. Labels come from the trace detectors and spot checks described in the failure-mode analysis.</figcaption>
 </figure>
 
@@ -337,7 +341,9 @@ Each credited pass added roughly half a percentage point to its model’s benchm
 
 Failed shortcuts were much more common after direct RL. Its evaluation traces contained **31 fabricated or copied deliverables**, compared with at most one per other model in the catalog. Examples included a zero-filled placeholder and copying a shipped expected-output file instead of deriving the result from the input. All 31 attempts failed.
 
-During training, rollouts that accessed verifier or reward files were rare and earned below-average rewards. Whether shortcuts such as fabricated deliverables became more common or more rewarding over training remains untested.
+A broader audit scanned 61,440 training rollouts for exploit patterns. Close reads of 32 rewarded candidates found genuine work rather than fabricated deliverables. The audit found no confirmed case of the evaluation-style fabrication earning training reward.
+
+It did uncover an answer leak in the R2E-Gym environments. The repositories were checked out at the starting commit but still contained later history, including upstream fixes. In 39 rewarded SFT-family rollouts, agents viewed a later fix and discussed it in the next turn. This behavior was present from the first update and stayed roughly flat during RL. How much it affected reward remains unmeasured, but checking out an earlier commit alone did not keep the answer out of the environment.
 
 ## Conclusions
 
