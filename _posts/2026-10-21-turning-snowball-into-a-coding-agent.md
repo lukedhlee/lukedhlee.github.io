@@ -262,9 +262,7 @@ We next ran GRPO on a mixture of R2E-Gym repository tasks and TMax terminal task
 
 We probed the vanilla CalibForge epoch-7 model eight times per task and selected tasks it solved between one and six times. This produced a learnable band of 1,833 tasks, comprising 453 R2E-Gym tasks and 1,380 TMax tasks. All three additional-SFT models used this band for RL.
 
-Direct RL from Snowball 09-21 used its own probe and the same selection rule, yielding 1,082 tasks, comprising 280 R2E-Gym tasks and 802 TMax tasks. The two bands overlapped on 705 tasks, and we kept their natural source proportions without rebalancing. The starting-checkpoint probe had incomplete task coverage, so the band sizes are not a controlled measurement of how much SFT expanded capability. Many tasks in the SFT band were tasks the starting model failed in all eight attempts.
-
-The RL runs used the same core recipe: batches of 64 tasks with eight attempts each, a learning rate of 5e-7, and a 64k context window. The figure compares the 09-21 starting model with each additional SFT recipe and its RL continuation. Vanilla denotes ordinary teacher-demonstration SFT.
+We ran 30 GRPO updates using batches of 64 tasks with eight attempts each, a learning rate of 5e-7, and a 64k context window. For comparison, we also trained Snowball 09-21 directly with RL. The figure shows the starting checkpoint, the additional SFT recipes, and their RL continuations. Vanilla denotes ordinary teacher-demonstration SFT.
 
 <figure class="research-figure">
 <a href="{{ '/assets/img/snowball/sft-rl-stages.png?v=consistent-recipe-names' | relative_url }}"><img src="{{ '/assets/img/snowball/sft-rl-stages.png?v=consistent-recipe-names' | relative_url }}" alt="Across three benchmarks, the 09-21 starting model is shown in gray, three additional SFT recipes in cyan, and each recipe followed by RL in blue. The blue bar below the starting model shows RL directly from Snowball 09-21. TBLite scores rise after RL in all three SFT recipes, while SWE-bench changes are mixed." width="2951" height="1512" loading="lazy"></a>
@@ -294,7 +292,7 @@ The two routes found relevant files at similar rates. SFT’s higher SWE-bench s
 
 The clearest knowledge difference appeared in `sqlite-db-truncate`, a Terminal-Bench 2.1 task. The rule that SQLite serial type 7 encodes an eight-byte IEEE double appeared in **12 of 13 SFT-family attempts** and **none of five starting-model or direct-RL attempts**. Direct RL finished using incorrect decoding rules and submitted wrong values. The SFT-family models consistently used the correct format knowledge, even though they did not always complete the task successfully.
 
-Other gains came from using knowledge already visible in Snowball 09-21. On `react-typescript-debugg`, the starting checkpoint proposed the needed React type-version pin in all three attempts but failed the task each time. Direct RL later passed one of two attempts. On `sakila-sqlite-queries`, the starting checkpoint wrote a correct query that failed the speed requirement; direct RL passed both attempts.
+RL also helped Snowball act on knowledge it already showed. The starting checkpoint identified the needed React version fix and wrote a correct SQL query, yet failed both tasks. After RL, Snowball successfully completed them. These gains suggest improved execution of existing ideas, rather than newly acquired knowledge.
 
 The comparison with the starting checkpoint matters. SQLite decoding showed a specific fact used consistently after SFT. The React and SQL examples showed useful knowledge already present before RL, with later training producing successful execution. A higher score can reflect either change, and the traces help us distinguish them.
 
