@@ -27,13 +27,13 @@ authors:
 
 [Marin](https://marin.community/)’s ambition is to make the knowledge behind capable AI a public resource. That means sharing the data, experiments, and decisions that go into building models, including the ones that turn out to be wrong.
 
-We worked with the Marin team to improve coding and terminal performance in Snowball, Marin’s 67B A2B mixture-of-experts model. Our starting checkpoint had received early general supervised fine-tuning across multiple domains. We explored reinforcement learning, additional coding-agent SFT, and SFT followed by RL.
+We worked with the Marin team to improve coding and terminal performance in Snowball, Marin’s own 67B A2B MoE model, pretrained from scratch. Our starting checkpoint had received early general supervised fine-tuning across multiple domains. We explored reinforcement learning, additional coding-agent SFT, and SFT followed by RL.
 
 Some of the most interesting lessons came from reading the model’s attempts. Snowball could find the relevant function and describe a plausible fix, yet struggle to apply it. Other failures led us into the training system itself, where rising reward could hide falling held-out performance. Understanding these patterns helped us decide what to teach the model and what to fix around it.
 
 Both SFT and RL substantially improved Snowball, with different strengths. SFT + RL reached the strongest SWE-bench and Terminal-Bench results, while direct RL remained competitive on TBLite without additional coding-agent demonstrations.
 
-This post follows our part in Marin’s first post-training effort, including the failed experiments and debugging behind the results. We hope sharing these details helps others with their own post-training efforts and advances the open science of foundation models.
+This post follows our part in Marin’s first post-training effort, including the failed experiments and debugging behind the results. We hope sharing these details helps others with their own post-training efforts and advances the open development of foundation models.
 
 <div class="table-wrap" markdown="1">
 
@@ -366,7 +366,11 @@ The training audit found no confirmed case of fabrication earning reward. It fou
 
 SFT and RL both improved Snowball. At 60 updates, vanilla CalibForge + Kimi led on SWE-bench and Terminal-Bench, while direct RL retained the highest TBLite score. Trace analysis connected those gains to changes in knowledge use and execution, and exposed evaluation reward hacking.
 
-Learning from dense feedback in agent runs is another direction. [GEPA](https://arxiv.org/abs/2507.19457) uses trajectory feedback to improve prompts, while [Fast-Slow Training (FST)](https://arxiv.org/abs/2605.12484) interleaves prompt optimization with weight updates. Agents could use compiler errors, test results, and failed actions to diagnose what to change, prepare targeted demonstrations and runnable environments, and evaluate subsequent training on held-out tasks. For the older checkpoint, which scored poorly on instruction following, combining instruction-following training with prompt optimization is a concrete follow-up.
+Using agents to inspect traces helped us understand each model’s strengths and failure modes (which could be useful for model routing at some point!). Those diagnoses could also guide targeted environments or demonstrations for more surgical improvements.
+
+Learning from dense feedback is a separate direction. [GEPA](https://arxiv.org/abs/2507.19457) uses feedback from attempts to improve prompts, while [Fast-Slow Training (FST)](https://arxiv.org/abs/2605.12484) interleaves prompt optimization with weight updates.
+
+The older Snowball checkpoint also struggled with instruction following. Improving that ability before repeating prompt optimization could help it use the selected guidance more consistently.
 
 How to allocate data and compute between SFT and RL remains open. SFT changes the policy and, with it, which tasks provide useful reward signals. A controlled comparison at fixed total compute could vary both the demonstration mix and the RL task pool, including the cost of generating data. This would help identify which tasks benefit from demonstrations, which support direct RL, and when to switch between them.
 
