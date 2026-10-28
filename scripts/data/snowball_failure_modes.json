@@ -1,0 +1,147 @@
+{
+  "source": "TRACE_ANALYSIS.md T11 and data/catalog_tblite.json (2026-10-28)",
+  "benchmark": "OpenThoughts-TBLite",
+  "denominator": "All scored attempts for each model. Patterns overlap and can occur on successful attempts; the self-check/hidden-test mismatch is failure-only by definition.",
+  "modes": [
+    {
+      "id": "tblite_fm_tool_call_protocol",
+      "name": "tool_call_protocol",
+      "label": "Invalid action format",
+      "definition": "Most turns rejected because the action is emitted in a function-call format (<tool_call>, name/arguments, bare keystroke objects) instead of terminus-2 JSON",
+      "detector": "taxonomy flag true_protocol: >=30% of turns truly rejected (post-thinking body not a valid action) and >=3",
+      "precision": "10/10 (taxonomy validation of the protocol label); 73% of base0921's 59,119 rejected turns contain <tool_call>",
+      "counts": {
+        "base0921": 192,
+        "baserl30": 4,
+        "cv7": 1,
+        "v7rl30": 0,
+        "vkimicf2": 0,
+        "vkrl30": 1,
+        "rkimicf2": 0,
+        "rkrl30": 0
+      },
+      "n_trials": {
+        "base0921": 238,
+        "baserl30": 173,
+        "cv7": 262,
+        "v7rl30": 167,
+        "vkimicf2": 174,
+        "vkrl30": 177,
+        "rkimicf2": 175,
+        "rkrl30": 173
+      }
+    },
+    {
+      "id": "tblite_fm_runaway_thinking_cap",
+      "name": "runaway_thinking_cap",
+      "label": "Turn reaches the\n16k-token limit",
+      "definition": "A single turn generates to the 16k output cap (thinking runaway); the turn is truncated and usually rejected",
+      "detector": "max completion tokens per turn >=16,000",
+      "precision": "exact by construction (token count); as primary timeout cause 5/7 (taxonomy validation)",
+      "counts": {
+        "base0921": 78,
+        "baserl30": 21,
+        "cv7": 178,
+        "v7rl30": 112,
+        "vkimicf2": 92,
+        "vkrl30": 64,
+        "rkimicf2": 112,
+        "rkrl30": 61
+      },
+      "n_trials": {
+        "base0921": 238,
+        "baserl30": 173,
+        "cv7": 262,
+        "v7rl30": 167,
+        "vkimicf2": 174,
+        "vkrl30": 177,
+        "rkimicf2": 175,
+        "rkrl30": 173
+      }
+    },
+    {
+      "id": "tblite_fm_handoff_reexploration",
+      "name": "handoff_reexploration",
+      "label": "3+ summarization\nhandoffs",
+      "definition": "Context fills repeatedly (>=3 summarization handoffs); after each the model re-reads files it already explored",
+      "detector": "taxonomy flag summarized (>=3 handoffs)",
+      "precision": "53/60 sampled flagged failures repeat an earlier command within 3 turns of a handoff",
+      "counts": {
+        "base0921": 63,
+        "baserl30": 30,
+        "cv7": 168,
+        "v7rl30": 99,
+        "vkimicf2": 91,
+        "vkrl30": 57,
+        "rkimicf2": 95,
+        "rkrl30": 57
+      },
+      "n_trials": {
+        "base0921": 238,
+        "baserl30": 173,
+        "cv7": 262,
+        "v7rl30": 167,
+        "vkimicf2": 174,
+        "vkrl30": 177,
+        "rkimicf2": 175,
+        "rkrl30": 173
+      }
+    },
+    {
+      "id": "tblite_fm_unterminated_heredoc_wedge",
+      "name": "unterminated_heredoc_wedge",
+      "label": "Shell stuck in an\nunfinished command",
+      "definition": "A heredoc/quote is never closed, the shell sits at a '> ' continuation prompt and swallows later commands",
+      "detector": ">=2 accepted turns whose terminal output ends at a '> ' continuation prompt not opened by that turn's own heredoc",
+      "precision": "6/6 read (mismatched terminator EOF vs PYEOF, unbalanced quotes)",
+      "counts": {
+        "base0921": 49,
+        "baserl30": 20,
+        "cv7": 43,
+        "v7rl30": 33,
+        "vkimicf2": 36,
+        "vkrl30": 36,
+        "rkimicf2": 34,
+        "rkrl30": 33
+      },
+      "n_trials": {
+        "base0921": 238,
+        "baserl30": 173,
+        "cv7": 262,
+        "v7rl30": 167,
+        "vkimicf2": 174,
+        "vkrl30": 177,
+        "rkimicf2": 175,
+        "rkrl30": 173
+      }
+    },
+    {
+      "id": "tblite_fm_own_check_misses_spec",
+      "name": "own_check_misses_spec",
+      "label": "Own check passes,\nhidden test fails",
+      "definition": "Model runs its own check after the last edit, the check looks fine, hidden tests fail (spec detail its check did not test)",
+      "detector": "taxonomy FALSE_CLAIM:checked_wrong",
+      "precision": "13/15 (taxonomy validation of checked_wrong)",
+      "counts": {
+        "base0921": 65,
+        "baserl30": 51,
+        "cv7": 37,
+        "v7rl30": 18,
+        "vkimicf2": 38,
+        "vkrl30": 58,
+        "rkimicf2": 26,
+        "rkrl30": 48
+      },
+      "n_trials": {
+        "base0921": 238,
+        "baserl30": 173,
+        "cv7": 262,
+        "v7rl30": 167,
+        "vkimicf2": 174,
+        "vkrl30": 177,
+        "rkimicf2": 175,
+        "rkrl30": 173
+      }
+    }
+  ]
+}

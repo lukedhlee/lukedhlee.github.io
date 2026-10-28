@@ -8,6 +8,7 @@ medians over passing attempts, not a matched-compute training comparison.
 """
 
 from pathlib import Path
+import json
 
 import matplotlib
 
@@ -155,7 +156,57 @@ def swe_steps():
     save(fig, "trace-swe-steps")
 
 
+def failure_modes():
+    """Compare pattern incidence with the same all-attempt denominator."""
+    data = json.loads((Path(__file__).parent / "data/snowball_failure_modes.json").read_text())
+    modes = data["modes"]
+    routes = [
+        ("Snowball 09-21", "base0921", "baserl30"),
+        ("CalibForge SFT", "cv7", "v7rl30"),
+        ("CalibForge + Kimi\nSFT", "vkimicf2", "vkrl30"),
+        ("CalibForge + Kimi\nRelay SFT", "rkimicf2", "rkrl30"),
+    ]
+    fig, axes = plt.subplots(1, 4, figsize=(16.4, 8.2), sharey=True)
+    fig.subplots_adjust(left=.235, right=.985, top=.70, bottom=.27, wspace=.24)
+    fig.text(.035, .94, "How failure patterns changed with RL", fontsize=25, weight="bold")
+    fig.text(.035, .885, "OpenThoughts-TBLite · Share of all scored attempts with each pattern",
+             fontsize=14, color=MUTED)
+    from matplotlib.lines import Line2D
+    fig.legend(handles=[
+        Line2D([], [], marker="o", ls="", color="#a0a9b5", markerfacecolor="white", markersize=8, label="Starting checkpoint"),
+        Line2D([], [], marker="o", ls="", color=CYAN, markerfacecolor="white", markersize=8, label="Additional SFT"),
+        Line2D([], [], marker="o", ls="", color=BLUE, markersize=8, label="After RL"),
+    ], loc="upper left", bbox_to_anchor=(.03, .855), ncol=3, frameon=False, fontsize=13)
+    for ax, (title, before, after) in zip(axes, routes):
+        ax.set_title(title, fontsize=14, loc="left", weight="bold", pad=22)
+        before_color = "#a0a9b5" if before == "base0921" else CYAN
+        for y, mode in enumerate(modes):
+            a = 100 * mode["counts"][before] / mode["n_trials"][before]
+            b = 100 * mode["counts"][after] / mode["n_trials"][after]
+            ax.hlines(y, 0, 85, color=LINE, linewidth=.8, zorder=0)
+            ax.plot([a, b], [y, y], color="#aebdd0", lw=2.5, zorder=1)
+            ax.scatter([a], [y], s=90, facecolors="white", edgecolors=before_color, linewidths=2.1, zorder=3)
+            ax.scatter([b], [y], s=45, facecolors=BLUE, edgecolors=BLUE, zorder=4)
+            ax.text(94, y, f"{a:.0f} → {b:.0f}", va="center", fontsize=12)
+        ax.set_xlim(-4, 138)
+        ax.set_ylim(4.65, -.6)
+        ax.set_xticks([0, 40, 80], ["0%", "40%", "80%"])
+        ax.set_yticks(range(len(modes)), [m["label"] for m in modes])
+        ax.tick_params(axis="both", length=0, labelsize=13, pad=10)
+        ax.grid(axis="x", color=LINE, lw=.8)
+        ax.set_axisbelow(True)
+        for spine in ax.spines.values():
+            spine.set_visible(False)
+        n1, n2 = modes[0]["n_trials"][before], modes[0]["n_trials"][after]
+        ax.set_xlabel(f"n = {n1} → {n2} attempts", fontsize=11, color=MUTED, labelpad=18)
+    fig.text(.035, .105, "Numbers show before → after RL, rounded to whole percentages. Patterns overlap and can also occur in passing attempts.\n"
+             "The final row counts failed submissions after an apparently successful self-check. These are trace patterns, not isolated causes of failure.",
+             fontsize=11, color=MUTED, linespacing=1.6)
+    save(fig, "trace-failure-modes")
+
+
 if __name__ == "__main__":
     cases()
     working_style()
     swe_steps()
+    failure_modes()
