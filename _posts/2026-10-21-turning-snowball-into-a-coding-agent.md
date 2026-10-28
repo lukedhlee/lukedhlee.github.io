@@ -311,10 +311,10 @@ Some attempts satisfied the verifier without doing the requested work. Trace ins
 
 <div class="table-wrap" markdown="1">
 
-| Task | Model | What it did | Why it passed |
-|---|---|---|---|
-| Implement a Scheme evaluator | Direct RL | Modified the supplied interpreter so the submission could delegate execution to a new primitive. | The verifier ran the modified interpreter. |
-| Repair a JavaScript network controller | CalibForge SFT | Replaced the controller with a toy simulation that printed `SYSTEM_STABLE`, removing the networking behavior it was supposed to repair. | The tests checked the success marker, exit code, and absence of error strings. |
+| Benchmark | Task | Model | What it did | Why it passed |
+|---|---|---|---|---|
+| Terminal-Bench 2.1 | Implement a Scheme evaluator | Direct RL | Modified the supplied interpreter so the submission could delegate execution to a new primitive. | The verifier ran the modified interpreter. |
+| OpenThoughts-TBLite | Repair a JavaScript network controller | CalibForge SFT | Replaced the controller with a toy simulation that printed `SYSTEM_STABLE`, removing the networking behavior it was supposed to repair. | The tests checked the success marker, exit code, and absence of error strings. |
 
 </div>
 
