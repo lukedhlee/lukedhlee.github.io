@@ -33,7 +33,7 @@ Some of the most interesting lessons came from reading the model’s attempts. S
 
 Both SFT and RL substantially improved Snowball, with different strengths. SFT + RL reached the strongest SWE-bench and Terminal-Bench results, while direct RL remained competitive on TBLite without additional coding-agent demonstrations.
 
-This post follows our part in Marin’s first post-training effort, including the failed experiments and debugging behind the results. We hope others can learn from our mistakes and avoid some of the same struggles.
+This post follows our part in Marin’s first post-training effort, including the failed experiments and debugging behind the results. We hope sharing these details helps others with their own post-training efforts and advances the open science of foundation models.
 
 <div class="table-wrap" markdown="1">
 
@@ -366,9 +366,11 @@ The training audit found no confirmed case of fabrication earning reward. It fou
 
 SFT and RL both improved Snowball. At 60 updates, vanilla CalibForge + Kimi led on SWE-bench and Terminal-Bench, while direct RL retained the highest TBLite score. Trace analysis connected those gains to changes in knowledge use and execution, and exposed evaluation reward hacking.
 
-Agent-assisted trace analysis offers a direction for adaptive training. Agents could diagnose missing knowledge or unreliable execution, prepare targeted demonstrations and runnable environments, and test whether subsequent training improves the intended behavior on held-out tasks. The reward-hacking examples also motivate verifiers that distinguish solving a task from exploiting its evaluation.
+Learning from dense feedback in agent runs is another direction. [GEPA](https://arxiv.org/abs/2507.19457) uses trajectory feedback to improve prompts, while [Fast-Slow Training (FST)](https://arxiv.org/abs/2605.12484) interleaves prompt optimization with weight updates. Agents could use compiler errors, test results, and failed actions to diagnose what to change, prepare targeted demonstrations and runnable environments, and evaluate subsequent training on held-out tasks.
 
 How to allocate data and compute between SFT and RL remains open. SFT changes the policy and, with it, which tasks provide useful reward signals. A controlled comparison at fixed total compute could vary both the demonstration mix and the RL task pool, including the cost of generating data. This would help identify which tasks benefit from demonstrations, which support direct RL, and when to switch between them.
+
+A strong teacher sharing Snowball’s tokenizer was not available for these experiments, limiting straightforward token-level on-policy distillation (OPD). Cross-tokenizer OPD could make it possible to learn from stronger teachers on Snowball’s own trajectories.
 
 Domain-specific gains also raise a continual-learning question. Coding and terminal improvements alone do not reveal whether earlier abilities were preserved. Evaluating retention across the original domains could establish whether specialization requires rehearsal data, and how that data should share the training budget.
 
