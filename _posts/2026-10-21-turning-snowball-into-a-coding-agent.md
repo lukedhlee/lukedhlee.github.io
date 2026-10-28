@@ -34,8 +34,8 @@ Below, we share what those experiments taught us about developing a coding agent
 |---|---:|---:|---:|
 | [Snowball 09-21](https://github.com/marin-community/marin/issues/8089) | 12.8% | 7.2% | 11.5% |
 | RL | 30.5% | **18.8%** | **45.1%** |
-| CalibForge + Kimi SFT | 46.5% | 18.8% | 33.0% |
-| CalibForge + Kimi SFT + RL | **47.0%** | 18.2% | 37.0% |
+| SFT | 46.5% | 18.8% | 33.0% |
+| SFT + RL | **47.0%** | 18.2% | 37.0% |
 
 </div>
 
