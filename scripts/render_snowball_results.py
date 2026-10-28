@@ -78,13 +78,13 @@ def sft_rl():
     fig.subplots_adjust(left=.205, right=.98, bottom=.15, top=.80, wspace=.18)
     fig.text(.205, .94, "Coding-agent SFT and RL continuations",
              fontsize=21, weight="semibold")
-    fig.legend(handles=[Patch(color=BASE, label="09-21 starting model"),
-                        Patch(color=LIGHT, label="SFT"),
+    fig.legend(handles=[Patch(color=BASE, label="Snowball 09-21"),
+                        Patch(color=LIGHT, label="Additional SFT"),
                         Patch(color=BLUE, label="After RL")],
                loc="upper left", bbox_to_anchor=(.205, .91), ncol=3,
                frameon=False, fontsize=12, handlelength=1.8, columnspacing=1.8)
-    labels = ["09-21 starting model", "CalibForge\nvanilla SFT",
-              "CalibForge + Kimi\nvanilla SFT", "CalibForge + Kimi\nRelay SFT"]
+    labels = ["Snowball 09-21", "CalibForge SFT",
+              "CalibForge + Kimi SFT", "CalibForge + Kimi\nRelay SFT"]
     panels = [
         ("Terminal-Bench 2.1", 7.2, [17.4, 18.8, 17.4], [19.3, 18.2, 19.3]),
         ("SWE-bench Verified r100", 12.8, [34.9, 46.5, 47.0], [38.0, 47.0, 43.5]),

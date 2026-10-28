@@ -32,10 +32,10 @@ Below, we share what those experiments taught us about developing a coding agent
 
 | Model, evaluated with Terminus-2 | SWE-bench Verified random-100 | Terminal-Bench 2.1 | OpenThoughts-TBLite |
 |---|---:|---:|---:|
-| [Snowball 09-21](https://github.com/marin-community/marin/issues/8089), starting checkpoint | 12.8% | 7.2% | 11.5% |
-| Base + RL | 30.5% | **18.8%** | **45.1%** |
-| Additional coding-agent SFT | 46.5% | 18.8% | 33.0% |
-| SFT + RL coding expert | **47.0%** | 18.2% | 37.0% |
+| [Snowball 09-21](https://github.com/marin-community/marin/issues/8089) | 12.8% | 7.2% | 11.5% |
+| Snowball 09-21 + RL | 30.5% | **18.8%** | **45.1%** |
+| CalibForge + Kimi SFT | 46.5% | 18.8% | 33.0% |
+| CalibForge + Kimi SFT + RL | **47.0%** | 18.2% | 37.0% |
 
 </div>
 
@@ -264,8 +264,8 @@ We probed the vanilla CalibForge epoch-7 model eight times per task and selected
 The RL runs used the same core recipe: batches of 64 tasks with eight attempts each, a learning rate of 5e-7, and a 64k context window. The figure compares the 09-21 starting model with each additional SFT recipe and its RL continuation. Vanilla denotes ordinary teacher-demonstration SFT.
 
 <figure class="research-figure">
-<a href="{{ '/assets/img/snowball/sft-rl-stages.png?v=updated-rl-results' | relative_url }}"><img src="{{ '/assets/img/snowball/sft-rl-stages.png?v=updated-rl-results' | relative_url }}" alt="Across three benchmarks, the 09-21 starting model is shown in gray, three additional SFT recipes in cyan, and each recipe followed by RL in blue. The blue bar below the starting model shows Base + RL. TBLite scores rise after RL in all three SFT recipes, while SWE-bench changes are mixed." width="2951" height="1512" loading="lazy"></a>
-<figcaption>Pass@1 point estimates with Terminus-2. “Starting model” is the 09-21 general-SFT checkpoint. Blue bars follow 30 RL updates, including RL directly from the starting model.</figcaption>
+<a href="{{ '/assets/img/snowball/sft-rl-stages.png?v=consistent-recipe-names' | relative_url }}"><img src="{{ '/assets/img/snowball/sft-rl-stages.png?v=consistent-recipe-names' | relative_url }}" alt="Across three benchmarks, the 09-21 starting model is shown in gray, three additional SFT recipes in cyan, and each recipe followed by RL in blue. The blue bar below the starting model shows Snowball 09-21 + RL. TBLite scores rise after RL in all three SFT recipes, while SWE-bench changes are mixed." width="2951" height="1512" loading="lazy"></a>
+<figcaption>Pass@1 point estimates with Terminus-2. “Snowball 09-21” is the general-SFT starting checkpoint. Blue bars follow 30 RL updates, including RL directly from the starting model.</figcaption>
 </figure>
 
 RL directly from the 09-21 starting checkpoint reached 30.5% on SWE-bench, 18.8% on Terminal-Bench 2.1, and 45.1% on TBLite. Its TBLite score exceeded every additional SFT recipe, including their RL continuations, and its Terminal-Bench score was close to the best continuation at 19.3%. Additional SFT followed by RL still produced the highest SWE-bench score at 47.0%. These results make the choice of starting policy more interesting than the SFT scores alone suggested.
