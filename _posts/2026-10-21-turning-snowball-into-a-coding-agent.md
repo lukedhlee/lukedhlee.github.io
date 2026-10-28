@@ -26,7 +26,7 @@ We collaborated with the Marin team, starting from an early checkpoint that had 
 
 Some of the most interesting lessons came from reading the model’s attempts. Snowball could find the relevant function and describe a plausible fix, yet struggle to apply it. Other failures led us into the training system itself, where rising reward could hide falling held-out performance. Understanding these patterns helped us decide what to teach the model and what to fix around it.
 
-Both SFT and RL substantially improved Snowball, with different strengths. **RL alone reached the highest TBLite score**, while **SFT + RL reached the highest SWE-bench score**. These results leave us asking how to divide training compute and tasks between SFT and RL. Below, we share the experiments and debugging that led us here.
+Both SFT and RL substantially improved Snowball, with different strengths. **RL alone led on TBLite and was competitive on Terminal-Bench**, while **SFT + RL led on SWE-bench**. These results leave us asking how to divide training compute and tasks between SFT and RL. Below, we share the experiments and debugging that led us here.
 
 <div class="table-wrap" markdown="1">
 
