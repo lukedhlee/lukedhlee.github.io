@@ -272,19 +272,13 @@ These experiments show what happened when we continued three demonstration-train
 
 ## Reflections
 
-We started by trying to improve a coding agent with RL. Much of the early work was making sure the training system preserved the actions the model actually sampled, accounted for their probabilities correctly, and returned rewards we could trust. Those fixes were part of making the experiments useful.
+One result I keep coming back to is that our engine-versus-trainer checks passed while the sampling probabilities were still wrong. Both sides agreed on the same unfiltered distribution, so agreement never tested the assumption we actually needed. When a run loses held-out performance, I would now check what each diagnostic establishes before changing the learning rate again. A healthy-looking check can leave an important part of the training loop untested.
 
-The starting policy mattered too. Additional SFT gave us stronger coding-agent checkpoints, and subsequent RL produced encouraging TBLite gains. The broader results remain mixed. We have more to learn about which demonstrations help and how much those gains can be extended through RL.
+The behavioral results also changed what I would look for in a better checkpoint. RL helped Snowball finish more often, but in one early recipe, a completion claim became less trustworthy. Later runs used fewer repository tests even as task success improved. Those observations leave a specific weakness to investigate. Can we improve how the agent checks its work and responds to failed checks, while preserving the gains in solving tasks within budget?
 
-Reading traces helped us decide what to try next. They exposed inherited editing habits, unfinished attempts, and unreliable completion claims that aggregate scores alone did not explain. Having access to Snowball’s training data and code made it possible to investigate those behaviors. This post records those first steps. A few questions will guide the next experiments:
+Additional SFT gave us much stronger starting policies, but these experiments do not tell us which demonstrations were responsible. Relay SFT tried to teach recovery from states Snowball actually reached. That remains an interesting hypothesis, especially given the gap between locating a fix and carrying it through, but the corrected comparisons did not establish a consistent advantage over ordinary demonstrations. A useful follow-up would compare demonstrations for a specific behavior, such as recovery after a failed edit, and check whether that behavior improves on held-out tasks.
 
-**Which demonstrations give RL a better starting point?** Which parts of the demonstration data help most, and how should that data change as the policy improves? Understanding this could help us choose more useful examples for the next round of training.
-
-**Can trace analysis help choose what to teach next?** Reading attempts exposed recurring problems with editing, verification, and completion. Can we measure those behaviors consistently and use them to select useful training examples?
-
-**When should help come through the harness or the weights?** Prompts, tool changes, and teacher interventions can all influence an attempt. We want to understand which improvements need training and which can be provided effectively during execution.
-
-**Can AI help with the experimental process?** Agents already helped inspect traces. A longer-term direction is to have them propose targeted interventions and small tests, with reliable evaluation to check whether the proposed changes help.
+Marin’s open data made this kind of investigation possible. We could follow an odd editing habit back to the instructions that taught it. That is the kind of connection I would like to make more often in future experiments. Reading traces already helped us form hypotheses; the next step is to test whether acting on those diagnoses produces improvements that carry beyond the examples we inspected.
 
 ## What you can reuse
 
