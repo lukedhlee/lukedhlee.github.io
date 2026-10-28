@@ -90,15 +90,13 @@ The corpus also retained unfinished trajectories: 70% of its medium-difficulty s
 
 ### Diagnosing Entropy Collapse
 
-Early RL runs improved and then lost their held-out gains while training reward kept rising. In one run, output entropy fell to about half its starting value. Snowball's predictions were becoming increasingly concentrated. Lowering the learning rate delayed the failure without resolving it.
+Those traces helped explain Snowball’s starting behavior. Once RL began, another pattern emerged: held-out performance improved and then fell while training reward kept rising. Output entropy dropped to roughly half its starting value. Lowering the learning rate delayed the collapse without fixing it.
 
-The problem was a disagreement between how we generated rollouts and how we trained on them. The rollout engine used top-p and top-k sampling, which removed lower-probability tokens and redistributed their probability among the remaining choices. But it reported probabilities from before that filtering. A token with 5% probability could, for example, be sampled 10% of the time after filtering while still being reported as 5%.
+We found a mismatch in the rollout probabilities. Top-p and top-k filtering changed which tokens could be sampled, but the engine reported their probabilities before filtering. The trainer used those reported probabilities to correct for differences between the rollout and training policies, so its correction did not match how the tokens were actually sampled.
 
-Those probabilities matter because the trainer uses them to correct for differences between the policy generating the data and the policy being updated. Here, that correction did not describe the actual sampling process. Tokens outside the retained set also had no chance of being explored. As predictions became more concentrated, filtering could narrow the available choices further.
+Our engine-versus-trainer checks missed this because both sides used the same unfiltered probabilities. **They checked numerical agreement, but not whether those probabilities described the sampling process.**
 
-Our engine-versus-trainer checks looked healthy because both used the same unfiltered probabilities. Those checks established numerical agreement, but did not check whether the probabilities matched the distribution that actually generated the tokens.
-
-Disabling top-p and top-k removed the exploration restriction and made sampling agree with the full-distribution probabilities used by the trainer. The run continued past the earlier collapse point, with entropy staying near its starting level.
+Disabling top-p and top-k aligned sampling with the probabilities used for training and restored full-distribution exploration. Entropy stayed near its starting level beyond the earlier collapse point.
 
 <figure class="research-figure">
 <a href="{{ '/assets/img/snowball/entropy-debugging.png' | relative_url }}"><img src="{{ '/assets/img/snowball/entropy-debugging.png' | relative_url }}" alt="Filtered sampling reduced entropy to about half its initial value, while full-distribution sampling stayed near its starting level." width="1760" height="880" loading="lazy"></a>
