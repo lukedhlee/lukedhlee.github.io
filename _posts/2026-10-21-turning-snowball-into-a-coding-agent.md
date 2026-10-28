@@ -22,7 +22,7 @@ Early RL runs gave us a puzzle: training reward kept rising, but performance on 
 
 Rebuilding the stack improved held-out R2E-Gym performance by about ten percentage points while using half as many nodes. We also worked on making experiments faster: in matched timing runs, a speculative-decoding draft reduced the time for three RL updates from 44 to 31 minutes. The same frozen draft remained useful through 60 updates.
 
-Once the training system was working better, we returned to the starting policy. RL needed useful attempts to reinforce, so we added coding-agent SFT and then continued with RL. The table below shows where one of those recipes stands, compared with Snowball 09-21:
+RL remained tricky. It needed reliable infrastructure, task environments with trustworthy rewards, and a starting policy that could sometimes solve the tasks. To strengthen that starting policy, we added coding-agent SFT before continuing with RL. Most of the overall improvement came from SFT, with smaller changes from RL on top. The table below shows where one of those recipes stands, compared with Snowball 09-21:
 
 <div class="table-wrap" markdown="1">
 
@@ -34,7 +34,7 @@ Once the training system was working better, we returned to the starting policy.
 
 </div>
 
-Most of the gain in this comparison came from additional SFT. RL then produced smaller changes. This post follows the work behind those results: diagnosing Snowball’s attempts, fixing the RL infrastructure, and trying SFT followed by RL. It is a preliminary account across successive starting checkpoints.
+This post follows the work behind those results: diagnosing Snowball’s attempts, fixing the RL infrastructure, and trying SFT followed by RL. It is a preliminary account across successive starting checkpoints.
 
 <nav class="research-toc" aria-label="Article contents">
 <div class="research-toc-title">Contents</div>
