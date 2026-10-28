@@ -294,7 +294,7 @@ The clearest knowledge difference appeared in `sqlite-db-truncate`, a Terminal-B
 
 RL also helped Snowball act on knowledge it already showed. The starting checkpoint identified the needed React version fix and wrote a correct SQL query, yet failed both tasks. After RL, Snowball successfully completed them. These gains suggest improved execution of existing ideas, rather than newly acquired knowledge.
 
-The comparison with the starting checkpoint matters. SQLite decoding showed a specific fact used consistently after SFT. The React and SQL examples showed useful knowledge already present before RL, with later training producing successful execution. A higher score can reflect either change, and the traces help us distinguish them.
+The examples suggest two different kinds of improvement. In the database-recovery task, SFT-trained models consistently used a decoding rule that did not appear in the starting checkpoint’s attempts. In the React and SQL tasks, the starting checkpoint already showed the needed idea; RL helped turn it into a successful result.
 
 ### The same solution at a different tempo
 
