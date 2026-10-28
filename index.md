@@ -27,7 +27,7 @@ title: Home
     at University College London. I was also a visiting researcher at the
     <a href="https://ai.stanford.edu/">Stanford AI Lab</a>
     (<a href="https://robots.stanford.edu/personal.html">Thrun Lab</a>), where I worked on
-    system optimization and LLM security.
+    efficient machine learning algorithms, LLM inference optimization, and LLM security.
   </p>
 </section>
 
