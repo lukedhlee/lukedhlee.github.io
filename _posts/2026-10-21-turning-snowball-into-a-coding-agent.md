@@ -48,7 +48,7 @@ Both SFT and RL substantially improved Snowball, with different strengths. **RL 
 <li><strong><a href="#strengthening-the-starting-policy-with-sft">Adding SFT before RL</a></strong><span class="toc-sub"><a href="#earlier-experiments-on-the-stage-3-checkpoint">Earlier experiments</a> · <a href="#additional-sft-on-the-09-21-checkpoint">09-21 SFT</a> · <a href="#one-exploration-learning-to-recover-with-a-teacher">Teacher-guided recovery</a></span></li>
 <li><strong><a href="#rl-from-the-sft-checkpoints">RL from the SFT checkpoints</a></strong></li>
 <li><strong><a href="#what-did-sft-and-rl-actually-teach-snowball-looking-behind-the-final-scores">What did SFT and RL actually teach Snowball: looking behind the final scores</a></strong></li>
-<li><strong><a href="#reflections">Reflections</a></strong></li>
+<li><strong><a href="#conclusions">Conclusions</a></strong></li>
 <li><strong><a href="#what-you-can-reuse">What you can reuse</a></strong></li>
 <li><strong><a href="#acknowledgements">Acknowledgements</a></strong></li>
 </ul>
@@ -311,7 +311,9 @@ The traces also exposed an evaluation reward hack. On a Scheme evaluator task, d
 
 The clearest lesson from these reads was how often a useful idea was already visible before an attempt failed. Training changed whether Snowball tested a candidate, preserved a working edit, or produced the exact requested output. Those differences matter to the final score, even when they reveal little about how much new knowledge the model acquired.
 
-## Reflections
+## Conclusions
+
+SFT and RL both improved Snowball, with SFT + RL leading on SWE-bench and direct RL competitive on terminal tasks. Trace analysis connected those gains to changes in knowledge use and execution, and exposed an evaluation reward hack.
 
 Agent-assisted trace analysis offers a direction for adaptive training. Agents could diagnose missing knowledge or unreliable execution, prepare targeted demonstrations and runnable environments, and test whether subsequent training improves the intended behavior on held-out tasks. The reward-hacking example also motivates verifiers that distinguish solving a task from exploiting its evaluation.
 
