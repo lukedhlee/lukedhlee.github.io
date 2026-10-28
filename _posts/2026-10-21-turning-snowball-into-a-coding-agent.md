@@ -61,7 +61,7 @@ Both SFT and RL substantially improved Snowball, with different strengths. **SFT
 
 ## Starting with Reinforcement Learning
 
-These early experiments used the older Stage-3 checkpoint to study Snowball’s behavior and get RL working reliably. The main comparison of SFT and RL later in the post uses the newer Snowball 09-21 checkpoint.
+These early experiments used the older Stage-3 checkpoint to study Snowball’s behavior and get RL working reliably. The main comparison of SFT and RL later in the post uses the newer [Snowball 09-21](https://huggingface.co/open-athena/Grug-67B-A2B-Datakit-SFT-262K-2026.09.21) checkpoint.
 
 ### The Pre-RL Probe
 
@@ -242,7 +242,7 @@ We next ran GRPO on a mixture of R2E-Gym repository tasks and TMax terminal task
 
 We probed the vanilla CalibForge epoch-7 model eight times per task and selected tasks it solved between one and six times. This produced a learnable band of 1,833 tasks, comprising 453 R2E-Gym tasks and 1,380 TMax tasks. All three additional-SFT models used this band for RL.
 
-We ran 30 GRPO updates using batches of 64 tasks with eight attempts each, a learning rate of 5e-7, and a 64k context window. For comparison, we also trained Snowball 09-21 directly with RL. We extended the CalibForge and vanilla CalibForge + Kimi runs to 60 updates.
+We ran 30 GRPO updates using batches of 64 tasks with eight attempts each, a learning rate of 5e-7, and a 64k context window. For comparison, we also trained [Snowball 09-21](https://huggingface.co/open-athena/Grug-67B-A2B-Datakit-SFT-262K-2026.09.21) directly with RL. We extended the CalibForge and vanilla CalibForge + Kimi runs to 60 updates.
 
 <details markdown="1">
 <summary>Another exploration: prompt optimization followed by RL</summary>
@@ -273,7 +273,7 @@ Instruction following was a possible bottleneck. Even with the prompt, only **15
 
 ## Results So Far
 
-The results and trace comparisons from here onward use **Snowball 09-21**. The figure compares this starting checkpoint, direct RL, and each additional SFT recipe before and after RL. The highlighted run is vanilla CalibForge + Kimi after 60 RL updates, which also supplies the last row of the opening table. Vanilla denotes ordinary teacher-demonstration SFT.
+The results and trace comparisons from here onward use **[Snowball 09-21](https://huggingface.co/open-athena/Grug-67B-A2B-Datakit-SFT-262K-2026.09.21)**. The figure compares this starting checkpoint, direct RL, and each additional SFT recipe before and after RL. The highlighted run is vanilla CalibForge + Kimi after 60 RL updates, which also supplies the last row of the opening table. Vanilla denotes ordinary teacher-demonstration SFT.
 
 <figure class="research-figure">
 <a href="{{ '/assets/img/snowball/sft-rl-stages.png?v=tighter-panel-titles' | relative_url }}"><img src="{{ '/assets/img/snowball/sft-rl-stages.png?v=tighter-panel-titles' | relative_url }}" alt="Across three benchmarks, the 09-21 starting model is shown in gray, three additional SFT recipes in cyan, and each recipe followed by RL in blue. Lighter blue bars show RL step 30 and darker blue bars show step 60. Direct RL and Relay have step-30 results only. Vanilla CalibForge plus Kimi reaches 23.9 percent on Terminal-Bench, 50.5 on SWE-bench, and 41.8 on TBLite." width="2951" height="1512" loading="lazy"></a>
@@ -296,7 +296,7 @@ More updates did not help every recipe equally. CalibForge-only SFT gained on SW
 
 ## What Did SFT and RL Actually Teach Snowball: Looking Behind the Scores
 
-At 30 RL updates, direct RL from Snowball 09-21 matched or came close to the SFT + RL models on terminal tasks, despite skipping the additional demonstrations. The trace inspections below compare these 30-update checkpoints with their starting policies. We wanted to understand what those demonstrations contributed. Did they teach new knowledge, or change how Snowball approached and executed the work? We used coding agents to compare trajectories and inspect where the two routes succeeded or failed.
+At 30 RL updates, direct RL from [Snowball 09-21](https://huggingface.co/open-athena/Grug-67B-A2B-Datakit-SFT-262K-2026.09.21) matched or came close to the SFT + RL models on terminal tasks, despite skipping the additional demonstrations. The trace inspections below compare these 30-update checkpoints with their starting policies. We wanted to understand what those demonstrations contributed. Did they teach new knowledge, or change how Snowball approached and executed the work? We used coding agents to compare trajectories and inspect where the two routes succeeded or failed.
 
 ### SFT’s advantage on SWE-bench
 
