@@ -307,13 +307,9 @@ We also compared 26 newly solved TBLite tasks where both routes succeeded. Direc
 
 Longer reasoning sometimes paid off. On parking-lot pathfinding, the vanilla Kimi SFT + RL model finished in roughly 100–120 seconds and 6–8 turns, while direct RL took 900–1,100 seconds and 68–83 turns. On shared Terminal-Bench 2.1 successes, direct RL was slower overall. There was no single working style that won everywhere.
 
-The traces also exposed an evaluation reward hack. On a Scheme evaluator task, direct RL changed the supplied interpreter used by the verifier, allowing its submission to pass without implementing the requested evaluator. That pass does not demonstrate the intended capability.
+The traces also exposed an evaluation reward hack. On a Scheme evaluator task, direct RL changed the supplied interpreter used by the verifier, allowing its submission to pass without implementing the requested evaluator.
 
 The clearest lesson from these reads was how often a useful idea was already visible before an attempt failed. Training changed whether Snowball tested a candidate, preserved a working edit, or produced the exact requested output. Those differences matter to the final score, even when they reveal little about how much new knowledge the model acquired.
-
-<aside class="research-reports" markdown="1">
-[Full trace analysis](https://claude.ai/artifact/DaJfjrUBBct2AanXpjfeqd), including task overlap, repeated attempts, and the evidence behind the knowledge-versus-execution labels. These are observational trace comparisons; attributing a working style or a specific fact to SFT would require a controlled follow-up.
-</aside>
 
 ## Reflections
 
