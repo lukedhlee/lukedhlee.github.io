@@ -164,9 +164,8 @@ def failure_modes():
         ("Snowball 09-21", "base0921", "baserl30"),
         ("CalibForge SFT", "cv7", "v7rl30"),
         ("CalibForge + Kimi\nSFT", "vkimicf2", "vkrl30"),
-        ("CalibForge + Kimi\nRelay SFT", "rkimicf2", "rkrl30"),
     ]
-    fig, axes = plt.subplots(1, 4, figsize=(16.4, 8.2), sharey=True)
+    fig, axes = plt.subplots(1, 3, figsize=(16.4, 8.2), sharey=True)
     fig.subplots_adjust(left=.235, right=.985, top=.70, bottom=.27, wspace=.24)
     fig.text(.035, .94, "How failure patterns changed with RL", fontsize=25, weight="bold")
     fig.text(.035, .885, "OpenThoughts-TBLite · Share of all scored attempts with each pattern",
