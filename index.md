@@ -20,7 +20,7 @@ title: Home
     <a href="https://sky.cs.berkeley.edu/">Sky Computing Lab</a>.
     I am fortunate to be advised by Professor
     <a href="https://people.eecs.berkeley.edu/~matei/">Matei Zaharia</a>.
-    My research interests are in AI-driven optimization, self-improving AI, LLM post-training, and LLM security.
+    My research interests are in AI-driven optimization, self-improving AI, and LLM post-training.
   </p>
   <p class="bio-line">
     Before starting my Ph.D., I completed an integrated Master of Engineering in Computer Science
