@@ -1,7 +1,7 @@
 ---
 layout: research
 color_theme: snowball
-title: "Building a Coding Agent from Marin’s Pre-trained 67BA2B MoE: What Worked and What Didn’t"
+title: "Building a Coding Agent from Marin’s Pre-trained 67B A2B MoE: What Worked and What Didn’t"
 description: "SFT, RL, and the messy work of teaching Marin’s pre-trained MoE to solve coding and terminal tasks."
 image:
   path: /assets/img/snowball/snowball-coding-workshop.png
