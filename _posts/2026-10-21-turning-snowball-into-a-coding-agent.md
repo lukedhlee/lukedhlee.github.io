@@ -21,7 +21,7 @@ authors:
 
 [Marin](https://marin.community/)’s ambition is to make the knowledge behind capable AI a public resource. That means sharing the data, experiments, and decisions that go into building models, including the ones that turn out to be wrong. This post shares our contribution to that effort through developing a coding-agent expert for Snowball, Marin’s 67B A2B mixture-of-experts model.
 
-We collaborated with the Marin team, starting from an early checkpoint that had received general supervised fine-tuning across multiple domains. Our task was to develop its ability to work through coding problems in a repository. We explored reinforcement learning, additional coding-agent SFT, and SFT followed by RL.
+We collaborated with the Marin team, starting from an early checkpoint that had received general supervised fine-tuning across multiple domains. Our task was to develop its ability to solve coding and terminal tasks. We explored reinforcement learning, additional coding-agent SFT, and SFT followed by RL.
 
 Some of the most interesting lessons came from reading the model’s attempts. Snowball could find the relevant function and describe a plausible fix, yet struggle to apply it. Other failures led us into the training system itself, where rising reward could hide falling held-out performance. Understanding these patterns helped us decide what to teach the model and what to fix around it.
 
