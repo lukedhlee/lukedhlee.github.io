@@ -3,6 +3,11 @@ layout: research
 color_theme: snowball
 title: "Turning Snowball into a Coding Agent: A Post-Training Journey"
 description: "Early experiments, infrastructure fixes, and results from improving Snowball with SFT and RL."
+image:
+  path: /assets/img/snowball/snowball-coding-workshop.png
+  alt: "Snowball learning to build and test code at a snowy mountain workshop."
+  width: 1672
+  height: 941
 excerpt: "My first few weeks working on Snowball’s coding-agent capabilities: getting RL working, adding demonstrations, and trying SFT followed by RL."
 date: 2026-10-21
 published: true
