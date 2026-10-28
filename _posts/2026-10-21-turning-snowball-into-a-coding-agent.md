@@ -1,7 +1,7 @@
 ---
 layout: research
 color_theme: snowball
-title: "Building a Coding Agent from Marin’s Pre-trained 67B A2B MoE: What Worked and What Didn’t"
+title: "Post-Training Marin’s 67B A2B MoE into a Coding Agent: What Worked and What Didn’t"
 description: "Taking Marin’s Snowball from 12.8% to 50.5% on SWE-bench and 7.2% to 23.9% on Terminal-Bench. The SFT, RL, and debugging behind those gains, and what agent traces revealed beyond the scores."
 image:
   path: /assets/img/snowball/snowball-coding-workshop.png
