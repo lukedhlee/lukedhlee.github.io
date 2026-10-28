@@ -368,9 +368,7 @@ SFT and RL both improved Snowball. At 60 updates, vanilla CalibForge + Kimi led 
 
 Using agents to inspect traces helped us understand each model’s strengths and failure modes (which could be useful for model routing too). Those diagnoses could also guide targeted environments or demonstrations for more surgical improvements.
 
-Learning from dense feedback is a separate direction. [GEPA](https://arxiv.org/abs/2507.19457) uses feedback from attempts to improve prompts, while [Fast-Slow Training (FST)](https://arxiv.org/abs/2605.12484) interleaves prompt optimization with weight updates.
-
-The older Snowball checkpoint also struggled with instruction following. Improving that ability before repeating prompt optimization could help it use the selected guidance more consistently.
+Our attempt to combine prompt optimization with RL did not improve the policy when tested without the prompt. Weak instruction following may have been one bottleneck. Improving that capability and exploring methods such as [GEPA](https://arxiv.org/abs/2507.19457) and [Fast-Slow Training (FST)](https://arxiv.org/abs/2605.12484) are worth pursuing to make better use of dense feedback from agent runs.
 
 How to allocate data and compute between SFT and RL remains open. SFT changes the policy and, with it, which tasks provide useful reward signals. A controlled comparison at fixed total compute could vary both the demonstration mix and the RL task pool, including the cost of generating data. This would help identify which tasks benefit from demonstrations, which support direct RL, and when to switch between them.
 
