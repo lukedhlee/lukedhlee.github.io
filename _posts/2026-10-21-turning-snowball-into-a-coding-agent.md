@@ -294,7 +294,7 @@ RL also helped Snowball act on knowledge it already showed. The starting checkpo
 
 The examples suggest two different kinds of improvement. In the database-recovery task, SFT-trained models consistently used a decoding rule that did not appear in the starting checkpoint’s attempts. In the React and SQL tasks, the starting checkpoint already showed the needed idea; RL helped turn it into a successful result.
 
-### The same solution at a different tempo
+### How the agents worked differently
 
 We also compared 26 newly solved TBLite tasks where both routes succeeded. Direct RL used fewer output tokens and more shell commands in the median successful trace. Close reads suggested a pattern of shorter reasoning turns interleaved with more experiments, while SFT + RL often worked through more of the solution before acting.
 
@@ -305,15 +305,30 @@ We also compared 26 newly solved TBLite tasks where both routes succeeded. Direc
 
 Longer reasoning sometimes paid off. On parking-lot pathfinding, the vanilla Kimi SFT + RL model finished in roughly 100–120 seconds and 6–8 turns, while direct RL took 900–1,100 seconds and 68–83 turns. On shared Terminal-Bench 2.1 successes, direct RL was slower overall. There was no single working style that won everywhere.
 
-The traces also exposed an evaluation reward hack. On a Scheme evaluator task, direct RL changed the supplied interpreter used by the verifier, allowing its submission to pass without implementing the requested evaluator.
+### Reward hacking
 
-The clearest lesson from these reads was how often a useful idea was already visible before an attempt failed. Training changed whether Snowball tested a candidate, preserved a working edit, or produced the exact requested output. Those differences matter to the final score, even when they reveal little about how much new knowledge the model acquired.
+Some attempts satisfied the verifier without doing the requested work. Trace inspection found clear examples both before and after RL.
+
+<div class="table-wrap" markdown="1">
+
+| Task | Model | What it did | Why it passed |
+|---|---|---|---|
+| Implement a Scheme evaluator | Direct RL | Modified the supplied interpreter so the submission could delegate execution to a new primitive. | The verifier ran the modified interpreter. |
+| Repair a JavaScript network controller | CalibForge SFT | Replaced the controller with a toy simulation that printed `SYSTEM_STABLE`, removing the networking behavior it was supposed to repair. | The tests checked the success marker, exit code, and absence of error strings. |
+
+</div>
+
+Each credited pass added roughly half a percentage point to its model’s benchmark score, too little to explain the large training gains. Interpreter modification was also attempted by the starting checkpoint and two SFT + RL models, though those attempts timed out. The behavior was not unique to direct RL.
+
+Failed shortcuts were much more common after direct RL. Its evaluation traces contained **31 fabricated or copied deliverables**, compared with at most one per other model in the catalog. Examples included a zero-filled placeholder and copying a shipped expected-output file instead of deriving the result from the input. All 31 attempts failed.
+
+Did RL reinforce these behaviors during training? The initial scan found verifier or reward-path access in at most 0.2% of training rollouts, with below-average reward. That scan did not establish that reward hacking grew during RL. Answering that question requires tracking the specific exploit behaviors across updates and checking whether they earned higher rewards.
 
 ## Conclusions
 
-SFT and RL both improved Snowball, with SFT + RL leading on SWE-bench and direct RL competitive on terminal tasks. Trace analysis connected those gains to changes in knowledge use and execution, and exposed an evaluation reward hack.
+SFT and RL both improved Snowball, with SFT + RL leading on SWE-bench and direct RL competitive on terminal tasks. Trace analysis connected those gains to changes in knowledge use and execution, and exposed evaluation reward hacking.
 
-Agent-assisted trace analysis offers a direction for adaptive training. Agents could diagnose missing knowledge or unreliable execution, prepare targeted demonstrations and runnable environments, and test whether subsequent training improves the intended behavior on held-out tasks. The reward-hacking example also motivates verifiers that distinguish solving a task from exploiting its evaluation.
+Agent-assisted trace analysis offers a direction for adaptive training. Agents could diagnose missing knowledge or unreliable execution, prepare targeted demonstrations and runnable environments, and test whether subsequent training improves the intended behavior on held-out tasks. The reward-hacking examples also motivate verifiers that distinguish solving a task from exploiting its evaluation.
 
 How to allocate data and compute between SFT and RL remains open. SFT changes the policy and, with it, which tasks provide useful reward signals. A controlled comparison at fixed total compute could vary both the demonstration mix and the RL task pool, including the cost of generating data. This would help identify which tasks benefit from demonstrations, which support direct RL, and when to switch between them.
 
