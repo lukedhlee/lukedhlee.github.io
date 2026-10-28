@@ -141,7 +141,7 @@ In the first held-out evaluation, RL nearly doubled pass@1 from 8.7% to 16.6%. B
 
 
 <figure class="research-figure">
-<a href="{{ '/assets/img/snowball/early-rl-labeled.png?v=results-labels' | relative_url }}"><img src="{{ '/assets/img/snowball/early-rl-labeled.png?v=results-labels' | relative_url }}" alt="Starting model and two RL checkpoints, labeled by their single-attempt success and task coverage." width="1728" height="880" loading="lazy"></a>
+<a href="{{ '/assets/img/snowball/early-rl-labeled.png?v=clean-blue' | relative_url }}"><img src="{{ '/assets/img/snowball/early-rl-labeled.png?v=clean-blue' | relative_url }}" alt="Starting model and two RL checkpoints, labeled by their single-attempt success and task coverage." width="1728" height="880" loading="lazy"></a>
 <figcaption>The same 191 held-out tasks, eight attempts each. Both RL recipes also solved tasks the base missed in all eight attempts; this does not mean the base could never solve them.</figcaption>
 </figure>
 
@@ -261,8 +261,8 @@ We probed the vanilla CalibForge epoch-7 model eight times per task and selected
 The RL runs used the same core recipe: batches of 64 tasks with eight attempts each, a learning rate of 5e-7, and a 64k context window. The figure compares the 09-21 starting model with each additional SFT recipe and its RL continuation. Vanilla denotes ordinary teacher-demonstration SFT.
 
 <figure class="research-figure">
-<a href="{{ '/assets/img/snowball/sft-rl-stages.png?v=indigo-teal-tall' | relative_url }}"><img src="{{ '/assets/img/snowball/sft-rl-stages.png?v=indigo-teal-tall' | relative_url }}" alt="Across three benchmarks, the 09-21 starting model is shown in gray, three additional SFT recipes in muted indigo, and each recipe followed by RL in teal. TBLite scores rise after RL in all three recipes, while SWE-bench changes are mixed." width="2951" height="1512" loading="lazy"></a>
-<figcaption>Pass@1 point estimates with Terminus-2. “Starting model” is the 09-21 general-SFT checkpoint. Teal bars follow 30 RL updates. Two evaluation repetitions per SFT/RL model, except three for the vanilla CalibForge SFT model. Scores use available scored attempts, so task coverage differs slightly. Paired uncertainty is discussed below. Results recorded October 27, 2026.</figcaption>
+<a href="{{ '/assets/img/snowball/sft-rl-stages.png?v=clean-blue' | relative_url }}"><img src="{{ '/assets/img/snowball/sft-rl-stages.png?v=clean-blue' | relative_url }}" alt="Across three benchmarks, the 09-21 starting model is shown in gray, three additional SFT recipes in light blue, and each recipe followed by RL in dark blue. TBLite scores rise after RL in all three recipes, while SWE-bench changes are mixed." width="2951" height="1512" loading="lazy"></a>
+<figcaption>Pass@1 point estimates with Terminus-2. “Starting model” is the 09-21 general-SFT checkpoint. Dark blue bars follow 30 RL updates. Two evaluation repetitions per SFT/RL model, except three for the vanilla CalibForge SFT model. Scores use available scored attempts, so task coverage differs slightly. Paired uncertainty is discussed below. Results recorded October 27, 2026.</figcaption>
 </figure>
 
 The clearest pattern was on TBLite: scores rose after RL for all three starting policies. On tasks scored for both models, the gains were 6.5 points for vanilla CalibForge, 5.6 for vanilla plus Kimi, and 8.9 for Relay plus Kimi. Only the last gain had a paired 95% bootstrap interval entirely above zero, at [+0.6, +17.2] points. The other two intervals included zero. This is encouraging early evidence that RL can add to these SFT policies, rather than an established improvement for every recipe.
