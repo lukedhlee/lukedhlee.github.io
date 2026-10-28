@@ -157,47 +157,47 @@ def swe_steps():
 
 
 def failure_modes():
-    """Compare pattern incidence with the same all-attempt denominator."""
+    """Use the same model-row layout as the SWE milestone figure."""
     data = json.loads((Path(__file__).parent / "data/snowball_failure_modes.json").read_text())
     modes = data["modes"]
-    routes = [
-        ("Snowball 09-21", "base0921", "baserl30"),
-        ("CalibForge SFT", "cv7", "v7rl30"),
-        ("CalibForge + Kimi\nSFT", "vkimicf2", "vkrl30"),
-    ]
-    fig, axes = plt.subplots(1, 3, figsize=(16.4, 7.6), sharey=True)
-    fig.subplots_adjust(left=.235, right=.985, top=.70, bottom=.15, wspace=.24)
-    fig.text(.5, .94, "How failure patterns changed with RL", fontsize=25, weight="bold", ha="center")
-    fig.text(.5, .88, "OpenThoughts-TBLite · Share of all scored attempts with each pattern",
-             fontsize=14, color=MUTED, ha="center")
+    models = ["base0921", "baserl30", "cv7", "v7rl30", "vkimicf2", "vkrl30"]
+    labels = ["Snowball 09-21", "RL", "CalibForge SFT", "+ RL",
+              "CalibForge + Kimi SFT", "+ RL"]
+    titles = ["Invalid action\nformat", "Turn reaches\n16k tokens",
+              "3+ summarization\nhandoffs", "Unfinished\nshell command",
+              "Own check passes,\nhidden test fails"]
+    fig, axes = plt.subplots(1, 5, figsize=(16.4, 7.8), sharey=True)
+    fig.subplots_adjust(left=.245, right=.985, top=.70, bottom=.14, wspace=.21)
+    fig.text(.04, .93, "How failure patterns changed with RL", fontsize=25, weight="bold")
+    fig.text(.04, .875, "OpenThoughts-TBLite · Share of all scored attempts with each pattern",
+             fontsize=15, color=MUTED)
     from matplotlib.lines import Line2D
     fig.legend(handles=[
-        Line2D([], [], marker="o", ls="", color="#a0a9b5", markerfacecolor="white", markersize=8, label="Starting checkpoint"),
-        Line2D([], [], marker="o", ls="", color=CYAN, markerfacecolor="white", markersize=8, label="Additional SFT"),
-        Line2D([], [], marker="o", ls="", color=BLUE, markersize=8, label="After RL"),
-    ], loc="upper center", bbox_to_anchor=(.5, .84), ncol=3, frameon=False, fontsize=13)
-    for ax, (title, before, after) in zip(axes, routes):
-        ax.set_title(title, fontsize=14, loc="center", weight="bold", pad=22)
-        before_color = "#a0a9b5" if before == "base0921" else CYAN
-        for y, mode in enumerate(modes):
-            a = 100 * mode["counts"][before] / mode["n_trials"][before]
-            b = 100 * mode["counts"][after] / mode["n_trials"][after]
-            ax.hlines(y, 0, 85, color=LINE, linewidth=.8, zorder=0)
-            ax.plot([a, b], [y, y], color="#aebdd0", lw=2.5, zorder=1)
-            ax.scatter([a], [y], s=90, facecolors="white", edgecolors=before_color, linewidths=2.1, zorder=3)
-            ax.scatter([b], [y], s=45, facecolors=BLUE, edgecolors=BLUE, zorder=4)
-            ax.text(94, y, f"{a:.0f} → {b:.0f}", va="center", fontsize=12)
-        ax.set_xlim(-4, 138)
-        ax.set_ylim(4.65, -.6)
-        ax.set_xticks([0, 40, 80], ["0%", "40%", "80%"])
-        ax.set_yticks(range(len(modes)), [m["label"] for m in modes])
-        ax.tick_params(axis="both", length=0, labelsize=13, pad=10)
-        ax.grid(axis="x", color=LINE, lw=.8)
+        Line2D([], [], marker="o", ls="", color="#a0a9b5", label="Snowball 09-21"),
+        Line2D([], [], marker="o", ls="", color=CYAN, markerfacecolor="white", label="Additional SFT"),
+        Line2D([], [], marker="o", ls="", color=BLUE, label="After RL"),
+    ], loc="upper left", bbox_to_anchor=(.035, .845), ncol=3, frameon=False, fontsize=14)
+    for ax, mode, title in zip(axes, modes, titles):
+        ax.set_title(title, loc="left", fontsize=13, weight="bold", pad=20)
+        for row, model in enumerate(models):
+            rate = 100 * mode["counts"][model] / mode["n_trials"][model]
+            after_rl = row % 2 == 1
+            color = BLUE if after_rl else ("#a0a9b5" if row == 0 else CYAN)
+            ax.hlines(row, 0, 100, color=LINE, linewidth=.8, zorder=0)
+            ax.scatter(rate, row, s=82, facecolors=color if after_rl or row == 0 else "white",
+                       edgecolors=color, linewidths=1.8, zorder=3)
+            ax.text(rate + 5, row, f"{rate:.0f}", va="center", fontsize=14, color=INK)
+        ax.set_xlim(-3, 124)
+        ax.set_ylim(5.7, -.6)
+        ax.set_xticks([0, 50, 100], ["0%", "50%", "100%"])
+        ax.set_yticks(range(6), labels)
+        ax.tick_params(axis="both", length=0, labelsize=14, pad=9)
+        ax.grid(axis="x", color=LINE, linewidth=.8)
         ax.set_axisbelow(True)
         for spine in ax.spines.values():
             spine.set_visible(False)
-        n1, n2 = modes[0]["n_trials"][before], modes[0]["n_trials"][after]
-        ax.set_xlabel(f"n = {n1} → {n2} attempts", fontsize=11, color=MUTED, labelpad=18)
+        for y in [1.5, 3.5]:
+            ax.axhline(y, color=LINE, linewidth=1.1)
     save(fig, "trace-failure-modes")
 
 
