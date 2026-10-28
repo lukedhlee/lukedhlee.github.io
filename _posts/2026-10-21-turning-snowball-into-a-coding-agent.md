@@ -337,13 +337,9 @@ Some attempts satisfied the verifier without doing the requested work. Trace ins
 
 </div>
 
-Each credited pass added roughly half a percentage point to its model’s benchmark score, too little to explain the large training gains. Interpreter modification was also attempted by the starting checkpoint and two SFT + RL models, though those attempts timed out. The behavior was not unique to direct RL.
+The credited exploits each added only about half a percentage point to the model’s benchmark score. Direct RL also produced far more failed shortcuts than the other models, including fabricated outputs and copied answer files. All 31 of those attempts failed, so they contributed nothing to its gains.
 
-Failed shortcuts were much more common after direct RL. Its evaluation traces contained **31 fabricated or copied deliverables**, compared with at most one per other model in the catalog. Examples included a zero-filled placeholder and copying a shipped expected-output file instead of deriving the result from the input. All 31 attempts failed.
-
-A broader audit scanned 61,440 training rollouts for exploit patterns. Close reads of 32 rewarded candidates found genuine work rather than fabricated deliverables. The audit found no confirmed case of the evaluation-style fabrication earning training reward.
-
-It did uncover an answer leak in the R2E-Gym environments. The repositories were checked out at the starting commit but still contained later history, including upstream fixes. In 39 rewarded SFT-family rollouts, agents viewed a later fix and discussed it in the next turn. This behavior was present from the first update and stayed roughly flat during RL. How much it affected reward remains unmeasured, but checking out an earlier commit alone did not keep the answer out of the environment.
+The training audit found no confirmed case of fabrication earning reward. It found a different problem in R2E-Gym: the task repositories still exposed later Git commits containing the fixes. Agents read those fixes in 39 rewarded rollouts. This was already happening at the first RL update and did not become more common during training; its contribution to success remains unmeasured.
 
 ## Conclusions
 
