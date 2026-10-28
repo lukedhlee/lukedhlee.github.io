@@ -12,15 +12,29 @@ reading_time: 14
 <a href="{{ '/assets/img/snowball/snowball-opening.png' | relative_url }}"><img src="{{ '/assets/img/snowball/snowball-opening.png' | relative_url }}" alt="Snowball and a teacher untangle a winding blue and orange trail through a snowy landscape." width="1672" height="941" loading="eager"></a>
 </figure>
 
-[Marin](https://marin.community/)’s ambition is to make the knowledge behind capable AI a public resource. That includes the data, code, experiments, and decisions behind a model, including the approaches that do not work out.
+[Marin](https://marin.community/)’s ambition is to make the knowledge behind capable AI a public resource. That means sharing how models are built: the data, the experiments, and the decisions along the way, including the ones that turn out to be wrong. Other researchers can then see what happened, question it, and contribute their own ideas.
 
-Over the past few weeks, I have been working with Marin’s post-training team on a coding-agent expert for Snowball, Marin’s 67B A2B MoE model. Our goal was to make it better at working in a repository: finding the relevant code, making a change, testing it, and finishing the task. This post is an account of that work so far.
+Training a coding agent still leaves plenty of room for that kind of work. We can give a model a repository, a terminal, and a task, but getting it to reliably finish the job is another matter. It needs to make changes, test them, and recover when something goes wrong.
 
-Our initial focus was reinforcement learning. Before we could trust the experiments, we had to diagnose failures in both the policy and the training system. Fixing those problems helped RL improve the agent, but also made the starting policy’s limitations clearer. With binary task rewards, GRPO needs attempts with different outcomes to identify which ones to reinforce. If every attempt fails, there is no successful attempt to learn from in that group.
+Over the past few weeks, I have been working with Marin’s post-training team to develop a coding-agent expert for Snowball, Marin’s 67B A2B MoE model. Snowball had already received general supervised fine-tuning, and our initial focus was to develop its coding-agent capabilities through reinforcement learning.
 
-That motivated additional supervised fine-tuning on coding-agent demonstrations before RL. We tried several sources of demonstrations, then ran RL from those stronger starting points. The latest results show higher TBLite scores after RL across three SFT variants, with mixed results elsewhere. The direct-RL comparison on the newer starting checkpoint is still being evaluated.
+Along the way, we encountered limits in both the training system and what the starting policy could learn through RL. GRPO needs some attempts to succeed and others to fail to obtain a useful relative training signal from binary rewards. That motivated additional coding-agent SFT before RL, hoping demonstrations would give the model a stronger starting point.
 
-What follows is a preliminary post-training journey: the infrastructure we had to fix, what we learned from Snowball’s attempts, and the results of combining demonstrations with RL. The experiments span an older Stage-3 checkpoint and the newer 09-21 checkpoint, which I distinguish below.
+Here is where one of those recipes stands, compared with the newer Snowball 09-21 starting checkpoint:
+
+<div class="table-wrap" markdown="1">
+
+| Model, evaluated with Terminus-2 | SWE-bench Verified random-100 | Terminal-Bench 2.1 | OpenThoughts-TBLite |
+|---|---:|---:|---:|
+| [Snowball 09-21](https://github.com/marin-community/marin/issues/8089), starting checkpoint | 12.8% | 7.2% | 11.5% |
+| Additional coding-agent SFT | 46.5% | 18.8% | 33.0% |
+| SFT + RL coding expert | **47.5%** | **19.9%** | **38.5%** |
+
+</div>
+
+*Preliminary pass@1 point estimates from the October 27 readout. Both expert rows follow the same vanilla CalibForge + Kimi recipe, before and after RL. Evaluation coverage and uncertainty are discussed [below](#rl-from-the-sft-checkpoints).*
+
+Most of the gain in this comparison came from additional SFT. RL then produced smaller changes, which we are still evaluating. This post follows the work behind those results: diagnosing Snowball’s attempts, fixing the RL infrastructure, and trying SFT followed by RL. It is a preliminary account across successive starting checkpoints, with the direct-RL comparison on 09-21 still underway.
 
 <nav class="research-toc" aria-label="Article contents">
 <div class="research-toc-title">Contents</div>
