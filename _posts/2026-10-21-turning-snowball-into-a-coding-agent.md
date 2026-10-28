@@ -42,7 +42,7 @@ Before running RL, it helps to understand what the starting model can already do
 I started with [Snowball's Stage-3 Nemotron-Terminal SFT checkpoint](https://github.com/marin-community/marin/issues/8225). Before training, I sampled R2E-Gym tasks eight times each and used coding agents to inspect the traces. Only 36% of fully sampled tasks had both successes and failures, the useful band for binary-reward GRPO.
 
 <figure class="research-figure">
-<a href="{{ '/assets/img/snowball/pre-rl-probe.png' | relative_url }}"><img src="{{ '/assets/img/snowball/pre-rl-probe.png' | relative_url }}" alt="The pre-RL probe: 36% of tasks were sometimes solvable; successful attempts more often edited the repository and ran a test." width="2380" height="901" loading="lazy"></a>
+<a href="{{ '/assets/img/snowball/pre-rl-probe.png?v=success-distribution' | relative_url }}"><img src="{{ '/assets/img/snowball/pre-rl-probe.png?v=success-distribution' | relative_url }}" alt="Distribution of successes out of eight attempts: 62.9% of tasks had no successes and 36.2% had one to seven. Successful attempts more often edited the repository and ran a test." width="3060" height="1170" loading="lazy"></a>
 <figcaption>The original probe, before the terminal-screen fix. The right panel compares attempts on tasks solved one to three times in eight tries. These historical measurements are not directly comparable with the later RL evaluations.</figcaption>
 </figure>
 
