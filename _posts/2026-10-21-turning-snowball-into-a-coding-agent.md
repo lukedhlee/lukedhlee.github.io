@@ -26,7 +26,7 @@ What follows is a preliminary post-training journey: the infrastructure we had t
 <div class="research-toc-title">Contents</div>
 <ul>
 <li><strong><a href="#starting-with-reinforcement-learning">Starting with RL</a></strong><span class="toc-sub"><a href="#the-pre-rl-probe">Pre-RL probe</a> · <a href="#following-the-behavior-back-to-sft">SFT habits</a> · <a href="#diagnosing-entropy-collapse">Entropy collapse</a> · <a href="#fixing-the-training-stack">Stack fixes</a> · <a href="#what-rl-improved">Results</a> · <a href="#speeding-up-rollouts-without-retraining-the-draft">Speculative decoding</a></span></li>
-<li><strong><a href="#strengthening-the-starting-policy-with-sft">Adding SFT before RL</a></strong><span class="toc-sub"><a href="#earlier-experiments-on-the-stage-3-checkpoint">Earlier experiments</a> · <a href="#demonstrations-for-the-09-21-checkpoint">09-21 demonstrations</a> · <a href="#one-exploration-learning-to-recover-with-a-teacher">Teacher-guided recovery</a></span></li>
+<li><strong><a href="#strengthening-the-starting-policy-with-sft">Adding SFT before RL</a></strong><span class="toc-sub"><a href="#earlier-experiments-on-the-stage-3-checkpoint">Earlier experiments</a> · <a href="#additional-sft-on-the-09-21-checkpoint">09-21 SFT</a> · <a href="#one-exploration-learning-to-recover-with-a-teacher">Teacher-guided recovery</a></span></li>
 <li><strong><a href="#rl-from-the-sft-checkpoints">RL from the SFT checkpoints</a></strong></li>
 <li><strong><a href="#reflections">Reflections</a></strong></li>
 <li><strong><a href="#what-you-can-reuse">What you can reuse</a></strong></li>
@@ -212,13 +212,11 @@ SFT raised SWE-bench from 14.5% to 24.1%; another 30 GRPO updates brought it to 
 Full reports: [SFT versus RL versus SFT→RL](https://github.com/marin-community/marin/issues/9225), [training recipes and launch configs](https://gist.github.com/lukedhlee/d152f86a58e8619a988361e1502f9e55).
 </aside>
 
-### Demonstrations for the 09-21 Checkpoint
+### Additional SFT on the 09-21 Checkpoint
 
-We then moved to Marin’s newer [Grug Datakit 09-21](https://github.com/marin-community/marin/issues/8089) checkpoint. From here onward, “starting checkpoint” means this model, before our additional coding-agent SFT. It had already received general SFT.
+We next moved to Marin’s newer [09-21 checkpoint](https://github.com/marin-community/marin/issues/8089), which had already received general SFT. To give RL a stronger starting policy, we added coding-agent SFT using Qwen3.8-27B traces on CalibForge tasks, with and without Kimi coding demonstrations.
 
-We trained on Qwen3.8-27B demonstrations on CalibForge tasks, both alone and with Kimi coding traces. The vanilla CalibForge set contained 2,974 episodes across 1,487 tasks. The Kimi supplement added the same 4,392 demonstrations to each of the two supplemented recipes. These were straightforward SFT experiments, using a learning rate of 3e-4, FP32 master parameters, and MoE capacity factor 2.0. The CalibForge-only checkpoint used seven training epochs and the supplemented checkpoints used three.
-
-The SFT checkpoints provided substantially stronger benchmark scores than the starting model. For example, vanilla CalibForge plus Kimi scored 46.5% on SWE-bench in the evaluation used below, compared with 12.8% for the starting checkpoint. These demonstration-trained models became the starting points for the next RL experiments.
+Additional SFT improved the benchmark scores substantially. For example, vanilla CalibForge + Kimi reached 46.5% on SWE-bench, compared with 12.8% for the starting checkpoint. We then tested whether RL could improve these policies further.
 
 ### One Exploration: Learning to Recover with a Teacher
 
