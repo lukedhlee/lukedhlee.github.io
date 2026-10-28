@@ -33,10 +33,13 @@ Below, we share what those experiments taught us about developing a coding agent
 | Model, evaluated with Terminus-2 | SWE-bench Verified random-100 | Terminal-Bench 2.1 | OpenThoughts-TBLite |
 |---|---:|---:|---:|
 | [Snowball 09-21](https://github.com/marin-community/marin/issues/8089), starting checkpoint | 12.8% | 7.2% | 11.5% |
+| Base + RL, provisional | 31.4% (97 tasks) | 16.7% (21 tasks) | 52.0% (76 tasks) |
 | Additional coding-agent SFT | 46.5% | 18.8% | 33.0% |
 | SFT + RL coding expert | **47.5%** | **19.9%** | **38.5%** |
 
 </div>
+
+Base + RL scores are from a partial evaluation. Task coverage differs from the other rows, so these scores are not a matched comparison.
 
 <nav class="research-toc" aria-label="Article contents">
 <div class="research-toc-title">Contents</div>
