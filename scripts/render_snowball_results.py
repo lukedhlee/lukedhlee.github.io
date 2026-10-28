@@ -43,33 +43,32 @@ def save(fig, name):
 
 
 def stack_comparison():
-    fig, ax = plt.subplots(figsize=(11.6, 5.2))
-    fig.subplots_adjust(left=.085, right=.97, bottom=.18, top=.73)
-    fig.text(.045, .94, "About ten points higher with half the nodes",
-             fontsize=19, weight="semibold")
-    fig.text(.045, .875, "R2E-Gym · Held-out pass@1",
-             fontsize=12, color=MUTED)
-    x = np.arange(2)
-    for offset, values, color, label in [
-        (-.11, [49.9, 50.3], BASE, "Old stack · 40 nodes · update 36"),
-        (.11, [60.0, 59.5], BLUE, "New stack · 20 nodes · update 24"),
-    ]:
-        bars = ax.bar(x + offset, values, width=.18, color=color, label=label)
-        ax.bar_label(bars, labels=[f"{v:.1f}%" for v in values],
-                     padding=7, fontsize=14, color=INK)
-    ax.set_xlim(-.55, 1.55)
-    ax.set_ylim(0, 72)
-    ax.set_yticks([0, 20, 40, 60], ["0%", "20%", "40%", "60%"])
-    ax.set_xticks(x, ["Familiar repositories\n150 held-out tasks",
-                      "New repositories\n115 held-out tasks"])
-    ax.tick_params(axis="both", length=0, pad=10, labelsize=12)
-    ax.tick_params(axis="x", colors=INK)
-    ax.spines["bottom"].set_visible(False)
-    ax.grid(axis="y", color=GRID, linewidth=.8)
-    handles, labels = ax.get_legend_handles_labels()
-    fig.legend(handles, labels, loc="upper left", bbox_to_anchor=(.04, .825),
-               ncol=2, frameon=False, fontsize=11, handlelength=1.4,
-               columnspacing=2.8)
+    data = json.loads((Path(__file__).parent / "data/snowball_stack_progress.json").read_text())
+    fig, axes = plt.subplots(1, 2, figsize=(12.4, 5.3), sharey=True)
+    fig.subplots_adjust(left=.075, right=.965, bottom=.17, top=.66, wspace=.20)
+    fig.text(.045, .94, "The rebuilt stack improved faster", fontsize=20, weight="semibold")
+    fig.text(.045, .875, "R2E-Gym · Held-out pass@1 across RL updates", fontsize=12, color=MUTED)
+    for ax, split in zip(axes, data["splits"]):
+        for key, color, label in [("old", BASE, "Old stack"), ("new", BLUE, "New stack")]:
+            xs, ys = split[f"{key}_steps"], split[f"{key}_scores"]
+            ax.plot(xs, ys, color=color, label=label, lw=2.5, marker="o", ms=6)
+            for x, y in zip(xs[1:], ys[1:]):
+                ax.annotate(f"{y:.1f}%", (x, y), xytext=(0, 10 if key == "new" else -20),
+                            textcoords="offset points", ha="center", fontsize=11,
+                            color=BLUE if key == "new" else INK)
+        ax.set_title(f'{split["title"]} · {split["tasks"]} tasks',
+                     loc="left", fontsize=13, weight="semibold", pad=18)
+        ax.set_xlim(-2, 40)
+        ax.set_ylim(30, 66)
+        ax.set_xticks([0, 12, 24, 36])
+        ax.set_yticks([30, 40, 50, 60], ["30%", "40%", "50%", "60%"])
+        ax.set_xlabel("RL update", fontsize=12, labelpad=12)
+        ax.tick_params(length=0, pad=8, labelsize=11)
+        ax.spines["bottom"].set_visible(False)
+        ax.grid(axis="y", color=GRID, linewidth=.8)
+    handles, labels = axes[0].get_legend_handles_labels()
+    fig.legend(handles, labels, loc="upper left", bbox_to_anchor=(.04, .82),
+               ncol=2, frameon=False, fontsize=12)
     save(fig, "stack-comparison")
 
 

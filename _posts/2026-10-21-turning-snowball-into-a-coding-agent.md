@@ -159,12 +159,12 @@ The early RL recipes also made source edits and test runs more common. Finishing
 <figcaption>The same 191-task evaluation as the first results above, with eight attempts per task. Gray is the starting model. Of the two RL checkpoints, blue has higher pass@1 and orange has higher pass@8. The last row is conditional on declaring completion.</figcaption>
 </figure>
 
-Rebuilding the stack improved the result further. On a later evaluation set, the new stack scored about ten points above the old one, using half as many nodes.
+Rebuilding the stack improved the result further. On a later evaluation set, the new stack was already ahead at update 12 and reached about ten points above the old stack by update 24.
 
 
 <figure class="research-figure">
-<a href="{{ '/assets/img/snowball/stack-comparison.png?v=clean-blue' | relative_url }}"><img src="{{ '/assets/img/snowball/stack-comparison.png?v=clean-blue' | relative_url }}" alt="Old versus new training stack on two held-out R2E-Gym splits, with about ten points higher pass@1 using half as many nodes." width="2088" height="936" loading="lazy"></a>
-<figcaption>Matched comparison under the older probe setup, with eight attempts per task: 49.9% → 60.0% on new tasks in repositories used for RL, and 50.3% → 59.5% on tasks in repositories excluded from RL entirely. This is a separate evaluation from the early results above. Several changes landed together, so the gain belongs to the package.</figcaption>
+<a href="{{ '/assets/img/snowball/stack-comparison.png?v=eval-progression' | relative_url }}"><img src="{{ '/assets/img/snowball/stack-comparison.png?v=eval-progression' | relative_url }}" alt="Held-out R2E-Gym pass@1 across RL updates. The new stack improves from the shared starting policy through updates 12 and 24; the old stack is evaluated through update 36. Both held-out splits favor the new stack." width="2232" height="954" loading="lazy"></a>
+<figcaption>The same held-out tasks under the older probe setup, with eight attempts per task. Familiar repositories were used during RL; new repositories were excluded entirely. Lines connect evaluated checkpoints. This is a separate evaluation from the early results above. Several changes landed together, so the gain belongs to the package.</figcaption>
 </figure>
 
 In the later 441-task probes, successful attempts took a median of 15 turns, down from 22, and exact repeats of the previous command fell from 2.19 to 0.48 per 100 turns. Verification shifted toward self-written repro/check scripts, while use of the repository's tests fell.
@@ -248,18 +248,25 @@ We probed the vanilla CalibForge epoch-7 model eight times per task and selected
 We ran 30 GRPO updates using batches of 64 tasks with eight attempts each, a learning rate of 5e-7, and a 64k context window. For comparison, we also trained Snowball 09-21 directly with RL. We extended the CalibForge and vanilla CalibForge + Kimi runs to 60 updates.
 
 <details markdown="1">
-<summary>Another exploration: training an editing prompt into the weights</summary>
+<summary>Another exploration: prompt optimization followed by RL</summary>
 
-A short edit-discipline prompt improved the base by 9–14 points on a development set. I tried transferring that guidance into the weights by keeping it during rollouts and removing it from the context used for the weight update. Without the guidance, the trained model scored 29.8%, against 30.2% for the base. The prompted-versus-unprompted likelihood gap shrank 85%, but task success did not improve.
-
-The turn-by-turn analysis was more revealing. When the same trajectories were rescored with and without the guidance, the largest likelihood difference was on the first action. By turns four to six, that gap was already small even in the starting model. Earlier actions were held fixed, so the history could still carry forward the prompt's initial influence.
+The idea was to find instructions that improved Snowball's behavior, then use RL to make the improvement persist without those instructions. In this pilot, we compared five hand-written prompts and selected the best on development tasks. It asked Snowball to make precise source changes, check syntax, and inspect the diff. Adding that prompt improved the starting policy by **9–14 percentage points**.
 
 <figure class="research-figure">
-<a href="{{ '/assets/img/snowball/prompt-distillation.png' | relative_url }}"><img src="{{ '/assets/img/snowball/prompt-distillation.png' | relative_url }}" alt="The likelihood difference from retaining the editing guidance was largest on the first turn and much smaller on later turns, both before and after distillation." width="1760" height="832" loading="lazy"></a>
-<figcaption>The same 152 prompted trajectories, rescored with and without the guidance. The gap measures the prompt's additional influence on the likelihood of the same actions, with the earlier history held fixed.</figcaption>
+<a href="{{ '/assets/img/snowball/prompt-rl-method.png?v=prompt-optimization' | relative_url }}"><img src="{{ '/assets/img/snowball/prompt-rl-method.png?v=prompt-optimization' | relative_url }}" alt="The pilot selected a prompt from five candidates, generated attempts with it, then removed it from the context used for RL updates and evaluation." width="2340" height="486" loading="lazy"></a>
+<figcaption>This pilot selected a fixed prompt; it did not run an automated prompt-evolution loop.</figcaption>
 </figure>
 
-That raises a question about when guidance is most useful. Later turns are where the agent needs to verify an edit, respond to a failed check, and decide whether the work is complete. One direction worth testing is to nudge the policy at those moments, with targeted reminders tied to what just happened. Combining prompt and weight optimization remains worth exploring, as in [Fast-Slow Training (FST)](https://arxiv.org/abs/2605.12484) and [P²O](https://arxiv.org/pdf/2603.21877). These experiments tested only one fixed initial prompt, leaving guidance across turns as an open direction.
+During RL, the prompt stayed in the rollout context but was removed from the context used for weight updates. The goal was to reinforce useful actions given only the task. After 24 updates, the policy tested without the prompt scored **29.8%, against 30.2% for the starting policy**. Ordinary RL on the same task pool reached 47.4%.
+
+<figure class="research-figure">
+<a href="{{ '/assets/img/snowball/prompt-rl-outcome.png?v=prompt-optimization' | relative_url }}"><img src="{{ '/assets/img/snowball/prompt-rl-outcome.png?v=prompt-optimization' | relative_url }}" alt="Development-set pass@1: starting policy 30.2 percent, starting policy with the selected prompt 44.6 percent, prompt-guided RL evaluated without the prompt 29.8 percent, and ordinary RL 47.4 percent." width="2088" height="792" loading="lazy"></a>
+<figcaption>The older Stage-3 checkpoint, evaluated on the same 120 development tasks with four attempts each. Both RL results are at update 24 and tested without the selected prompt.</figcaption>
+</figure>
+
+The prompted-versus-unprompted likelihood gap shrank 85%, yet task success did not improve. The prompt's additional influence was largest on the first action and much smaller by turns four to six, even before training. Once the history contained the model's own actions, the initial guidance added little to the likelihood of those same actions.
+
+Instruction following was a possible bottleneck. Even with the prompt, only **15% of attempts followed its full procedure**. A useful next test is to strengthen instruction following, measure it separately, and repeat the prompt-plus-RL experiment. Guidance delivered after a failed check or before a completion claim could also help at moments the initial prompt no longer reaches. Joint prompt and policy optimization remains worth exploring, as in [Fast-Slow Training (FST)](https://arxiv.org/abs/2605.12484) and [P²O](https://arxiv.org/pdf/2603.21877).
 
 <aside class="research-reports" markdown="1">
 [Full report](https://gist.github.com/lukedhlee/edb2f69d38ed089f71f74ff711281807).

@@ -1,0 +1,58 @@
+{
+  "source": "OpenThoughts-Agent/notes/artifacts/checkpoint-gist/make_figs.py, fig1; stack-compare/make_hero.py",
+  "note": "Matched older probe setup. Later update-48 probes used a different decoding recipe and are excluded.",
+  "splits": [
+    {
+      "title": "Familiar repositories",
+      "tasks": 150,
+      "old_steps": [
+        0,
+        12,
+        24,
+        36
+      ],
+      "old_scores": [
+        37.5,
+        47.6,
+        49.2,
+        49.9
+      ],
+      "new_steps": [
+        0,
+        12,
+        24
+      ],
+      "new_scores": [
+        37.5,
+        53.4,
+        60.0
+      ]
+    },
+    {
+      "title": "New repositories",
+      "tasks": 115,
+      "old_steps": [
+        0,
+        12,
+        24,
+        36
+      ],
+      "old_scores": [
+        40.2,
+        46.4,
+        48.6,
+        50.3
+      ],
+      "new_steps": [
+        0,
+        12,
+        24
+      ],
+      "new_scores": [
+        40.2,
+        51.4,
+        59.5
+      ]
+    }
+  ]
+}
