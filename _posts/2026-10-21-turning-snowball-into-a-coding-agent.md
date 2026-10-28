@@ -277,8 +277,6 @@ RL directly from the 09-21 starting checkpoint reached 30.5% on SWE-bench, 18.8%
 
 RL directly from Snowball 09-21 matched or came close to the SFT + RL models on terminal tasks, despite skipping the additional demonstrations. We wanted to understand what those demonstrations contributed. Did they teach new knowledge, or change how Snowball approached and executed the work? We used coding agents to compare trajectories and inspect where the two routes succeeded or failed.
 
-Here, **RL** means training directly from Snowball 09-21. **SFT + RL** means one of the three additional SFT recipes followed by RL. For the paired terminal-task reads, we compared newly solved tasks that the starting checkpoint had failed in at least two attempts.
-
 ### SFT’s advantage on SWE-bench
 
 On SWE-bench, additional coding-agent SFT with CalibForge + Kimi reached **46.5%**, compared with **30.5% for direct RL**. Following that SFT with RL brought the score to **47.0%**. The traces show where the stronger results went with better execution.
@@ -286,7 +284,7 @@ On SWE-bench, additional coding-agent SFT with CalibForge + Kimi reached **46.5%
 Both direct RL and Kimi SFT opened a file touched by the reference fix in about **96–99%** of attempts. The gap appeared afterward. Kimi SFT edited a relevant file in **90%** of attempts, compared with **51%** for direct RL, and left the target tests passing in **51%**, compared with **34%**. Snowball 09-21 started at 78% for opening a relevant file and 38% for editing one.
 
 <figure class="research-figure">
-<a href="{{ '/assets/img/snowball/trace-swe-steps.png?v=three-stages' | relative_url }}"><img src="{{ '/assets/img/snowball/trace-swe-steps.png?v=three-stages' | relative_url }}" alt="SWE-bench execution milestones. Snowball 09-21 opens a relevant file in 78 percent of scored attempts and edits one in 38 percent. Vanilla Kimi SFT reaches 99 and 90 percent respectively and leaves the target tests passing in 51 percent of scored attempts. Direct RL also improves editing and target-test success." width="2952" height="1404" loading="lazy"></a>
+<a href="{{ '/assets/img/snowball/trace-swe-steps.png?v=larger-labels' | relative_url }}"><img src="{{ '/assets/img/snowball/trace-swe-steps.png?v=larger-labels' | relative_url }}" alt="SWE-bench execution milestones. Snowball 09-21 opens a relevant file in 78 percent of scored attempts and edits one in 38 percent. Vanilla Kimi SFT reaches 99 and 90 percent respectively and leaves the target tests passing in 51 percent of scored attempts. Direct RL also improves editing and target-test success." width="2952" height="1404" loading="lazy"></a>
 <figcaption>Shares of scored attempts, rather than the task-averaged benchmark scores above. A relevant file is one changed by the reference fix. Edit detection finds 80–89% of actual edits, so that column is a lower bound. These milestones are measured separately, rather than as conditional probabilities.</figcaption>
 </figure>
 

@@ -119,30 +119,30 @@ def swe_steps():
     fig.subplots_adjust(left=.26, right=.98, bottom=.20, top=.71, wspace=.25)
     fig.text(.04, .93, "From finding the file to passing target tests", fontsize=25, weight="bold")
     fig.text(.04, .875, "SWE-bench Verified r100 · Share of scored attempts reaching each milestone",
-             fontsize=13, color=MUTED)
+             fontsize=15, color=MUTED)
     from matplotlib.lines import Line2D
     fig.legend(handles=[
         Line2D([], [], marker="o", ls="", color="#a0a9b5", label="Snowball 09-21"),
         Line2D([], [], marker="o", ls="", color=CYAN, markerfacecolor="white", label="Additional SFT"),
         Line2D([], [], marker="o", ls="", color=BLUE, label="After RL"),
-    ], loc="upper left", bbox_to_anchor=(.035, .845), ncol=3, frameon=False, fontsize=12)
+    ], loc="upper left", bbox_to_anchor=(.035, .845), ncol=3, frameon=False, fontsize=14)
     for col, (ax, title) in enumerate(zip(axes, [
         "Opened a relevant file", "Edited a relevant file", "Target tests passing",
     ])):
-        ax.set_title(title, loc="left", fontsize=13, weight="bold", pad=18)
+        ax.set_title(title, loc="left", fontsize=16, weight="bold", pad=18)
         for row, vals in enumerate(values):
             n = vals[col]
             after_rl = row % 2 == 1
             color = BLUE if after_rl else ("#a0a9b5" if row == 0 else CYAN)
             ax.hlines(row, 0, 100, color=LINE, linewidth=.8, zorder=0)
-            ax.scatter(n, row, s=62, facecolors=color if after_rl or row == 0 else "white",
+            ax.scatter(n, row, s=82, facecolors=color if after_rl or row == 0 else "white",
                        edgecolors=color, linewidths=1.8, zorder=3)
-            ax.text(n + 4, row, f"{n:.1f}", va="center", fontsize=10, color=INK)
+            ax.text(n + 4, row, f"{n:.1f}", va="center", fontsize=14, color=INK)
         ax.set_xlim(-2, 121)
         ax.set_ylim(7.7, -.6)
         ax.set_xticks([0, 50, 100], ["0%", "50%", "100%"])
         ax.set_yticks(range(8), labels)
-        ax.tick_params(axis="both", length=0, labelsize=11, pad=9)
+        ax.tick_params(axis="both", length=0, labelsize=14, pad=9)
         ax.grid(axis="x", color=LINE, linewidth=.8)
         ax.set_axisbelow(True)
         for spine in ax.spines.values():
@@ -151,7 +151,7 @@ def swe_steps():
             ax.axhline(y, color=LINE, linewidth=1.1)
     fig.text(.04, .105, "Relevant file = a file changed by the reference fix. Target tests = the issue's FAIL_TO_PASS tests at the end of the attempt.\n"
              "Edit detection finds 80–89% of actual edits, so edit shares are lower bounds. Milestones are measured separately.",
-             fontsize=11, color=MUTED, linespacing=1.6)
+             fontsize=12, color=MUTED, linespacing=1.6)
     save(fig, "trace-swe-steps")
 
 
