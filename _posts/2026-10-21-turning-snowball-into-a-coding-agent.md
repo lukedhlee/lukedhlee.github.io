@@ -1,7 +1,7 @@
 ---
 layout: research
 color_theme: snowball
-title: "Turning Snowball into a Coding Agent: A Post-Training Journey"
+title: "Turning Marin’s Pre-trained MoE into a Coding Agent: A Post-Training Journey"
 description: "Early experiments, infrastructure fixes, and results from improving Snowball with SFT and RL."
 image:
   path: /assets/img/snowball/snowball-coding-workshop.png
@@ -366,7 +366,7 @@ The training audit found no confirmed case of fabrication earning reward. It fou
 
 SFT and RL both improved Snowball. At 60 updates, vanilla CalibForge + Kimi led on SWE-bench and Terminal-Bench, while direct RL retained the highest TBLite score. Trace analysis connected those gains to changes in knowledge use and execution, and exposed evaluation reward hacking.
 
-Using agents to inspect traces helped us understand each model’s strengths and failure modes (which could be useful for model routing at some point!). Those diagnoses could also guide targeted environments or demonstrations for more surgical improvements.
+Using agents to inspect traces helped us understand each model’s strengths and failure modes (which could be useful for model routing too). Those diagnoses could also guide targeted environments or demonstrations for more surgical improvements.
 
 Learning from dense feedback is a separate direction. [GEPA](https://arxiv.org/abs/2507.19457) uses feedback from attempts to improve prompts, while [Fast-Slow Training (FST)](https://arxiv.org/abs/2605.12484) interleaves prompt optimization with weight updates.
 
