@@ -214,7 +214,7 @@ Full reports: [SFT versus RL versus SFT→RL](https://github.com/marin-community
 
 ### Additional SFT on the 09-21 Checkpoint
 
-We next moved to Marin’s newer [09-21 checkpoint](https://github.com/marin-community/marin/issues/8089), which had already received general SFT. To give RL a stronger starting policy, we added coding-agent SFT using Qwen3.8-27B traces on CalibForge tasks, with and without Kimi coding demonstrations.
+We next moved to Marin’s newer [09-21 checkpoint](https://github.com/marin-community/marin/issues/8089), which had already received general SFT. To give RL a stronger starting policy, we added coding-agent SFT using [Qwen3.8-27B traces on CalibForge tasks](https://huggingface.co/datasets/laion/calibforge-relay-traces), with and without [Kimi coding demonstrations](https://huggingface.co/datasets/open-athena/Kimi-2.5-swesmith-sandboxes-with_tests-oracle_verified_120s-maxeps-32k).
 
 Additional SFT improved the benchmark scores substantially. For example, vanilla CalibForge + Kimi reached 46.5% on SWE-bench, compared with 12.8% for the starting checkpoint. We then tested whether RL could improve these policies further.
 
