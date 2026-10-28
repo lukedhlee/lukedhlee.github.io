@@ -288,7 +288,7 @@ Both direct RL and Kimi SFT opened a file touched by the reference fix in about 
 <figcaption>Shares of scored attempts, rather than the task-averaged benchmark scores above. A relevant file is one changed by the reference fix. Edit detection finds 80–89% of actual edits, so that column is a lower bound. These milestones are measured separately, rather than as conditional probabilities.</figcaption>
 </figure>
 
-SFT’s score advantage was accompanied by more attempts turning relevant code into an edit and a passing result. These measurements do not isolate the cause of the gap, but they show why finding the right file alone was an incomplete measure of progress. Completion claims remained unreliable even after SFT; the Kimi models passed only about half their finished SWE-bench attempts.
+The two routes found relevant files at similar rates. SFT’s higher SWE-bench score went with more attempts editing those files and leaving the target tests passing.
 
 ### Did SFT add knowledge?
 
