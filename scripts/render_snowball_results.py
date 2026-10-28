@@ -128,7 +128,7 @@ def entropy_debugging():
 
 def early_rl():
     fig, ax = plt.subplots(figsize=(9.6, 4.89))
-    fig.subplots_adjust(left=.09, right=.98, bottom=.24, top=.69)
+    fig.subplots_adjust(left=.09, right=.98, bottom=.24, top=.78)
     fig.text(.045, .91, "Early RL improved success and task coverage",
              fontsize=17, fontproperties=TITLE_FONT, va="top")
     x = np.arange(2)
@@ -158,18 +158,52 @@ def early_rl():
     save(fig, "early-rl-labeled")
 
 
+def behavior_changes():
+    fig, ax = plt.subplots(figsize=(11, 6))
+    fig.subplots_adjust(left=.32, right=.96, bottom=.19, top=.78)
+    labels = ["Declared completion", "Ran out of context\nwhile still working",
+              "Edited a repository\nsource file", "Ran pytest", "Correct when it\ndeclared completion"]
+    before = [9.3, 91.1, 59.8, 35.7, 38.7]
+    one = [49.5, 55.6, 83.0, 56.7, 29.4]
+    eight = [27.0, 72.6, 76.3, 40.2, 40.5]
+    colors = ["#a8b4c3", "#3e7dcb", "#e5783e"]
+    for row, vals in enumerate(zip(before, one, eight)):
+        ax.plot([min(vals), max(vals)], [row, row], color="#d1d9e3", lw=2, zorder=1)
+        for j, (value, color) in enumerate(zip(vals, colors)):
+            ax.scatter(value, row, color=color, s=55, edgecolor="white", linewidth=1, zorder=3)
+            below = j == 1 or (j == 2 and row in (3, 4))
+            ax.annotate(f"{value:.1f}%", (value, row), xytext=(0, -22 if below else 12),
+                        textcoords="offset points", ha="center", fontsize=11, color=color)
+    ax.set_yticks(range(5), labels, fontsize=12, color=INK)
+    ax.set_ylim(4.55, -.55)
+    ax.set_xlim(0, 100)
+    ax.set_xticks([0,25,50,75,100], ["0%","25%","50%","75%","100%"])
+    ax.tick_params(length=0, pad=10, labelsize=12)
+    ax.grid(axis="x", color=GRID, lw=.8)
+    for spine in ax.spines.values(): spine.set_visible(False)
+    from matplotlib.lines import Line2D
+    fig.legend(handles=[Line2D([], [], marker="o", ls="", color=c, markersize=7, label=l)
+                        for c,l in zip(colors, ["Starting model", "RL: higher pass@1", "RL: higher pass@8"])],
+               loc="upper left", bbox_to_anchor=(.035, .94), ncol=3, frameon=False,
+               fontsize=11, handletextpad=.4, columnspacing=1.5)
+    fig.text(.035, .075, "191 held-out R2E-Gym tasks, eight attempts each. The two RL checkpoints are separate runs.\n"
+             "The last row measures correctness among completion claims; other rows use all attempts.",
+             fontsize=10, color=MUTED, linespacing=1.5)
+    save(fig, "rl-behavior-changes")
+
+
 def sft_rl():
     data = json.loads((Path(__file__).parent / "data/snowball_rl_checkpoints.json").read_text())
     order = ["CalibForge SFT", data["hero"], "CalibForge + Kimi Relay SFT"]
     step30_color = "#5b8ff9"
     fig, axes = plt.subplots(1, 3, figsize=(16.4, 8.4), sharey=True)
-    fig.subplots_adjust(left=.205, right=.98, bottom=.15, top=.80, wspace=.18)
-    fig.text(.205, .94, "Coding-agent SFT and RL continuations", fontsize=21, weight="semibold")
+    fig.subplots_adjust(left=.205, right=.98, bottom=.15, top=.73, wspace=.18)
+    fig.text(.045, .91, "Coding-agent SFT and RL continuations", fontsize=22, fontproperties=TITLE_FONT, va="top")
     fig.legend(handles=[Patch(color=BASE, label="Snowball 09-21"),
                         Patch(color=LIGHT, label="Additional SFT"),
                         Patch(color=step30_color, label="RL step 30"),
                         Patch(color=BLUE, label="RL step 60")],
-               loc="upper left", bbox_to_anchor=(.205, .91), ncol=4,
+               loc="upper left", bbox_to_anchor=(.04, .845), ncol=4,
                frameon=False, fontsize=12, handlelength=1.8, columnspacing=1.6)
     labels = ["Snowball 09-21", "CalibForge SFT",
               "CalibForge + Kimi SFT", "CalibForge + Kimi Relay SFT"]
@@ -241,5 +275,6 @@ if __name__ == "__main__":
     entropy_debugging()
     sft_behavior_origin()
     early_rl()
+    behavior_changes()
     sft_rl()
     checkpoint_progress()

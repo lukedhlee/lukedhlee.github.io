@@ -15,12 +15,15 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.patches import FancyBboxPatch
+from matplotlib.font_manager import FontProperties
+
+TITLE_FONT = FontProperties(family=["Helvetica Neue", "Arial", "DejaVu Sans"], weight="medium")
 
 OUT = Path(__file__).resolve().parents[1] / "assets/img/snowball"
 BLUE, CYAN = "#2563eb", "#06a9df"
 INK, MUTED, LINE = "#202e40", "#607084", "#e5edf5"
 plt.rcParams.update({"font.family": "DejaVu Sans", "text.color": INK,
-                     "axes.labelcolor": INK, "svg.fonttype": "path"})
+                     "axes.labelcolor": INK, "xtick.color": INK, "ytick.color": INK, "svg.fonttype": "path"})
 
 
 def save(fig, name):
@@ -73,10 +76,10 @@ def cases():
 
 def working_style():
     fig, axes = plt.subplots(1, 5, figsize=(16.4, 4.9), sharey=True)
-    fig.subplots_adjust(left=.10, right=.98, top=.65, bottom=.23, wspace=.38)
-    fig.text(.04, .90, "On shared successes, the routes worked differently",
-             fontsize=22, weight="bold")
-    fig.text(.04, .82, "26 TBLite tasks unsolved in the starting-model attempts; both routes later passed",
+    fig.subplots_adjust(left=.10, right=.98, top=.59, bottom=.23, wspace=.38)
+    fig.text(.045, .91, "On shared successes, the routes worked differently",
+             fontsize=22, fontproperties=TITLE_FONT, va="top")
+    fig.text(.045, .80, "26 TBLite tasks unsolved in the starting-model attempts; both routes later passed",
              fontsize=12, color=MUTED)
     for ax, (title, vals, limit, fmt) in zip(axes, [
         ("Time to finish", [255, 604], 800, lambda n: f"{n:,} s"),
@@ -85,7 +88,7 @@ def working_style():
         ("Reasoning share", [42, 69], 95, lambda n: f"{n}%"),
         ("Shell commands", [61, 44], 85, lambda n: str(n)),
     ]):
-        ax.set_title(title, fontsize=14, weight="bold", loc="left", pad=24)
+        ax.set_title(title, fontsize=14, fontproperties=TITLE_FONT, loc="left", pad=24)
         ax.barh([1, 0], vals, color=[BLUE, CYAN], height=.28)
         for y, n in zip([1, 0], vals):
             ax.text(n + limit * .025, y, fmt(n), va="center", fontsize=13)
@@ -117,9 +120,9 @@ def swe_steps():
         ([98.0, 90.9, 54.5], [97.0, 87.3, 50.3]),
     ]
     fig, axes = plt.subplots(1, 3, figsize=(16.4, 6.0), sharey=True)
-    fig.subplots_adjust(left=.235, right=.955, bottom=.15, top=.64, wspace=.20)
-    fig.text(.04, .92, "From finding the file to passing target tests", fontsize=25, weight="bold")
-    fig.text(.04, .855, "SWE-bench Verified r100 · Share of scored attempts reaching each milestone",
+    fig.subplots_adjust(left=.235, right=.955, bottom=.15, top=.59, wspace=.20)
+    fig.text(.045, .91, "From finding the file to passing target tests", fontsize=23, fontproperties=TITLE_FONT, va="top")
+    fig.text(.045, .80, "SWE-bench Verified r100 · Share of scored attempts reaching each milestone",
              fontsize=15, color=MUTED)
     from matplotlib.lines import Line2D
     fig.legend(handles=[
@@ -127,11 +130,11 @@ def swe_steps():
         Line2D([], [], marker="o", ls="", color=CYAN, markerfacecolor="white", markersize=8, label="Additional SFT"),
         Line2D([], [], marker="o", ls="", color=BLUE, markersize=8, label="RL step 30"),
         Line2D([], [], marker="D", ls="", color=deep_blue, markersize=7, label="RL step 60 (vanilla Kimi)"),
-    ], loc="upper left", bbox_to_anchor=(.035, .805), ncol=4, frameon=False, fontsize=12)
+    ], loc="upper left", bbox_to_anchor=(.04, .75), ncol=4, frameon=False, fontsize=12)
     for col, (ax, title) in enumerate(zip(axes, [
         "Opened a relevant file", "Edited a relevant file", "Target tests passing",
     ])):
-        ax.set_title(title, loc="left", fontsize=16, weight="bold", pad=22)
+        ax.set_title(title, loc="left", fontsize=16, fontproperties=TITLE_FONT, pad=22)
         for row, (before, after) in enumerate(values):
             x1, x2 = before[col], after[col]
             color = "#a0a9b5" if row == 0 else CYAN
@@ -169,18 +172,18 @@ def failure_modes():
         ("CalibForge + Kimi SFT", "vkimicf2", "vkrl30"),
     ]
     fig, axes = plt.subplots(1, 3, figsize=(16.4, 7.8), sharey=True)
-    fig.subplots_adjust(left=.20, right=.95, top=.70, bottom=.16, wspace=.24)
-    fig.text(.04, .93, "How failure patterns changed with RL", fontsize=25, weight="bold")
-    fig.text(.04, .875, "OpenThoughts-TBLite · Share of all scored attempts with each pattern",
+    fig.subplots_adjust(left=.20, right=.95, top=.65, bottom=.16, wspace=.24)
+    fig.text(.045, .91, "How failure patterns changed with RL", fontsize=23, fontproperties=TITLE_FONT, va="top")
+    fig.text(.045, .82, "OpenThoughts-TBLite · Share of all scored attempts with each pattern",
              fontsize=14, color=MUTED)
     from matplotlib.lines import Line2D
     fig.legend(handles=[
         Line2D([], [], marker="o", ls="", color="#a0a9b5", markerfacecolor="white", markersize=8, label="Starting checkpoint"),
         Line2D([], [], marker="o", ls="", color=CYAN, markerfacecolor="white", markersize=8, label="Additional SFT"),
         Line2D([], [], marker="o", ls="", color=BLUE, markersize=8, label="After RL"),
-    ], loc="upper left", bbox_to_anchor=(.035, .845), ncol=3, frameon=False, fontsize=13)
+    ], loc="upper left", bbox_to_anchor=(.04, .78), ncol=3, frameon=False, fontsize=13)
     for ax, (title, before, after) in zip(axes, routes):
-        ax.set_title(title, fontsize=14, loc="left", weight="bold", pad=22)
+        ax.set_title(title, fontsize=14, loc="left", fontproperties=TITLE_FONT, pad=22)
         before_color = "#a0a9b5" if before == "base0921" else CYAN
         for y, mode in enumerate(modes):
             a = 100 * mode["counts"][before] / mode["n_trials"][before]
