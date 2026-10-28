@@ -31,16 +31,16 @@ We collaborated with the Marin team, starting from an early checkpoint that had 
 
 Some of the most interesting lessons came from reading the model’s attempts. Snowball could find the relevant function and describe a plausible fix, yet struggle to apply it. Other failures led us into the training system itself, where rising reward could hide falling held-out performance. Understanding these patterns helped us decide what to teach the model and what to fix around it.
 
-Both SFT and RL substantially improved Snowball, with different strengths. **RL alone led on TBLite and was competitive on Terminal-Bench**, while **SFT + RL led on SWE-bench**. These results leave us asking how to divide training compute and tasks between SFT and RL. Below, we share the experiments and debugging that led us here.
+Both SFT and RL substantially improved Snowball, with different strengths. **SFT + RL led on SWE-bench and Terminal-Bench**, while **direct RL led on TBLite**. These results leave us asking how to divide training compute and tasks between SFT and RL. Below, we share the experiments and debugging that led us here.
 
 <div class="table-wrap" markdown="1">
 
 | Model, evaluated with Terminus-2 | SWE-bench Verified random-100 | Terminal-Bench 2.1 | OpenThoughts-TBLite |
 |---|---:|---:|---:|
 | [Snowball 09-21](https://github.com/marin-community/marin/issues/8089) | 12.8% | 7.2% | 11.5% |
-| RL | 30.5% | **18.8%** | **45.1%** |
+| RL | 30.5% | 18.8% | **45.1%** |
 | SFT | 46.5% | 18.8% | 33.0% |
-| SFT + RL | **47.0%** | 18.2% | 37.0% |
+| SFT + RL (step 60) | **50.5%** | **23.9%** | 41.8% |
 
 </div>
 
@@ -265,26 +265,38 @@ We next ran GRPO on a mixture of R2E-Gym repository tasks and TMax terminal task
 
 We probed the vanilla CalibForge epoch-7 model eight times per task and selected tasks it solved between one and six times. This produced a learnable band of 1,833 tasks, comprising 453 R2E-Gym tasks and 1,380 TMax tasks. All three additional-SFT models used this band for RL.
 
-We ran 30 GRPO updates using batches of 64 tasks with eight attempts each, a learning rate of 5e-7, and a 64k context window. For comparison, we also trained Snowball 09-21 directly with RL.
+We ran 30 GRPO updates using batches of 64 tasks with eight attempts each, a learning rate of 5e-7, and a 64k context window. For comparison, we also trained Snowball 09-21 directly with RL. We extended the CalibForge and vanilla CalibForge + Kimi runs to 60 updates.
 
 ## Results So Far
 
-The figure compares Snowball 09-21, direct RL, and each additional SFT recipe before and after RL. Vanilla denotes ordinary teacher-demonstration SFT.
+The figure compares Snowball 09-21, direct RL, and each additional SFT recipe before and after RL. The highlighted run is vanilla CalibForge + Kimi after 60 RL updates, which also supplies the last row of the opening table. Vanilla denotes ordinary teacher-demonstration SFT.
 
 <figure class="research-figure">
-<a href="{{ '/assets/img/snowball/sft-rl-stages.png?v=consistent-recipe-names' | relative_url }}"><img src="{{ '/assets/img/snowball/sft-rl-stages.png?v=consistent-recipe-names' | relative_url }}" alt="Across three benchmarks, the 09-21 starting model is shown in gray, three additional SFT recipes in cyan, and each recipe followed by RL in blue. The blue bar below the starting model shows RL directly from Snowball 09-21. TBLite scores rise after RL in all three SFT recipes, while SWE-bench changes are mixed." width="2951" height="1512" loading="lazy"></a>
-<figcaption>Pass@1 point estimates with Terminus-2. “Snowball 09-21” is the general-SFT starting checkpoint. Blue bars follow 30 RL updates, including RL directly from the starting model.</figcaption>
+<a href="{{ '/assets/img/snowball/sft-rl-stages.png?v=step60-hero' | relative_url }}"><img src="{{ '/assets/img/snowball/sft-rl-stages.png?v=step60-hero' | relative_url }}" alt="Across three benchmarks, the 09-21 starting model is shown in gray, three additional SFT recipes in cyan, and each recipe followed by RL in blue. The blue bar below the starting model shows direct RL at step 30. CalibForge and vanilla CalibForge plus Kimi use step 60, while Relay uses step 30. Vanilla CalibForge plus Kimi reaches 23.9 percent on Terminal-Bench, 50.5 on SWE-bench, and 41.8 on TBLite." width="2951" height="1512" loading="lazy"></a>
+<figcaption>Pass@1 point estimates with Terminus-2. “Snowball 09-21” is the general-SFT starting checkpoint. Blue bars use step 60 for CalibForge and vanilla CalibForge + Kimi, and step 30 for Relay and direct RL. Starting-policy scores are unchanged.</figcaption>
 </figure>
 
-RL directly from the 09-21 starting checkpoint reached 30.5% on SWE-bench, 18.8% on Terminal-Bench 2.1, and 45.1% on TBLite. Its TBLite score exceeded every additional SFT recipe, including their RL continuations, and its Terminal-Bench score was close to the best continuation at 19.3%. Additional SFT followed by RL still produced the highest SWE-bench score at 47.0%. These results make the choice of starting policy more interesting than the SFT scores alone suggested.
+Vanilla CalibForge + Kimi continued improving through 60 RL updates, reaching **50.5% on SWE-bench**, **23.9% on Terminal-Bench 2.1**, and **41.8% on TBLite**. It now leads the recipes shown on SWE-bench and Terminal-Bench. Direct RL still has the highest TBLite score at 45.1%, without the additional coding-agent demonstrations.
+
+More updates did not help every recipe equally. CalibForge-only SFT gained on SWE-bench but lost ground on Terminal-Bench by step 60. The checkpoint progression below shows why the starting policy and training duration need to be considered together.
+
+<details markdown="1">
+<summary>Results at 12, 30, and 60 RL updates</summary>
+
+<figure class="research-figure">
+<a href="{{ '/assets/img/snowball/rl-checkpoint-progress.png' | relative_url }}"><img src="{{ '/assets/img/snowball/rl-checkpoint-progress.png' | relative_url }}" alt="Checkpoint scores for the three SFT recipes at 12, 30, and 60 RL updates. Vanilla CalibForge plus Kimi reaches its highest score on every benchmark at step 60. CalibForge-only Terminal-Bench scores decline. Relay has results through step 30." width="2952" height="954" loading="lazy"></a>
+<figcaption>Pass@1 with Terminus-2. No step-60 Relay result is available. Lines connect the evaluated checkpoints.</figcaption>
+</figure>
+
+</details>
 
 ## What Did SFT and RL Actually Teach Snowball: Looking Behind the Scores
 
-RL directly from Snowball 09-21 matched or came close to the SFT + RL models on terminal tasks, despite skipping the additional demonstrations. We wanted to understand what those demonstrations contributed. Did they teach new knowledge, or change how Snowball approached and executed the work? We used coding agents to compare trajectories and inspect where the two routes succeeded or failed.
+At 30 RL updates, direct RL from Snowball 09-21 matched or came close to the SFT + RL models on terminal tasks, despite skipping the additional demonstrations. The trace inspections below compare these 30-update checkpoints with their starting policies. We wanted to understand what those demonstrations contributed. Did they teach new knowledge, or change how Snowball approached and executed the work? We used coding agents to compare trajectories and inspect where the two routes succeeded or failed.
 
 ### SFT’s advantage on SWE-bench
 
-On SWE-bench, additional coding-agent SFT with CalibForge + Kimi reached **46.5%**, compared with **30.5% for direct RL**. Following that SFT with RL brought the score to **47.0%**. The traces show where the stronger results went with better execution.
+On SWE-bench, additional coding-agent SFT with CalibForge + Kimi reached **46.5%**, compared with **30.5% for direct RL**. Following that SFT with 30 RL updates brought the score to **47.0%**. The traces show where the stronger results went with better execution.
 
 Both direct RL and Kimi SFT nearly always opened a file touched by the reference fix. The gap appeared afterward. Kimi SFT edited a relevant file **almost twice as often** and left the target tests passing **about 1.5 times as often** as direct RL.
 
@@ -309,7 +321,7 @@ We also compared 26 newly solved TBLite tasks where both routes succeeded. The m
 
 <figure class="research-figure">
 <a href="{{ '/assets/img/snowball/trace-working-style.png?v=turns-reasoning' | relative_url }}"><img src="{{ '/assets/img/snowball/trace-working-style.png?v=turns-reasoning' | relative_url }}" alt="On 26 shared TBLite successes, median time is 255 seconds for direct RL versus 604 for SFT plus RL; agent turns are 28.5 versus 31; output tokens are 35 thousand versus 92 thousand; reasoning shares are 42 versus 69 percent of output characters; shell commands are 61 versus 44." width="2952" height="882" loading="lazy"></a>
-<figcaption>Medians of per-task medians over passing attempts, pooling the three SFT + RL recipes. Reasoning share is measured in output characters. These describe successful traces, not the cost of training or every attempt. The direction varied by task.</figcaption>
+<figcaption>Medians of per-task medians over passing attempts, pooling the three SFT + RL recipes at 30 RL updates. Reasoning share is measured in output characters. These describe successful traces, not the cost of training or every attempt. The direction varied by task.</figcaption>
 </figure>
 
 Longer reasoning sometimes paid off. On parking-lot pathfinding, the vanilla Kimi SFT + RL model finished in roughly 100–120 seconds and 6–8 turns, while direct RL took 900–1,100 seconds and 68–83 turns. On shared Terminal-Bench 2.1 successes, direct RL was slower overall. There was no single working style that won everywhere.
@@ -348,7 +360,7 @@ The training audit found no confirmed case of fabrication earning reward. It fou
 
 ## Conclusions
 
-SFT and RL both improved Snowball, with SFT + RL leading on SWE-bench and direct RL competitive on terminal tasks. Trace analysis connected those gains to changes in knowledge use and execution, and exposed evaluation reward hacking.
+SFT and RL both improved Snowball. At 60 updates, vanilla CalibForge + Kimi led on SWE-bench and Terminal-Bench, while direct RL retained the highest TBLite score. Trace analysis connected those gains to changes in knowledge use and execution, and exposed evaluation reward hacking.
 
 Agent-assisted trace analysis offers a direction for adaptive training. Agents could diagnose missing knowledge or unreliable execution, prepare targeted demonstrations and runnable environments, and test whether subsequent training improves the intended behavior on held-out tasks. The reward-hacking examples also motivate verifiers that distinguish solving a task from exploiting its evaluation.
 

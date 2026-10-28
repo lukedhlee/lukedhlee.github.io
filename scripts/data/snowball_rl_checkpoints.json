@@ -1,0 +1,72 @@
+{
+  "source": "Results supplied by Luke in chat; step-60 vanilla-Kimi is the highlighted run.",
+  "steps": [
+    12,
+    30,
+    60
+  ],
+  "metrics": [
+    "Terminal-Bench 2.1",
+    "SWE-bench Verified r100",
+    "OpenThoughts-TBLite"
+  ],
+  "runs": {
+    "CalibForge SFT": {
+      "tb": [
+        20.5,
+        19.3,
+        15.9
+      ],
+      "swe": [
+        37.0,
+        38.0,
+        39.0
+      ],
+      "tblite": [
+        25.0,
+        30.4,
+        31.0
+      ]
+    },
+    "CalibForge + Kimi SFT": {
+      "tb": [
+        21.6,
+        18.8,
+        23.9
+      ],
+      "swe": [
+        41.0,
+        47.0,
+        50.5
+      ],
+      "tblite": [
+        34.8,
+        37.5,
+        41.8
+      ]
+    },
+    "CalibForge + Kimi Relay SFT": {
+      "tb": [
+        22.2,
+        19.3,
+        null
+      ],
+      "swe": [
+        47.0,
+        43.5,
+        null
+      ],
+      "tblite": [
+        39.1,
+        44.0,
+        null
+      ]
+    }
+  },
+  "selected_steps": {
+    "CalibForge SFT": 60,
+    "CalibForge + Kimi SFT": 60,
+    "CalibForge + Kimi Relay SFT": 30
+  },
+  "hero": "CalibForge + Kimi SFT"
+}
