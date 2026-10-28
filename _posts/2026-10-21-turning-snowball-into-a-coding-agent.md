@@ -1,8 +1,8 @@
 ---
 layout: research
 color_theme: snowball
-title: "Turning Marin’s Pre-trained MoE into a Coding Agent: A Post-Training Journey"
-description: "Early experiments, infrastructure fixes, and results from improving Snowball with SFT and RL."
+title: "Turning Snowball into a Coding Agent: A Post-Training Journey"
+description: "SFT, RL, and the messy work of teaching Marin’s pre-trained MoE to solve coding and terminal tasks."
 image:
   path: /assets/img/snowball/snowball-coding-workshop.png
   alt: "Snowball learning to build and test code at a snowy mountain workshop."
