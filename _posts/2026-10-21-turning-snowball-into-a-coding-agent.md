@@ -277,7 +277,7 @@ RL directly from the 09-21 starting checkpoint reached 30.5% on SWE-bench, 18.8%
 
 RL directly from Snowball 09-21 matched or came close to the SFT + RL models on terminal tasks, despite skipping the additional demonstrations. We wanted to understand what those demonstrations contributed. Did they teach new knowledge, or change how Snowball approached and executed the work? We used coding agents to compare trajectories and inspect where the two routes succeeded or failed.
 
-Here, **RL** means training directly from Snowball 09-21. **SFT + RL** means one of the three additional SFT recipes followed by RL. For the paired terminal-task reads, we compared newly solved tasks that the starting checkpoint had failed in at least two attempts. Most models had only two evaluation attempts per task, so a task solved by one route alone was a lead to investigate, rather than proof of a different capability.
+Here, **RL** means training directly from Snowball 09-21. **SFT + RL** means one of the three additional SFT recipes followed by RL. For the paired terminal-task reads, we compared newly solved tasks that the starting checkpoint had failed in at least two attempts.
 
 ### SFT’s advantage on SWE-bench
 
