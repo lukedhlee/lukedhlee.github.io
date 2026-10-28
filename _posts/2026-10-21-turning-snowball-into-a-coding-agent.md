@@ -322,7 +322,7 @@ Each credited pass added roughly half a percentage point to its model’s benchm
 
 Failed shortcuts were much more common after direct RL. Its evaluation traces contained **31 fabricated or copied deliverables**, compared with at most one per other model in the catalog. Examples included a zero-filled placeholder and copying a shipped expected-output file instead of deriving the result from the input. All 31 attempts failed.
 
-Did RL reinforce these behaviors during training? The initial scan found verifier or reward-path access in at most 0.2% of training rollouts, with below-average reward. That scan did not establish that reward hacking grew during RL. Answering that question requires tracking the specific exploit behaviors across updates and checking whether they earned higher rewards.
+During training, rollouts that accessed verifier or reward files were rare and earned below-average rewards. Whether shortcuts such as fabricated deliverables became more common or more rewarding over training remains untested.
 
 ## Conclusions
 
