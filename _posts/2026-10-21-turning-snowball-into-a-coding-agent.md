@@ -16,11 +16,13 @@ reading_time: 14
 
 Training a coding agent still leaves plenty of room for that kind of work. We can give a model a repository, a terminal, and a task, but getting it to reliably finish the job is another matter. It needs to make changes, test them, and recover when something goes wrong.
 
-Over the past few weeks, I have been working with Marin’s post-training team to develop a coding-agent expert for Snowball, Marin’s 67B A2B MoE model. Snowball had already received general supervised fine-tuning, and our initial focus was to develop its coding-agent capabilities through reinforcement learning.
+Over the past few weeks, I have been working with Marin’s post-training team to develop a coding-agent expert for Snowball, Marin’s 67B A2B MoE model. Starting from a general-SFT checkpoint, our initial focus was reinforcement learning, and some of the most consequential work happened inside the training system.
 
-Along the way, we encountered limits in both the training system and what the starting policy could learn through RL. GRPO needs some attempts to succeed and others to fail to obtain a useful relative training signal from binary rewards. That motivated additional coding-agent SFT before RL, hoping demonstrations would give the model a stronger starting point.
+Early RL runs gave us a puzzle: training reward kept rising, but performance on held-out tasks improved and then fell. Tracking down the cause took us through how the system sampled actions, trained on them, and handled long terminal sessions, uncovering bugs that our usual checks had missed.
 
-Here is where one of those recipes stands, compared with the newer Snowball 09-21 starting checkpoint:
+Rebuilding the stack improved held-out R2E-Gym performance by about ten percentage points while using half as many nodes. We also worked on making experiments faster: in matched timing runs, a speculative-decoding draft reduced the time for three RL updates from 44 to 31 minutes. The same frozen draft remained useful through 60 updates.
+
+Once the training system was working better, we returned to the starting policy. RL needed useful attempts to reinforce, so we added coding-agent SFT and then continued with RL. The table below shows where one of those recipes stands, compared with Snowball 09-21:
 
 <div class="table-wrap" markdown="1">
 
