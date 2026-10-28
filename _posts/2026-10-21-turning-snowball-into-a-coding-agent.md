@@ -33,7 +33,7 @@ Some of the most interesting lessons came from reading the model’s attempts. S
 
 Both SFT and RL substantially improved Snowball, with different strengths. SFT + RL reached the strongest SWE-bench and Terminal-Bench results, while direct RL remained competitive on TBLite without additional coding-agent demonstrations.
 
-**This post follows our part in Marin’s first post-training effort, including the failed experiments and debugging behind the results. We hope others can learn from our mistakes and avoid some of the same struggles.**
+This post follows our part in Marin’s first post-training effort, including the failed experiments and debugging behind the results. We hope others can learn from our mistakes and avoid some of the same struggles.
 
 <div class="table-wrap" markdown="1">
 
