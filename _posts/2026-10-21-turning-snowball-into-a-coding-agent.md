@@ -169,12 +169,9 @@ With these repairs in place, held-out performance improved further. On a later e
 <figcaption>The same held-out tasks under the older probe setup, with eight attempts per task. Familiar repositories were used during RL; new repositories were excluded entirely. Lines connect evaluated checkpoints. This is a separate evaluation from the early results above. Several changes landed together, so the gain belongs to the package.</figcaption>
 </figure>
 
-In the later 441-task probes, successful attempts took a median of 15 turns, down from 22, and exact repeats of the previous command fell from 2.19 to 0.48 per 100 turns. Verification shifted toward self-written repro/check scripts, while use of the repository's tests fell.
+The traces showed how the rebuilt stack helped. On the 441-task probe, successful attempts took a median of **15 turns instead of 22**, and the rate of repeated commands fell by more than fourfold. More attempts reached a working fix within the context budget.
 
-This was more than learning to announce completion. The grader already credited correct fixes left in the repository when the context ran out. RL made it more likely that useful work reached a correct fix within the budget. Verification remained a weakness: repository-test use fell, and wrong submissions became more common.
-
-
-On SWE-bench, the selected RL checkpoint improved from the starting model's 12 correct tasks to 23 of 100.
+Verification became less reliable, however. Agents relied more on self-written checks and less on the repository's tests, and incorrect submissions became more common. The gains came from getting useful work done sooner; checking that work remained a separate weakness.
 
 <aside class="research-reports" markdown="1">
 Full reports: [First RL results](https://gist.github.com/lukedhlee/9c19fd9288a94ecfd1dbd6906b0a8dda), [Old versus new stack](https://gist.github.com/lukedhlee/01897efa3ae7c474732c61d35150a43a), [Why RL improved](https://gist.github.com/lukedhlee/ad3a95fccccb527db66619d6b3667e7d), [Behavior and optimizer experiments](https://gist.github.com/lukedhlee/9747e8eb423f23ca6627199c2532de47).
