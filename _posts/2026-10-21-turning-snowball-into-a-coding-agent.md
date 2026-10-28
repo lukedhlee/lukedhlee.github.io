@@ -171,7 +171,7 @@ With these repairs in place, held-out performance improved further. On a later e
 
 The traces showed how the rebuilt stack helped. On the 441-task probe, successful attempts took a median of 15 turns instead of 22, and the rate of repeated commands fell by more than fourfold. More attempts reached a working fix within the context budget.
 
-Verification became less reliable, however. Agents relied more on self-written checks and less on the repository's tests, and incorrect submissions became more common. The gains came from getting useful work done sooner; checking that work remained a separate weakness.
+Verification became less reliable, however. Agents relied more on self-written checks and less on the repository's tests, and incorrect submissions became more common.
 
 <aside class="research-reports" markdown="1">
 Full reports: [First RL results](https://gist.github.com/lukedhlee/9c19fd9288a94ecfd1dbd6906b0a8dda), [Old versus new stack](https://gist.github.com/lukedhlee/01897efa3ae7c474732c61d35150a43a), [Why RL improved](https://gist.github.com/lukedhlee/ad3a95fccccb527db66619d6b3667e7d), [Behavior and optimizer experiments](https://gist.github.com/lukedhlee/9747e8eb423f23ca6627199c2532de47).
@@ -300,7 +300,7 @@ At 30 RL updates, direct RL from Snowball 09-21 matched or came close to the SFT
 
 ### SFT’s advantage on SWE-bench
 
-On SWE-bench, additional coding-agent SFT with CalibForge + Kimi reached **46.5%**, compared with **30.5% for direct RL**. Following that SFT with 30 RL updates brought the score to **47.0%**. The traces show where the stronger results went with better execution.
+On SWE-bench, additional coding-agent SFT with CalibForge + Kimi reached **46.5%**, compared with **30.5% for direct RL**. Following that SFT with RL brought the score to 47.0% at update 30 and **50.5% at update 60**.
 
 Both direct RL and Kimi SFT nearly always opened a file touched by the reference fix. The gap appeared afterward. Kimi SFT edited a relevant file **almost twice as often** and left the target tests passing **about 1.5 times as often** as direct RL.
 
@@ -326,7 +326,7 @@ We also compared 26 newly solved TBLite tasks where both routes succeeded. The m
 <figcaption>Medians of per-task medians over passing attempts, pooling the three SFT + RL recipes at 30 RL updates. Reasoning share is measured in output characters. These describe successful traces, not the cost of training or every attempt. The direction varied by task.</figcaption>
 </figure>
 
-Longer reasoning sometimes paid off. On parking-lot pathfinding, the vanilla Kimi SFT + RL model finished in roughly 100–120 seconds and 6–8 turns, while direct RL took 900–1,100 seconds and 68–83 turns. On shared Terminal-Bench 2.1 successes, direct RL was slower overall. There was no single working style that won everywhere.
+Longer reasoning sometimes paid off. On parking-lot pathfinding, the vanilla Kimi SFT + RL model finished in roughly 100–120 seconds and 6–8 turns, while direct RL took 900–1,100 seconds and 68–83 turns. On shared Terminal-Bench 2.1 successes, direct RL was slower overall.
 
 ### How the failures changed with training
 
@@ -337,11 +337,11 @@ The starting checkpoint often struggled to get actions executed at all. On TBLit
 <figcaption>Percentages use all scored attempts for each model, rather than only its failures. A single attempt can exhibit several patterns, including on attempts that eventually pass. The self-check mismatch counts only failed submissions. Labels come from the trace detectors and spot checks described in the failure-mode analysis.</figcaption>
 </figure>
 
-Additional SFT brought a different pattern. Long reasoning turns hit the per-turn token limit, and repeated summarization sometimes led agents to explore the same files again. RL reduced token-limit hits by roughly a third to a half in the Kimi models, but barely changed them in CalibForge-only SFT. The demonstrations affected which behaviors subsequent RL improved.
+Additional SFT brought a different pattern. Long reasoning turns hit the per-turn token limit, and repeated summarization sometimes led agents to explore the same files again. RL reduced token-limit hits by roughly a third to a half in the Kimi models, but barely changed them in CalibForge-only SFT.
 
 Some terminal mechanics remained troublesome. An unfinished heredoc or quote leaves the shell waiting for more input, so later commands become part of that input instead of executing. This still appeared in about one in five Kimi-model attempts before and after RL.
 
-Verification also changed. In the Kimi models, failed submissions following an apparently successful self-check became roughly 1.5–2 times as common after RL. These agents were checking their work, but their checks missed requirements exercised by the hidden tests. This gives a more specific training target than simply asking the model to run more checks.
+Verification also changed. In the Kimi models, failed submissions following an apparently successful self-check became roughly 1.5–2 times as common after RL. These agents were checking their work, but their checks missed requirements exercised by the hidden tests.
 
 ### Reward hacking
 
