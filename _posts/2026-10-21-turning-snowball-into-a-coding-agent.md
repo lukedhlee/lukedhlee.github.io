@@ -1,8 +1,8 @@
 ---
 layout: research
 title: "Turning Snowball into a Coding Agent: A Post-Training Journey"
-description: "Experiments, fixes, and lessons from building a coding-agent expert with Marin."
-excerpt: "Working with Marin’s post-training team to build Snowball’s coding expert, from RL debugging and SFT experiments to Relay SFT."
+description: "Early experiments, infrastructure fixes, and results from improving Snowball with SFT and RL."
+excerpt: "My first few weeks working on Snowball’s coding-agent capabilities: getting RL working, adding demonstrations, and trying SFT followed by RL."
 date: 2026-10-21
 published: true
 reading_time: 14
@@ -12,37 +12,22 @@ reading_time: 14
 <a href="{{ '/assets/img/snowball/snowball-opening.png' | relative_url }}"><img src="{{ '/assets/img/snowball/snowball-opening.png' | relative_url }}" alt="Snowball and a teacher untangle a winding blue and orange trail through a snowy landscape." width="1672" height="941" loading="eager"></a>
 </figure>
 
-[Marin](https://marin.community/)’s ambition is to make the knowledge behind capable AI a public resource. That means sharing how models are built: the data, the experiments, and the decisions along the way, including the ones that turn out to be wrong. Other researchers can then see what happened, question it, and contribute their own ideas.
+[Marin](https://marin.community/)’s ambition is to make the knowledge behind capable AI a public resource. That includes the data, code, experiments, and decisions behind a model, including the approaches that do not work out.
 
-Training a coding agent still leaves plenty of room for that kind of work. We can give a model a repository, a terminal, and a task, but getting it to reliably finish the job is another matter. It needs to make changes, test them, and recover when something goes wrong. How best to teach these abilities is still an open question.
+Over the past few weeks, I have been working with Marin’s post-training team on a coding-agent expert for Snowball, Marin’s 67B A2B MoE model. Our goal was to make it better at working in a repository: finding the relevant code, making a change, testing it, and finishing the task. This post is an account of that work so far.
 
-Over the last two months, I worked with Marin’s post-training team to develop a coding-agent expert for Snowball, Marin’s 67B A2B MoE model. Snowball had already been through general supervised fine-tuning, and our plan was to use reinforcement learning to develop its coding-agent capabilities, with the aim of eventually distilling that expertise into the general model.
+Our initial focus was reinforcement learning. Before we could trust the experiments, we had to diagnose failures in both the policy and the training system. Fixing those problems helped RL improve the agent, but also made the starting policy’s limitations clearer. With binary task rewards, GRPO needs attempts with different outcomes to identify which ones to reinforce. If every attempt fails, there is no successful attempt to learn from in that group.
 
-As we ran experiments, we encountered limits in both the training system and what the starting policy could learn through RL. That brought additional SFT back into the picture and raised questions about how to combine the two. Which demonstrations would give RL a better starting point? When should the model learn from its own attempts, and when would examples from a stronger model help more?
+That motivated additional supervised fine-tuning on coding-agent demonstrations before RL. We tried several sources of demonstrations, then ran RL from those stronger starting points. The latest results show higher TBLite scores after RL across three SFT variants, with mixed results elsewhere. The direct-RL comparison on the newer starting checkpoint is still being evaluated.
 
-This post follows that process, from the initial RL experiments to strengthening the policy with SFT, combining SFT with RL, and eventually collecting teacher guidance from Snowball’s own attempts. Each step changed our understanding of what the model needed to learn next.
-
-The final experiments improved all three agent benchmarks I was tracking:
-
-<div class="table-wrap" markdown="1">
-
-| Model, evaluated with Terminus-2 | SWE-bench Verified random-100 | Terminal-Bench 2.1 | OpenThoughts-TBLite |
-|---|---:|---:|---:|
-| [Snowball 09-21](https://github.com/marin-community/marin/issues/8089), starting checkpoint | 13.8% | 6.5% | 11.7% |
-| Best recipe (Relay SFT + Kimi demonstrations) | **46.6%** | **18.8%** | **27.2%** |
-
-</div>
-
-*Pass@1, averaged over three evaluation runs. The recipe fine-tunes [Grug Datakit 09-21](https://github.com/marin-community/marin/issues/8089) on Relay SFT and Kimi coding demonstrations. These results are from an experimental checkpoint; the final Snowball launch checkpoint is not yet specified.*
-
-That result took several changes of approach. Snowball itself also changed during the work, so this is an account of building the expert across successive starting checkpoints.
+What follows is a preliminary post-training journey: the infrastructure we had to fix, what we learned from Snowball’s attempts, and the results of combining demonstrations with RL. The experiments span an older Stage-3 checkpoint and the newer 09-21 checkpoint, which I distinguish below.
 
 <nav class="research-toc" aria-label="Article contents">
 <div class="research-toc-title">Contents</div>
 <ul>
-<li><strong><a href="#starting-with-reinforcement-learning">Starting with RL</a></strong><span class="toc-sub"><a href="#the-pre-rl-probe">Pre-RL probe</a> · <a href="#following-the-behavior-back-to-sft">SFT habits</a> · <a href="#diagnosing-entropy-collapse">Entropy collapse</a> · <a href="#fixing-the-training-stack">Stack fixes</a> · <a href="#what-rl-improved">Results</a> · <a href="#speeding-up-rollouts-without-retraining-the-draft">Speculative decoding</a> · <a href="#training-a-prompt-into-the-weights">Prompt distillation</a></span></li>
-<li><strong><a href="#strengthening-the-starting-policy-with-sft">Strengthening the policy with SFT</a></strong><span class="toc-sub"><a href="#better-loss-worse-agent">The Kimi experiment</a> · <a href="#combining-sft-and-rl">SFT → RL</a></span></li>
-<li><strong><a href="#relay-sft">Relay SFT</a></strong><span class="toc-sub"><a href="#bringing-in-the-teacher">Motivation and recipe</a> · <a href="#testing-the-idea">Testing the idea</a></span></li>
+<li><strong><a href="#starting-with-reinforcement-learning">Starting with RL</a></strong><span class="toc-sub"><a href="#the-pre-rl-probe">Pre-RL probe</a> · <a href="#following-the-behavior-back-to-sft">SFT habits</a> · <a href="#diagnosing-entropy-collapse">Entropy collapse</a> · <a href="#fixing-the-training-stack">Stack fixes</a> · <a href="#what-rl-improved">Results</a> · <a href="#speeding-up-rollouts-without-retraining-the-draft">Speculative decoding</a></span></li>
+<li><strong><a href="#strengthening-the-starting-policy-with-sft">Adding SFT before RL</a></strong><span class="toc-sub"><a href="#earlier-experiments-on-the-stage-3-checkpoint">Earlier experiments</a> · <a href="#demonstrations-for-the-09-21-checkpoint">09-21 demonstrations</a> · <a href="#one-exploration-learning-to-recover-with-a-teacher">Teacher-guided recovery</a></span></li>
+<li><strong><a href="#rl-from-the-sft-checkpoints">RL from the SFT checkpoints</a></strong></li>
 <li><strong><a href="#reflections">Reflections</a></strong></li>
 <li><strong><a href="#what-you-can-reuse">What you can reuse</a></strong></li>
 </ul>
@@ -186,7 +171,8 @@ I also checked whether the draft would need refreshing as RL changed Snowball. T
 Full reports: [Toolkit and timing](https://gist.github.com/lukedhlee/b161a78a29e2c42b08a157aaaea6438b), [Frozen draft during RL](https://gist.github.com/lukedhlee/bd14e461b13557a3a541e721fcda643e), [Initial pilot](https://gist.github.com/lukedhlee/f02dc181b7383e47908091b565cf8619).
 </aside>
 
-### Training a Prompt into the Weights
+<details markdown="1">
+<summary>Another exploration: training an editing prompt into the weights</summary>
 
 A short edit-discipline prompt improved the base by 9–14 points on a development set. I tried transferring that guidance into the weights by keeping it during rollouts and removing it from the context used for the weight update. Without the guidance, the trained model scored 29.8%, against 30.2% for the base. The prompted-versus-unprompted likelihood gap shrank 85%, but task success did not improve.
 
@@ -203,11 +189,19 @@ That raises a question about when guidance is most useful. Later turns are where
 [Full report](https://gist.github.com/lukedhlee/edb2f69d38ed089f71f74ff711281807).
 </aside>
 
-The lesson was that the starting policy deserved as much attention as the RL recipe. SFT offered a way to build a stronger coding foundation by learning from demonstrations, including behaviors Snowball rarely discovered on its own. The next experiments focused on whether that foundation would give RL more useful behavior to reinforce.
+</details>
+
+These experiments brought us back to the starting policy. RL could reinforce useful attempts, but demonstrations offered a way to teach behaviors that Snowball rarely produced on its own. We wanted to see whether additional SFT could give RL a better place to start.
 
 ## Strengthening the Starting Policy with SFT
 
-### Better Loss, Worse Agent
+For binary-reward GRPO, a group of attempts that all fail has no reward difference to learn from. Additional SFT might make more tasks sometimes solvable, giving RL more useful attempts to reinforce. That was our motivation for adding demonstrations, rather than continuing to change only the RL recipe.
+
+### Earlier Experiments on the Stage-3 Checkpoint
+
+Our first SFT experiments used the older Stage-3 starting model from the RL experiments above. They gave us reasons to keep exploring SFT, but also showed that fitting demonstrations better did not guarantee a better agent.
+
+#### Better Loss, Worse Agent
 
 On the older starting checkpoint, Kimi SWE-smith demonstrations looked promising by loss: every one of 628 held-out trajectories became easier for the model to predict. SWE-bench went backwards, from 12 correct tasks to 7 of 100.
 
@@ -221,7 +215,7 @@ The transcripts were more informative than the loss. The model declared completi
 Full reports: [Kimi training and fit](https://gist.github.com/lukedhlee/5bbf6bdd183b7f9047790cbb61c55011), [Kimi SFT and subsequent RL](https://gist.github.com/lukedhlee/48185da748a200d44f7fe31431054e37), [Trace-level behavior](https://gist.github.com/lukedhlee/ec30c26faedd2a85baa3dd1d212d9efa).
 </aside>
 
-### Combining SFT and RL
+#### Combining SFT and RL
 
 The OpenThoughts experiments worked better. I fine-tuned the same older starting checkpoint on a mixture of OpenThoughts-Agent traces, instruction-following traces, and successful synthesized-task traces, then ran GRPO from that SFT checkpoint.
 
@@ -236,63 +230,68 @@ SFT raised SWE-bench from 14.5% to 24.1%; another 30 GRPO updates brought it to 
 Full reports: [SFT versus RL versus SFT→RL](https://github.com/marin-community/marin/issues/9225), [training recipes and launch configs](https://gist.github.com/lukedhlee/d152f86a58e8619a988361e1502f9e55).
 </aside>
 
-## Relay SFT
+### Demonstrations for the 09-21 Checkpoint
 
-The next experiments started from Marin's newer [Grug Datakit 09-21](https://github.com/marin-community/marin/issues/8089) checkpoint. Kimi demonstrations alone now reached 41.6% on SWE-bench, against 13.8% for that starting model under the three-run evaluation recipe. The earlier failure did not make the dataset universally unhelpful: the starting checkpoint and training recipe mattered.
+We then moved to Marin’s newer [Grug Datakit 09-21](https://github.com/marin-community/marin/issues/8089) checkpoint. From here onward, “starting checkpoint” means this model, before our additional coding-agent SFT. It had already received general SFT.
 
-### Bringing in the Teacher
+We trained on Qwen3.8-27B demonstrations on CalibForge tasks, both alone and with Kimi coding traces. The vanilla CalibForge set contained 2,974 episodes across 1,487 tasks. The Kimi supplement added the same 4,392 demonstrations to each of the two supplemented recipes. These were straightforward SFT experiments, using a learning rate of 3e-4, FP32 master parameters, and MoE capacity factor 2.0. The CalibForge-only checkpoint used seven training epochs and the supplemented checkpoints used three.
 
-Teacher-only SFT trains on histories generated by the teacher. At deployment, Snowball creates its own history: different commands, mistaken assumptions, invalid actions, and unfinished fixes. This mismatch is **exposure bias**. A demonstration of the teacher's clean solution may not show how to recover from the situations the student actually encounters.
+The SFT checkpoints provided substantially stronger benchmark scores than the starting model. For example, vanilla CalibForge plus Kimi scored 46.5% on SWE-bench in the evaluation used below, compared with 12.8% for the starting checkpoint. These demonstration-trained models became the starting points for the next RL experiments.
 
-Trace analysis identified three major failure modes that were cheap to detect programmatically during online trajectory generation: invalid actions, exhausting the context budget, and premature completion. The harness could flag a rejected action, track context use, or intercept a completion claim. These became the intervention points for **Relay SFT**. A completion claim triggered verification, since it could also be correct.
+### One Exploration: Learning to Recover with a Teacher
 
-Snowball starts the task, and a stronger teacher intervenes at those points. The teacher repairs an invalid action, continues when the context-budget trigger fires, or checks the work when Snowball claims completion. For these experiments the teacher was Qwen3.8-27B. During SFT, Snowball's turns remain as context and only the teacher's turns contribute to the loss.
+We also explored a different kind of demonstration. A teacher’s own solution may not show how to recover from the mistakes Snowball actually makes. Could showing the student how a teacher continues from its own attempts provide a useful starting point for RL?
 
-<figure class="research-figure">
-<a href="{{ '/assets/img/snowball/relay-timeline.png' | relative_url }}"><img src="{{ '/assets/img/snowball/relay-timeline.png' | relative_url }}" alt="Teacher-only SFT trains on teacher-generated histories; Relay SFT includes student turns, local teacher repairs, and teacher continuations." width="2409" height="957" loading="lazy"></a>
-<figcaption>Student turns (S) provide context without training loss. Local repairs (R) and teacher continuations (T) are trained. A completion claim prompts a check; it is not proof that the student made a mistake.</figcaption>
-</figure>
-
-<aside class="research-reports" markdown="1">
-Full reports: [Initial relay design](https://gist.github.com/lukedhlee/d8fc1454ed134eff585448c4982458c9), [Behavior and knowledge evaluation](https://gist.github.com/lukedhlee/12f2e7293f332ce398655b4ec3e17b22), [Evaluation scheme](https://gist.github.com/lukedhlee/18b42f882bf099f6e89f901d6bd05e29).
-</aside>
-
-### Testing the Idea
-
-On matched CalibForge tasks, trace counts, and pass/fail outcomes, Relay SFT beat teacher-only SFT on all three benchmarks. The advantage repeated on a separate task pool, TMax.
-
-The best recipe then used the full set of 5,916 relay episodes plus 4,392 Kimi traces. It reached **46.6% on SWE-bench, 18.8% on Terminal-Bench 2.1, and 27.2% on OpenThoughts-TBLite**, the same checkpoint shown in the opening table. The smaller matched-data run is a separate comparison, labeled below.
+In **Relay SFT**, Snowball starts a task and Qwen3.8-27B intervenes after an invalid action, near the context limit, or when Snowball claims completion. The teacher repairs an action, continues the attempt, or checks the work. A completion claim is a reason to check, rather than proof of a mistake. During SFT, student turns provide context and only teacher turns contribute to the loss.
 
 <figure class="research-figure">
-<a href="{{ '/assets/img/snowball/relay-matched-dots.png' | relative_url }}"><img src="{{ '/assets/img/snowball/relay-matched-dots.png' | relative_url }}" alt="Matched teacher-only and Relay SFT comparisons alongside the best full-data recipe from the opening table." width="2160" height="1056" loading="lazy"></a>
-<figcaption>The green bars show the best recipe from the opening table. Blue and orange bars show the smaller matched-data comparisons, while the full-data recipe uses more relay episodes. Three-run means, with standard errors over tasks.</figcaption>
+<a href="{{ '/assets/img/snowball/relay-timeline.png' | relative_url }}"><img src="{{ '/assets/img/snowball/relay-timeline.png' | relative_url }}" alt="Teacher-only SFT uses teacher-generated histories. Relay SFT trains teacher actions following the student's attempts." width="2409" height="957" loading="lazy"></a>
+<figcaption>Student turns (S) provide context without training loss. Local repairs (R) and teacher continuations (T) are trained.</figcaption>
 </figure>
 
-Exposure bias motivated the recipe, but these experiments do not isolate it as the mechanism or show that the triggers beat random switching. The broader idea is related to [teacher continuations from student contexts](https://arxiv.org/abs/2607.04574v2) and [Relay-OPD](https://arxiv.org/abs/2607.26057).
+This was one exploration alongside ordinary SFT. Earlier comparisons looked promising, but later comparisons with corrected training precision and expert capacity did not establish a consistent advantage over vanilla SFT. Whether student-conditioned demonstrations produce a better starting policy for RL remains an open question.
 
 <aside class="research-reports" markdown="1">
-[Full report](https://gist.github.com/lukedhlee/8669f5b6f97e4e3bae72344a8fd51f4b).
+Earlier reports: [Relay design](https://gist.github.com/lukedhlee/d8fc1454ed134eff585448c4982458c9), [Initial results, before the corrected comparisons](https://gist.github.com/lukedhlee/8669f5b6f97e4e3bae72344a8fd51f4b). These historical results should be read separately from the newer experiments below.
 </aside>
+
+## RL from the SFT Checkpoints
+
+We next ran GRPO on a mixture of R2E-Gym repository tasks and TMax terminal tasks. The motivation was to let the demonstration-trained policies learn from their own attempts and task rewards. The mixed task pool contained 3,832 tasks. A held-out set of 426 tasks was excluded from band selection and training.
+
+We probed the vanilla CalibForge epoch-7 model eight times per task and selected tasks it solved between one and six times. This produced a training band of 1,833 tasks, which all three SFT arms used. A separate probe of the 09-21 starting checkpoint produced a smaller band of 1,082 tasks. That probe had incomplete task coverage, so the band sizes are descriptive rather than a controlled measurement of how much SFT expanded capability. Many tasks in the SFT band were tasks the starting model failed in all eight attempts.
+
+The RL runs used the same core recipe: batches of 64 tasks with eight attempts each, a learning rate of 5e-7, and a 64k context window. The table shows each SFT checkpoint before and after RL. Vanilla denotes ordinary teacher-demonstration SFT.
+
+<div class="table-wrap" markdown="1">
+
+| Starting policy | Terminal-Bench 2.1, SFT → RL | SWE-bench Verified random-100, SFT → RL | OpenThoughts-TBLite, SFT → RL |
+|---|---:|---:|---:|
+| Vanilla CalibForge, epoch 7 | 17.4% → 20.5% | 34.9% → 38.4% | 24.4% → 31.9% |
+| Vanilla CalibForge + Kimi | 18.8% → 19.9% | 46.5% → 47.5% | 33.0% → 38.5% |
+| Relay CalibForge + Kimi | 17.4% → 20.9% | 47.0% → 44.4% | 36.8% → 45.0% |
+
+</div>
+
+*Preliminary pass@1 results after 30 RL updates, evaluated with Terminus-2. Two evaluation repetitions per model, except three for the vanilla CalibForge starting policy. Scores average each task’s available scored attempts. Tasks without any verifier reward are excluded. The scored task sets differ slightly, so subtracting displayed scores need not equal the paired differences discussed below. Results recorded October 27, 2026.*
+
+The clearest pattern was on TBLite: scores rose after RL for all three starting policies. On tasks scored for both models, the gains were 6.5 points for vanilla CalibForge, 5.6 for vanilla plus Kimi, and 8.9 for Relay plus Kimi. Only the last gain had a paired 95% bootstrap interval entirely above zero, at [+0.6, +17.2] points. The other two intervals included zero. This is encouraging early evidence that RL can add to these SFT policies, rather than an established improvement for every recipe.
+
+Terminal-Bench 2.1 scores also rose, but the paired changes were small and uncertain. SWE-bench changes were mixed, and all three paired intervals included zero. Most of the selected training tasks were TMax terminal tasks, which may help explain why TBLite moved most, though we have not tested that explanation.
+
+The direct-RL evaluation from the 09-21 starting checkpoint is still pending. That comparison also uses a different task band, so it will compare the practical recipes rather than isolate the effect of SFT under identical RL data. For now, these results show what happened when we continued three demonstration-trained policies with RL. They do not yet establish that SFT followed by RL beats direct RL.
 
 ## Reflections
 
-The starting policy mattered more than I appreciated at the beginning. GRPO needed tasks the current model could sometimes solve. SFT could change that starting point substantially, but a lower demonstration loss was not enough to tell whether it had helped.
+We started by trying to improve a coding agent with RL. Much of the early work was making sure the training system preserved the actions the model actually sampled, accounted for their probabilities correctly, and returned rewards we could trust. Those fixes were part of making the experiments useful.
 
-Reading traces repeatedly changed the next experiment. It exposed inherited editing habits, broken probability accounting, and the difference between a model finishing an episode and producing a correct result. Having access to the upstream data and code made those investigations possible. Fixing the system and improving the policy were both part of building the expert.
+The starting policy mattered too. Additional SFT gave us stronger coding-agent checkpoints, and subsequent RL produced encouraging TBLite gains. The broader results remain mixed, and the direct-RL comparison is still underway. We have more to learn about which demonstrations help and how much those gains can be extended through RL.
 
-A broader question is whether post-training can become a process of diagnosing a particular model and choosing targeted interventions. Four directions seem especially worth investigating.
-
-**Can diagnosis scale beyond reading individual traces?** A failed attempt might reflect missing knowledge, poor planning, weak verification, or a broken environment. Can automated probes distinguish these explanations, map the model's strengths, and predict which intervention will help? A useful diagnosis should lead to improvements on new tasks while preserving existing strengths.
-
-**What should change in the harness, and what should change in the weights?** A reminder, a different tool interface, or teacher intervention might address the same failure as additional training. Can cheap harness experiments identify useful behaviors before committing to weight updates? When should those behaviors stay in the harness, and when should they be distilled? This connects to [Yoonho Lee's discussion of learning across text and weights](https://yoonholee.com/blog/2026/we-should-take-text-optimization-more-seriously/).
-
-**How should SFT and RL share tasks and compute?** Which failures call for demonstrations, and which can improve through the model's own attempts? That allocation should change as the policy improves. Relay SFT adds another option by collecting teacher continuations from the student's attempts. When can existing demonstrations be adapted to those situations, and when is collecting new ones worth the cost?
-
-**Can AI help invent better post-training methods?** Beyond choosing datasets and running ablations, could an agent diagnose a recurring failure and propose a new objective, credit-assignment rule, or teacher-intervention strategy? What limits this today: reliable diagnosis, trustworthy evaluation, experiment cost, or the ability to distinguish an algorithmic improvement from a favorable experiment?
+Reading traces helped us decide what to try next. They exposed inherited editing habits, unfinished attempts, and unreliable completion claims that aggregate scores alone did not explain. Having access to Snowball’s training data and code made it possible to investigate those behaviors. This post records those first steps, with the hope that the experiments and artifacts help others building on the same stack.
 
 ## What you can reuse
 
-The expert checkpoints are public: the [model in the opening table](https://huggingface.co/laion/snowball-67b-a2b-relay-sft-allkimi-step1203), a [similarly performing continuation](https://huggingface.co/laion/snowball-67b-a2b-relay-sft-acont-step999), and the [earlier RL checkpoint](https://huggingface.co/laion/snowball-67b-a2b-rl-r2egym-newstack-step24). The opening model's training set is in [calibforge-relay-traces](https://huggingface.co/datasets/laion/calibforge-relay-traces), under `terminus2_relay_sft`.
+Earlier expert checkpoints are public: an [SFT checkpoint](https://huggingface.co/laion/snowball-67b-a2b-relay-sft-allkimi-step1203), a [similarly performing continuation](https://huggingface.co/laion/snowball-67b-a2b-relay-sft-acont-step999), and the [earlier RL checkpoint](https://huggingface.co/laion/snowball-67b-a2b-rl-r2egym-newstack-step24). That SFT checkpoint’s training set is in [calibforge-relay-traces](https://huggingface.co/datasets/laion/calibforge-relay-traces), under `terminus2_relay_sft`. The new SFT → RL checkpoints reported above have not yet been uploaded.
 
 I also released an [EAGLE-3 toolkit](https://github.com/lukedhlee/grugmoe-eagle3) and [draft model](https://huggingface.co/laion/snowball-64k-eagle3-draft-r2egym). The frozen draft made matched RL updates arrive 1.42× sooner and held through 60 updates in the tested run. The [R2E-Gym Daytona artifacts](https://huggingface.co/datasets/laion/r2egym-build-artifacts) make 3,020 tasks available from eleven shared images. That pool includes tasks recovered from previously omitted repositories; passing the build gate does not certify that every task is well specified.
 
