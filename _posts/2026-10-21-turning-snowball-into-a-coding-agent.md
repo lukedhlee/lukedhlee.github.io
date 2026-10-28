@@ -221,7 +221,7 @@ Additional SFT improved the benchmark scores substantially. For example, vanilla
 
 ### One Exploration: Learning to Recover with a Teacher
 
-We also explored a different kind of demonstration. A teacher’s own solution may not show how to recover from the mistakes Snowball actually makes. Could showing the student how a teacher continues from its own attempts provide a useful starting point for RL?
+We also explored demonstrations designed to address exposure bias. During SFT, Snowball learns from teacher-generated histories; during deployment, it must act on histories shaped by its own mistakes. Relay SFT was intended to narrow that gap by showing how a teacher recovers from Snowball’s attempts, and to test whether those demonstrations provide a better starting point for RL.
 
 In **Relay SFT**, Snowball starts a task and Qwen3.8-27B intervenes after an invalid action, near the context limit, or when Snowball claims completion. The teacher repairs an action, continues the attempt, or checks the work. A completion claim is a reason to check, rather than proof of a mistake. During SFT, student turns provide context and only teacher turns contribute to the loss.
 
