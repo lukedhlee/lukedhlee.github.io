@@ -80,7 +80,7 @@ def sft_rl():
              fontsize=21, weight="semibold")
     fig.legend(handles=[Patch(color=BASE, label="09-21 starting model"),
                         Patch(color=LIGHT, label="SFT"),
-                        Patch(color=BLUE, label="After RL")],
+                        Patch(color=BLUE, label="SFT + RL")],
                loc="upper left", bbox_to_anchor=(.205, .91), ncol=3,
                frameon=False, fontsize=12, handlelength=1.8, columnspacing=1.8)
     labels = ["09-21 starting model", "CalibForge\nvanilla SFT",
@@ -90,13 +90,11 @@ def sft_rl():
         ("SWE-bench Verified r100", 12.8, [34.9, 46.5, 47.0], [38.4, 47.5, 44.4]),
         ("OpenThoughts-TBLite", 11.5, [24.4, 33.0, 36.8], [31.9, 38.5, 45.0]),
     ]
-    for ax, (title, base, sft, rl), provisional, count in zip(
-            axes, panels, [16.7, 31.4, 52.0], [21, 97, 76]):
+    # Provisional Base + RL, hidden for now: scores [16.7, 31.4, 52.0], tasks [21, 97, 76].
+    for ax, (title, base, sft, rl) in zip(axes, panels):
         ax.set_title(title, loc="left", fontsize=15, weight="semibold", pad=20)
-        bars = ax.barh([-.16], [base], height=.25, color=BASE)
+        bars = ax.barh([0], [base], height=.25, color=BASE)
         ax.bar_label(bars, fmt="%.1f", padding=5, fontsize=12, color=MUTED)
-        bars = ax.barh([.16], [provisional], height=.25, color=BLUE)
-        ax.bar_label(bars, labels=[f"{provisional:.1f}*"], padding=5, fontsize=12, color=INK)
         for values, offset, color in [(sft, -.16, LIGHT), (rl, .16, BLUE)]:
             bars = ax.barh(np.arange(1, 4) + offset, values, height=.25, color=color)
             ax.bar_label(bars, fmt="%.1f", padding=5, fontsize=12, color=INK)
@@ -109,8 +107,6 @@ def sft_rl():
         ax.axhline(.5, color=GRID, linewidth=.8)
         ax.set_xlabel("Pass@1 (%)", fontsize=12, labelpad=12)
     axes[0].tick_params(axis="y", labelcolor=INK)
-    fig.text(.205, .035, "* Base + RL is provisional: 21 Terminal-Bench, 97 SWE-bench, 76 TBLite tasks. Coverage differs from other models.",
-             fontsize=11, color=MUTED)
     save(fig, "sft-rl-stages")
 
 

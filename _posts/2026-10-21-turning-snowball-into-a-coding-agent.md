@@ -33,13 +33,16 @@ Below, we share what those experiments taught us about developing a coding agent
 | Model, evaluated with Terminus-2 | SWE-bench Verified random-100 | Terminal-Bench 2.1 | OpenThoughts-TBLite |
 |---|---:|---:|---:|
 | [Snowball 09-21](https://github.com/marin-community/marin/issues/8089), starting checkpoint | 12.8% | 7.2% | 11.5% |
-| Base + RL, provisional | 31.4% (97 tasks) | 16.7% (21 tasks) | 52.0% (76 tasks) |
 | Additional coding-agent SFT | 46.5% | 18.8% | 33.0% |
 | SFT + RL coding expert | **47.5%** | **19.9%** | **38.5%** |
 
 </div>
 
+{% comment %}
+Hidden for now:
+| Base + RL, provisional | 31.4% (97 tasks) | 16.7% (21 tasks) | 52.0% (76 tasks) |
 Base + RL scores are from a partial evaluation. Task coverage differs from the other rows, so these scores are not a matched comparison.
+{% endcomment %}
 
 <nav class="research-toc" aria-label="Article contents">
 <div class="research-toc-title">Contents</div>
@@ -264,8 +267,8 @@ We probed the vanilla CalibForge epoch-7 model eight times per task and selected
 The RL runs used the same core recipe: batches of 64 tasks with eight attempts each, a learning rate of 5e-7, and a 64k context window. The figure compares the 09-21 starting model with each additional SFT recipe and its RL continuation. Vanilla denotes ordinary teacher-demonstration SFT.
 
 <figure class="research-figure">
-<a href="{{ '/assets/img/snowball/sft-rl-stages.png?v=paired-base-rl' | relative_url }}"><img src="{{ '/assets/img/snowball/sft-rl-stages.png?v=paired-base-rl' | relative_url }}" alt="Across three benchmarks, the 09-21 starting model is shown in gray, three additional SFT recipes in cyan, and each recipe followed by RL in blue. Blue bars directly beneath the starting-model bars show provisional Base + RL scores on 21 Terminal-Bench, 97 SWE-bench, and 76 TBLite tasks. TBLite scores rise after RL in all three SFT recipes, while SWE-bench changes are mixed." width="2951" height="1512" loading="lazy"></a>
-<figcaption>Pass@1 point estimates with Terminus-2. “Starting model” is the 09-21 general-SFT checkpoint. Blue bars follow 30 RL updates. Two evaluation repetitions per SFT/RL model, except three for the vanilla CalibForge SFT model. Scores use available scored attempts, so task coverage differs slightly. Paired uncertainty is discussed below. Results recorded October 27, 2026. Base + RL is a provisional addition from the partial evaluation shared at 11 PM PT, with 21 Terminal-Bench tasks, 97 SWE-bench tasks, and 76 TBLite tasks. Its coverage differs from the other models, so these point estimates are not a matched comparison.</figcaption>
+<a href="{{ '/assets/img/snowball/sft-rl-stages.png?v=sft-only-comparison' | relative_url }}"><img src="{{ '/assets/img/snowball/sft-rl-stages.png?v=sft-only-comparison' | relative_url }}" alt="Across three benchmarks, the 09-21 starting model is shown in gray, three additional SFT recipes in cyan, and each recipe followed by RL in blue. TBLite scores rise after RL in all three SFT recipes, while SWE-bench changes are mixed." width="2951" height="1512" loading="lazy"></a>
+<figcaption>Pass@1 point estimates with Terminus-2. “Starting model” is the 09-21 general-SFT checkpoint. Blue bars follow 30 RL updates. Two evaluation repetitions per SFT/RL model, except three for the vanilla CalibForge SFT model. Scores use available scored attempts, so task coverage differs slightly. Paired uncertainty is discussed below. Results recorded October 27, 2026.</figcaption>
 </figure>
 
 The clearest pattern was on TBLite: scores rose after RL for all three starting policies. On tasks scored for both models, the gains were 6.5 points for vanilla CalibForge, 5.6 for vanilla plus Kimi, and 8.9 for Relay plus Kimi. Only the last gain had a paired 95% bootstrap interval entirely above zero, at [+0.6, +17.2] points. The other two intervals included zero. This is encouraging early evidence that RL can add to these SFT policies, rather than an established improvement for every recipe.
