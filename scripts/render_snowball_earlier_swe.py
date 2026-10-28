@@ -23,7 +23,7 @@ for i,((k,n),color) in enumerate(zip(counts,colors)):
  ax.barh(y,100*v,height=.44,color=color,zorder=2)
  ax.errorbar(100*v,y,xerr=[[100*(v-lo)],[100*(hi-v)]],fmt='none',ecolor='#354052',capsize=5,elinewidth=1.6,zorder=3)
  ax.text(100*hi+1,y,f'{100*v:.1f}%',va='center',fontsize=14)
-fig.text(.045,.91,'SFT vs. RL vs. SFT + RL on the Stage-3 checkpoint',fontsize=20,fontproperties=TITLE_FONT,va='top')
+fig.text(.045,.91,'SFT vs. RL vs. SFT + RL on the Stage-3 checkpoint',fontsize=22,fontproperties=TITLE_FONT,va='top')
 fig.text(.045,.79,'SWE-bench Verified random-100',fontsize=13,color='#64748B')
 ax.set_yticks([3,2,1,0],labels,fontsize=12);ax.set(xlim=(0,45),ylim=(-.55,3.6),xlabel='Pass@1 (%)')
 ax.set_xticks([0,10,20,30,40]);ax.xaxis.set_major_formatter(PercentFormatter(100,decimals=0))
