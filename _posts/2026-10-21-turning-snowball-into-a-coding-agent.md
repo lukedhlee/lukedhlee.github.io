@@ -50,7 +50,7 @@ We hope sharing these details helps others with their own post-training efforts 
 <nav class="research-toc" aria-label="Article contents">
 <div class="research-toc-title">Contents</div>
 <ul>
-<li><strong><a href="#starting-with-reinforcement-learning">Starting with RL</a></strong><span class="toc-sub"><a href="#the-pre-rl-probe">Pre-RL probe</a> · <a href="#following-the-behavior-back-to-sft">SFT habits</a> · <a href="#early-rl-gains">Early gains</a> · <a href="#diagnosing-entropy-collapse">Entropy collapse</a> · <a href="#fixing-the-training-stack">Stack fixes and results</a> · <a href="#speeding-up-rollouts-without-retraining-the-draft">Speculative decoding</a></span></li>
+<li><strong><a href="#starting-with-reinforcement-learning">Starting with RL</a></strong><span class="toc-sub"><a href="#the-pre-rl-probe">Pre-RL probe</a> · <a href="#early-rl-gains">Early gains</a> · <a href="#diagnosing-entropy-collapse">Entropy collapse</a> · <a href="#fixing-the-training-stack">Stack fixes and results</a> · <a href="#speeding-up-rollouts-without-retraining-the-draft">Speculative decoding</a></span></li>
 <li><strong><a href="#training-with-sft-and-rl">Training with SFT and RL</a></strong><span class="toc-sub"><a href="#earlier-experiments-on-the-stage-3-checkpoint">Earlier experiments</a> · <a href="#additional-sft-on-the-09-21-checkpoint">09-21 SFT</a> · <a href="#one-exploration-learning-to-recover-with-a-teacher">Teacher-guided recovery</a> · <a href="#rl-on-the-mixed-task-pool">RL setup</a></span></li>
 <li><strong><a href="#results-so-far">Results so far</a></strong></li>
 <li><strong><a href="#what-did-sft-and-rl-actually-teach-snowball-looking-behind-the-scores">What did SFT and RL actually teach Snowball: looking behind the scores</a></strong></li>
@@ -68,7 +68,7 @@ These early experiments used the older Stage-3 checkpoint to study Snowball’s 
 
 Before running RL, it helps to understand what the starting model can already do. That means asking how many tasks it can sometimes solve, what its common failures are, and whether it lacks coding knowledge or struggles to put that knowledge into practice. The answers help decide whether to change the task pool or the training recipe itself.
 
-We first started with [Snowball's Stage-3 Nemotron-Terminal SFT checkpoint](https://github.com/marin-community/marin/issues/8225), which is now a very old, weak model, but a decent model at that time. Before training, we sampled [R2E-Gym](https://arxiv.org/pdf/2504.07164) tasks eight times each and used coding agents to inspect the traces. Only 36% of fully sampled tasks had both successes and failures, the useful band for binary-reward GRPO.
+We first started with [Snowball's Stage-3 Nemotron-Terminal SFT checkpoint](https://github.com/marin-community/marin/issues/8225), which is now a much weaker model than later checkpoints, but a decent starting point at the time. Before training, we sampled [R2E-Gym](https://arxiv.org/pdf/2504.07164) tasks eight times each and used coding agents to inspect the traces. Only 36% of fully sampled tasks had both successes and failures, the useful band for binary-reward GRPO.
 
 <figure class="research-figure">
 <a href="{{ '/assets/img/snowball/pre-rl-probe.png?v=clean-distribution' | relative_url }}"><img src="{{ '/assets/img/snowball/pre-rl-probe.png?v=clean-distribution' | relative_url }}" alt="Distribution of successes out of eight attempts: 62.9% of tasks had no successes and 36.2% had one to seven. Successful attempts more often edited the repository and ran a test." width="3060" height="1080" loading="lazy"></a>
@@ -76,20 +76,13 @@ We first started with [Snowball's Stage-3 Nemotron-Terminal SFT checkpoint](http
 
 In thirteen of fifteen closely read tasks with both successful and failed attempts, the losers reached the same file, usually the same function, as the winner. Often they could describe the fix. This suggested that Snowball already had the knowledge required to solve certain tasks, but didn't know how to reliably use it to deliver the fix. This kind of behavioral failure is what RL can target.
 
-<aside class="research-reports" markdown="1">
-[Full report](https://claude.ai/artifact/TefbJfphaTBsYFtFgrNgMY).
-</aside>
-
-### Following the Behavior Back to SFT
-
-One recurring failure had a surprisingly specific source. Snowball wrote SEARCH/REPLACE blocks into `/app/solution.patch`, then tried to apply them with Unix `patch`, which does not understand that format. Its Stage-3 SFT data contained 31,661 single-file SWE traces whose instructions explicitly requested that path and format. Here the agent had a full repository and a shell, with no tool to consume those blocks. It was reproducing a procedure from a different task setup.
+Another recurring failure had a surprisingly specific source. Snowball wrote SEARCH/REPLACE blocks into `/app/solution.patch`, then tried to apply them with Unix `patch`, which does not understand that format. The figure below shows the scan over 31,661 SWE traces within the full Stage-3 corpus. Their instructions explicitly requested the path and edit format Snowball later used in the wrong setting.
 
 <figure class="research-figure">
 <a href="{{ '/assets/img/snowball/sft-behavior-origin.png?v=clean-type' | relative_url }}"><img src="{{ '/assets/img/snowball/sft-behavior-origin.png?v=clean-type' | relative_url }}" alt="Shares of all Stage-3 SFT traces containing editing routines: solution.patch and SEARCH/REPLACE blocks each 8.6 percent, patch commands 4.6 percent, and Python rewriters 3.5 percent." width="2088" height="810" loading="lazy"></a>
-<figcaption>The scan covered 31,661 SWE traces within the full Stage-3 corpus. Their instructions explicitly requested the path and edit format Snowball later used in the wrong setting. The figure reports shares of the full corpus; behaviors can overlap.</figcaption>
 </figure>
 
-The corpus also retained unfinished trajectories: 70% of its medium-difficulty synthetic traces never declared completion. That was consistent with Snowball's tendency to keep working until its window filled, though it did not isolate the cause. Marin's commitment to open training data made it possible to inspect what Snowball had seen and better understand the habits it brought into these tasks.
+Without access to a model’s training data, we can only guess why it gives wrong answers or behaves unexpectedly. Marin’s open data policy lets us investigate those failures by tracing them back to the examples the model learned from.
 
 <aside class="research-reports" markdown="1">
 [Full report](https://claude.ai/artifact/TefbJfphaTBsYFtFgrNgMY).
@@ -101,14 +94,12 @@ In the first held-out evaluation, RL nearly doubled pass@1 from 8.7% to 16.6%. B
 
 <figure class="research-figure">
 <a href="{{ '/assets/img/snowball/early-rl-labeled.png?v=left-legend' | relative_url }}"><img src="{{ '/assets/img/snowball/early-rl-labeled.png?v=left-legend' | relative_url }}" alt="Starting model and two RL checkpoints, labeled by their single-attempt success and task coverage." width="1728" height="880" loading="lazy"></a>
-<figcaption>The same 191 held-out tasks, eight attempts each. Both RL recipes also solved tasks the base missed in all eight attempts; this does not mean the base could never solve them.</figcaption>
 </figure>
 
 The early RL recipes also made source edits and test runs more common. Finishing more often came with different trade-offs. In the checkpoint with higher pass@1, correctness among attempts that declared completion fell from 39% to 29%. The checkpoint with higher pass@8 increased completion while keeping that figure around 41%. RL could teach the agent to finish without reliably teaching it to judge whether the work was correct. That judgment needed to be checked separately from the headline score.
 
 <figure class="research-figure">
 <a href="{{ '/assets/img/snowball/rl-behavior-changes.png?v=spacing-refined' | relative_url }}"><img src="{{ '/assets/img/snowball/rl-behavior-changes.png?v=spacing-refined' | relative_url }}" alt="Early RL behavior: more completion claims, fewer context overflows, more source edits and pytest runs. Completion accuracy fell for one RL checkpoint and held near the starting model for the other." width="1980" height="1080" loading="lazy"></a>
-<figcaption>The same 191-task evaluation as the first results above, with eight attempts per task. Gray is the starting model. Of the two RL checkpoints, blue has higher pass@1 and orange has higher pass@8. The last row is conditional on declaring completion.</figcaption>
 </figure>
 
 ### Diagnosing Entropy Collapse
