@@ -289,9 +289,9 @@ The two routes found relevant files at similar rates. SFT’s higher SWE-bench s
 
 ### Did SFT add knowledge?
 
-The clearest knowledge difference appeared in `sqlite-db-truncate`, a Terminal-Bench 2.1 task. The rule that SQLite serial type 7 encodes an eight-byte IEEE double appeared in **12 of 13 SFT-family attempts** and **none of five starting-model or direct-RL attempts**. Direct RL finished using incorrect decoding rules and submitted wrong values. The SFT-family models consistently used the correct format knowledge, even though they did not always complete the task successfully.
+The clearest knowledge difference appeared in `sqlite-db-truncate`, a Terminal-Bench 2.1 task. The rule that SQLite serial type 7 encodes an eight-byte IEEE double appeared in **12 of 13 SFT-family attempts** and **none of five starting-model or direct-RL attempts**. Direct RL finished using incorrect decoding rules and submitted wrong values.
 
-RL also helped Snowball act on knowledge it already showed. The starting checkpoint identified the needed React version fix and wrote a correct SQL query, yet failed both tasks. After RL, Snowball successfully completed them.
+On the other hand, RL helped Snowball act on knowledge it already showed. The starting checkpoint already identified the needed React version fix and wrote a correct SQL query, yet failed both tasks. After RL, Snowball successfully completed them by learning to make use of the existing knoweldge to solve a problem.
 
 ### How the agents worked differently
 
