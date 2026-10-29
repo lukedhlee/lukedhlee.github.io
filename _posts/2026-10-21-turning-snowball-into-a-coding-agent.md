@@ -50,7 +50,7 @@ We hope sharing these details helps others with their own post-training efforts 
 <nav class="research-toc" aria-label="Article contents">
 <div class="research-toc-title">Contents</div>
 <ul>
-<li><strong><a href="#starting-with-reinforcement-learning">Starting with RL</a></strong><span class="toc-sub"><a href="#the-pre-rl-probe">Pre-RL probe</a> · <a href="#early-rl-gains">Early gains</a> · <a href="#diagnosing-entropy-collapse">Entropy collapse</a> · <a href="#fixing-the-training-stack">Stack fixes and results</a> · <a href="#speeding-up-rollouts-without-retraining-the-draft">Speculative decoding</a></span></li>
+<li><strong><a href="#starting-with-reinforcement-learning">Starting with RL</a></strong><span class="toc-sub"><a href="#the-pre-rl-probe">Pre-RL probe</a> · <a href="#early-rl-gains">Early gains</a> · <a href="#diagnosing-entropy-collapse">Entropy collapse</a> · <a href="#fixing-the-training-stack">Stack fixes and results</a> · <a href="#speeding-up-rollouts-with-speculative-decoding">Speculative decoding</a></span></li>
 <li><strong><a href="#training-with-sft-and-rl">Training with SFT and RL</a></strong><span class="toc-sub"><a href="#earlier-experiments-on-the-stage-3-checkpoint">Earlier experiments</a> · <a href="#additional-sft-on-the-09-21-checkpoint">09-21 SFT</a> · <a href="#one-exploration-learning-to-recover-with-a-teacher">Teacher-guided recovery</a> · <a href="#rl-on-the-mixed-task-pool">RL setup</a></span></li>
 <li><strong><a href="#results-so-far">Results so far</a></strong></li>
 <li><strong><a href="#what-did-sft-and-rl-actually-teach-snowball-looking-behind-the-scores">What did SFT and RL actually teach Snowball: looking behind the scores</a></strong></li>
@@ -160,36 +160,34 @@ The traces showed how the rebuilt stack helped. On the 441-task probe, successfu
 Full reports: [First RL results](https://gist.github.com/lukedhlee/9c19fd9288a94ecfd1dbd6906b0a8dda), [Old versus new stack](https://gist.github.com/lukedhlee/01897efa3ae7c474732c61d35150a43a), [Why RL improved](https://gist.github.com/lukedhlee/ad3a95fccccb527db66619d6b3667e7d), [Behavior and optimizer experiments](https://gist.github.com/lukedhlee/9747e8eb423f23ca6627199c2532de47).
 </aside>
 
-### Speeding Up Rollouts Without Retraining the Draft
+### Speeding Up Rollouts With Speculative Decoding
 
-Long agent rollouts also made each experiment expensive. The pre-RL probe supplied training data for a small EAGLE-3 draft: it proposes several tokens, and Snowball verifies them. Adapting the pilot draft on 2,177 of Snowball's own rollouts improved per-stream speed by another 12–15%. The probe was useful twice, first for inspecting the policy and choosing tasks, then for making the next experiments faster. In matched five-node runs, decoding was **nearly 2× faster**, making three RL updates **1.42× faster end to end**.
+As long agent rollouts made each experiment expensive, we spent a few days to accelerate the RL infra. One of the biggest gains came from speculative decoding: a small draft model proposes several tokens, and Snowball verifies them. The pre-RL probe supplied training data for a small EAGLE-3 draft. So, the probe was useful twice, first for inspecting the policy and choosing tasks, then for making the next experiments faster. In matched five-node runs, decoding was **nearly 2× faster**, making RL steps **1.42× faster end to end**.
 
-The same frozen draft remained effective through 60 RL updates, with no decline in accepted tokens per verification step. At update 36, 86% of Snowball's weights were still bit-identical to the starting checkpoint. This limited weight movement offers one explanation for the stable acceptance. [NeMo RL's experiments](https://arxiv.org/html/2604.26779#S3.SS3) likewise found little benefit from online draft updates when the draft was already trained on the policy's in-domain outputs.
+The same frozen draft remained effective through 60 RL updates, with no decline in accepted tokens per verification step. At update 36, 86% of Snowball's weights were still bit-identical to the starting checkpoint. This limited weight movement offers one explanation for the stable acceptance. [NeMo RL's experiments](https://arxiv.org/html/2604.26779#S3.SS3) likewise found little benefit from online draft updates when the draft was already trained on the policy's in-domain outputs. We note that RL runs with longer steps on other domains with higher unpredictability could observe the decline in draft acceptance.
 
 <figure class="research-figure">
 <a href="{{ '/assets/img/snowball/speculative-decoding.png?v=descriptive-title' | relative_url }}"><img src="{{ '/assets/img/snowball/speculative-decoding.png?v=descriptive-title' | relative_url }}" alt="A frozen speculative-decoding draft accelerated RL updates and maintained acceptance through 60 updates." width="2772" height="1188" loading="lazy"></a>
-<figcaption>The timing comparison and the 60-update acceptance trace come from separate experiments. A frozen draft holding here does not establish that it will hold under every RL recipe.</figcaption>
 </figure>
 
 <aside class="research-reports" markdown="1">
 Full reports: [Toolkit and timing](https://gist.github.com/lukedhlee/b161a78a29e2c42b08a157aaaea6438b), [Frozen draft during RL](https://gist.github.com/lukedhlee/bd14e461b13557a3a541e721fcda643e), [Initial pilot](https://gist.github.com/lukedhlee/f02dc181b7383e47908091b565cf8619).
 </aside>
 
-These experiments brought us back to the starting policy. RL could reinforce useful attempts, but demonstrations offered a way to teach behaviors that Snowball rarely produced on its own. We wanted to see whether additional SFT could give RL a better place to start.
+After two weeks of improving the RL infra, we came back to strengthening the starting model before running more RL runs. RL could reinforce useful attempts, but a strong teacher's demonstrations would teach behaviors that Snowball rarely produced on its own. We wanted to see whether additional SFT could give RL a better place to start.
 
 ## Training with SFT and RL
 
-For binary-reward GRPO, a group of attempts that all fail has no reward difference to learn from. Additional SFT might make more tasks sometimes solvable, giving RL more useful attempts to reinforce. That was our motivation for adding demonstrations, rather than continuing to change only the RL recipe.
+For binary-reward GRPO, a group of attempts that all fail has no reward difference to learn from. Additional SFT might make more tasks sometimes solvable, giving RL more useful attempts to reinforce. In this section, we discuss the approaches we explored to train Snowball, including SFT, RL, prompt optimization, and mixing student and teacher rollouts for each task.
 
 ### Earlier Experiments on the Stage-3 Checkpoint
 
-On the older Stage-3 checkpoint, I tried additional SFT on a mixture of OpenThoughts-Agent traces, instruction-following traces, and successful synthesized-task traces, then ran GRPO from that SFT checkpoint.
+On the older Stage-3 checkpoint, we tried additional SFT on a mixture of OpenThoughts-Agent traces, instruction-following traces, and successful synthesized-task traces, then ran GRPO from that SFT checkpoint.
 
 SFT raised SWE-bench from 14.5% to 24.1%; another 30 GRPO updates brought it to 30.7%. RL directly from the starting checkpoint scored 25.0% in its earlier evaluation. SFT could provide a better starting policy, and RL could improve it further.
 
 <figure class="research-figure">
 <a href="{{ '/assets/img/snowball/ota-sft-rl-swe.png?v=spacing-refined' | relative_url }}"><img src="{{ '/assets/img/snowball/ota-sft-rl-swe.png?v=spacing-refined' | relative_url }}" alt="SWE-bench Verified random-100 on the older Stage-3 checkpoint: starting model 14.5%, SFT 24.1%, RL only 25.0%, and SFT followed by RL 30.7%, with 95% Wilson intervals." width="2052" height="1007" loading="lazy"></a>
-<figcaption>All rows use Eval Policy v0.1. The starting model, SFT, and SFT→RL results pool three evaluation runs; RL-alone is one earlier run at lower concurrency. Treat its comparison as approximate rather than a paired test. Lines show 95% intervals.</figcaption>
 </figure>
 
 <aside class="research-reports" markdown="1">
@@ -200,7 +198,7 @@ Full reports: [SFT versus RL versus SFT→RL](https://github.com/marin-community
 
 We next moved to Marin’s newer [09-21 checkpoint](https://huggingface.co/open-athena/Grug-67B-A2B-Datakit-SFT-262K-2026.09.21), which had already received general SFT. To give RL a stronger starting policy, we added coding-agent SFT using [Qwen3.8-27B traces on CalibForge tasks](https://huggingface.co/datasets/laion/calibforge-relay-traces), with and without [Kimi coding demonstrations](https://huggingface.co/datasets/open-athena/Kimi-2.5-swesmith-sandboxes-with_tests-oracle_verified_120s-maxeps-32k).
 
-Additional SFT improved the benchmark scores substantially. For example, vanilla CalibForge + Kimi reached 46.5% on SWE-bench, compared with 12.8% for the starting checkpoint. We then tested whether RL could improve these policies further.
+Additional SFT improved the benchmark scores substantially. For example, vanilla CalibForge + Kimi reached 46.5% on SWE-bench, compared with 12.8% for the starting checkpoint. We then tested whether RL could improve these policies further, which we describe further later in this blog.
 
 ### One Exploration: Learning to Recover with a Teacher
 
@@ -232,10 +230,7 @@ We ran 30 GRPO updates using batches of 64 tasks with eight attempts each, a lea
 
 The idea was to find instructions that improved Snowball's behavior, then use RL to make the improvement persist without those instructions. In this pilot, we compared five hand-written prompts and selected the best on development tasks. It asked Snowball to make precise source changes, check syntax, and inspect the diff. Adding that prompt improved the starting policy by **9–14 percentage points**.
 
-<figure class="research-figure">
-<a href="{{ '/assets/img/snowball/prompt-rl-method.png?v=prompt-optimization' | relative_url }}"><img src="{{ '/assets/img/snowball/prompt-rl-method.png?v=prompt-optimization' | relative_url }}" alt="The pilot selected a prompt from five candidates, generated attempts with it, then removed it from the context used for RL updates and evaluation." width="2340" height="486" loading="lazy"></a>
-<figcaption>This pilot selected a fixed prompt; it did not run an automated prompt-evolution loop.</figcaption>
-</figure>
+This pilot selected a fixed prompt; it did not run an automated prompt-evolution loop.
 
 During RL, the prompt stayed in the rollout context but was removed from the context used for weight updates. The goal was to reinforce useful actions given only the task. After 24 updates, the policy tested without the prompt scored **29.8%, against 30.2% for the starting policy**. Ordinary RL on the same task pool reached 47.4%.
 
@@ -251,7 +246,6 @@ The older checkpoint also had low instruction-following evaluation scores. Even 
 <aside class="research-reports" markdown="1">
 [Full report](https://gist.github.com/lukedhlee/edb2f69d38ed089f71f74ff711281807).
 </aside>
-
 </details>
 
 ## Results So Far
@@ -279,7 +273,7 @@ More updates did not help every recipe equally. CalibForge-only SFT gained on SW
 
 ## What Did SFT and RL Actually Teach Snowball: Looking Behind the Scores
 
-At 30 RL updates, direct RL from [Snowball 09-21](https://huggingface.co/open-athena/Grug-67B-A2B-Datakit-SFT-262K-2026.09.21) matched or came close to the SFT + RL models on terminal tasks, despite skipping the additional demonstrations. The trace inspections below compare these 30-update checkpoints with their starting policies. We wanted to understand what those demonstrations contributed. Did they teach new knowledge, or change how Snowball approached and executed the work? We used coding agents to compare trajectories and inspect where the two routes succeeded or failed.
+Direct RL from [Snowball 09-21](https://huggingface.co/open-athena/Grug-67B-A2B-Datakit-SFT-262K-2026.09.21) matched or came close to the SFT + RL models on terminal tasks, despite skipping the additional demonstrations. The trace inspections below compare these RL checkpoints with their starting policies. We wanted to understand what those demonstrations contributed. Did they teach new knowledge, or change how Snowball approached and executed the work? We used coding agents to compare trajectories and inspect where the two routes succeeded or failed.
 
 ### SFT’s advantage on SWE-bench
 
