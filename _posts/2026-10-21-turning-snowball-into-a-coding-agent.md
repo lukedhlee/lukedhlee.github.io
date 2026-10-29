@@ -68,7 +68,7 @@ These early experiments used the older Stage-3 checkpoint to study Snowball’s 
 
 Before running RL, it helps to understand what the starting model can already do. That means asking how many tasks it can sometimes solve, what its common failures are, and whether it lacks coding knowledge or struggles to put that knowledge into practice. The answers help decide whether to change the task pool or the training recipe itself.
 
-We first started with [Snowball's Stage-3 Nemotron-Terminal SFT checkpoint](https://github.com/marin-community/marin/issues/8225), which is now a much weaker model than later checkpoints, but a decent starting point at the time. Before training, we sampled [R2E-Gym](https://arxiv.org/pdf/2504.07164) tasks eight times each and used coding agents to inspect the traces. Only 36% of fully sampled tasks had both successes and failures, the useful band for binary-reward GRPO.
+We first started with [Snowball's Stage-3 Nemotron-Terminal SFT checkpoint](https://github.com/marin-community/marin/issues/8225). It is now a much weaker model than later checkpoints, but was a decent starting point we had at the time. Before training, we sampled [R2E-Gym](https://arxiv.org/pdf/2504.07164) tasks eight times each and used coding agents to inspect the traces. Only 36% of fully sampled tasks had both successes and failures, the useful band for binary-reward GRPO.
 
 <figure class="research-figure">
 <a href="{{ '/assets/img/snowball/pre-rl-probe.png?v=clean-distribution' | relative_url }}"><img src="{{ '/assets/img/snowball/pre-rl-probe.png?v=clean-distribution' | relative_url }}" alt="Distribution of successes out of eight attempts: 62.9% of tasks had no successes and 36.2% had one to seven. Successful attempts more often edited the repository and ran a test." width="3060" height="1080" loading="lazy"></a>
@@ -96,7 +96,7 @@ In the first held-out evaluation, RL nearly doubled pass@1 from 8.7% to 16.6%. B
 <a href="{{ '/assets/img/snowball/early-rl-labeled.png?v=left-legend' | relative_url }}"><img src="{{ '/assets/img/snowball/early-rl-labeled.png?v=left-legend' | relative_url }}" alt="Starting model and two RL checkpoints, labeled by their single-attempt success and task coverage." width="1728" height="880" loading="lazy"></a>
 </figure>
 
-The early RL recipes also made source edits and test runs more common. Finishing more often came with different trade-offs. In the checkpoint with higher pass@1, correctness among attempts that declared completion fell from 39% to 29%. The checkpoint with higher pass@8 increased completion while keeping that figure around 41%. RL could teach the agent to finish without reliably teaching it to judge whether the work was correct. That judgment needed to be checked separately from the headline score.
+The early RL recipes also made source edits and test runs more common. But finishing more often came with trade-offs. In the checkpoint with higher pass@1, correctness among attempts that declared completion fell from 39% to 29%. RL taught the agent to submit its best-effort solutions rather than submit nothing and exhaust all the context budget. Another checkpoint with higher pass@8 also increased completion while keeping that figure around 41%. Overall, RL taught both checkpoints to take more actions (e.g. editing a repository file and running more tests) instead of spending too much budgets exploring the codebase.
 
 <figure class="research-figure">
 <a href="{{ '/assets/img/snowball/rl-behavior-changes.png?v=spacing-refined' | relative_url }}"><img src="{{ '/assets/img/snowball/rl-behavior-changes.png?v=spacing-refined' | relative_url }}" alt="Early RL behavior: more completion claims, fewer context overflows, more source edits and pytest runs. Completion accuracy fell for one RL checkpoint and held near the starting model for the other." width="1980" height="1080" loading="lazy"></a>
@@ -106,16 +106,13 @@ The early RL recipes also made source edits and test runs more common. Finishing
 
 Those early gains did not always last. In some runs, held-out performance improved and then fell while training reward kept rising. Output entropy dropped to roughly half its starting value. Lowering the learning rate delayed the collapse without fixing it.
 
-We found a mismatch in the rollout probabilities. Top-p and top-k filtering changed which tokens could be sampled, but the engine reported their probabilities before filtering. The trainer used those reported probabilities to correct for differences between the rollout and training policies, so its correction did not match how the tokens were actually sampled.
-
-Our engine-versus-trainer checks missed this because both sides used the same unfiltered probabilities. They checked numerical agreement, but not whether those probabilities described the sampling process.
-
-Disabling top-p and top-k aligned sampling with the probabilities used for training and restored full-distribution exploration. Entropy stayed near its starting level beyond the earlier collapse point.
+Eventually, we found a hidden mismatch in the rollout probabilities. Top-p and top-k filtering changed which tokens could be sampled, but the inference engine reported their probabilities before filtering. The trainer used those reported probabilities to correct for differences between the rollout and training policies, so its correction did not match how the tokens were actually sampled.
 
 <figure class="research-figure">
 <a href="{{ '/assets/img/snowball/entropy-debugging.png?v=spacing-refined' | relative_url }}"><img src="{{ '/assets/img/snowball/entropy-debugging.png?v=spacing-refined' | relative_url }}" alt="Filtered sampling reduced entropy to about half its initial value, while full-distribution sampling stayed near its starting level." width="1980" height="990" loading="lazy"></a>
-<figcaption>The same starting model and learning rate, changing only the sampling settings. Each curve is normalized to its own first update. Entropy stayed stable through update 38 with full-distribution sampling. Curves reproduced from the first RL report.</figcaption>
 </figure>
+
+Our engine-versus-trainer checks missed this because both sides used the same unfiltered probabilities. They checked numerical agreement, but couldn't tell whether those probabilities matched the actual sampling process.  We then simply switched to full-distribution sampling to resolve the mismatch, and entropy stayed near its starting level beyond the earlier collapse point.
 
 <aside class="research-reports" markdown="1">
 [Full report](https://gist.github.com/lukedhlee/9c19fd9288a94ecfd1dbd6906b0a8dda).
@@ -131,13 +128,13 @@ The sampling mismatch was one of several problems in the training stack. Some ap
 |---|---|
 | KL was logged but contributed no gradient | Restored gradients through the penalty ([#517](https://github.com/marin-community/MarinSkyRL/pull/517)). |
 | Importance-sampling probabilities did not match temperature-scaled training | Corrected the probability accounting ([#519](https://github.com/marin-community/MarinSkyRL/pull/519)); also removed unsupported sampling filters. |
-| Recovery after an over-long turn lost the sampled token chain | Preserved exact tokens so the rollouts remained trainable ([#122](https://github.com/marin-community/harbor/pull/122)). |
+| Recovery after an over-long turn lost the sampled token chain | Preserved exact tokens (TITO) so the rollouts remained trainable ([#122](https://github.com/marin-community/harbor/pull/122)). |
 | Long terminal history produced a frozen screen | Captured a recent window of history ([#125](https://github.com/marin-community/harbor/pull/125), used in these runs; closed without merging). |
 | Verification timeouts turned finished attempts into reward-zero training samples | Increased the verifier budget and excluded timed-out samples from training. |
 
 </div>
 
-The recovery bug in [harbor #122](https://github.com/marin-community/harbor/pull/122) illustrates why **token-in-token-out (TITO)** matters. When a turn hit its output limit, recovery could re-render the conversation and change tokens the model had already sampled. TITO keeps the exact sampled token IDs for both training and later turns. Consider a toy tokenizer:
+Another interesting bug we fixed involved Harbor losing token-level information when it coverted tokens into text ([harbor #122](https://github.com/marin-community/harbor/pull/122)), breaking token-in-token-out (TITO). When a turn hit its output limit, recovery could re-render the conversation and change tokens the model had already sampled. TITO keeps the exact sampled token IDs for both training and later turns. Consider a toy tokenizer:
 
 ```text
 Model samples:          ["hel", "lo"]   (two tokens)
@@ -145,7 +142,7 @@ Decoded text:           "hello"
 Text re-tokenized:      ["hello"]       (one different token)
 ```
 
-The text looks identical, but the trainer now sees a token the model never sampled. The two original token probabilities no longer line up with the training sequence, breaking the probability accounting RL relies on. The fix preserved the prompt and completion token IDs through recovery, so the next request continued from the exact sampled sequence. Mercor and SkyRL discuss TITO in their [agent-training guide](https://www.mercor.com/blog/training-frontier-knowledge-work-agents-a-397b-rl-training-guide-with-skyrl/).
+The text looks identical, but the trainer now sees a token the model never sampled. The two original token probabilities no longer line up with the training sequence, breaking the probability accounting RL relies on. Our new fix preserved the prompt and completion token IDs through recovery, so the next request continued from the exact sampled sequence. Mercor and SkyRL discuss TITO in their [agent-training guide](https://www.mercor.com/blog/training-frontier-knowledge-work-agents-a-397b-rl-training-guide-with-skyrl/).
 
 <aside class="research-reports" markdown="1">
 [Full report](https://gist.github.com/lukedhlee/ad3a95fccccb527db66619d6b3667e7d).
@@ -155,12 +152,9 @@ With these repairs in place, held-out performance improved further. On a later e
 
 <figure class="research-figure">
 <a href="{{ '/assets/img/snowball/stack-comparison.png?v=clean-type' | relative_url }}"><img src="{{ '/assets/img/snowball/stack-comparison.png?v=clean-type' | relative_url }}" alt="Held-out R2E-Gym pass@1 across RL updates. The new stack improves from the shared starting policy through updates 12 and 24; the old stack is evaluated through update 36. Both held-out splits favor the new stack." width="2232" height="954" loading="lazy"></a>
-<figcaption>The same held-out tasks under the older probe setup, with eight attempts per task. Familiar repositories were used during RL; new repositories were excluded entirely. Lines connect evaluated checkpoints. This is a separate evaluation from the early results above. Several changes landed together, so the gain belongs to the package.</figcaption>
 </figure>
 
 The traces showed how the rebuilt stack helped. On the 441-task probe, successful attempts took a median of 15 turns instead of 22, and the rate of repeated commands fell by more than fourfold. More attempts reached a working fix within the context budget.
-
-Verification became less reliable, however. Agents relied more on self-written checks and less on the repository's tests, and incorrect submissions became more common.
 
 <aside class="research-reports" markdown="1">
 Full reports: [First RL results](https://gist.github.com/lukedhlee/9c19fd9288a94ecfd1dbd6906b0a8dda), [Old versus new stack](https://gist.github.com/lukedhlee/01897efa3ae7c474732c61d35150a43a), [Why RL improved](https://gist.github.com/lukedhlee/ad3a95fccccb527db66619d6b3667e7d), [Behavior and optimizer experiments](https://gist.github.com/lukedhlee/9747e8eb423f23ca6627199c2532de47).
