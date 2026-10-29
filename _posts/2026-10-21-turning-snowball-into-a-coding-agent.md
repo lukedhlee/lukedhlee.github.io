@@ -279,11 +279,10 @@ Direct RL from [Snowball 09-21](https://huggingface.co/open-athena/Grug-67B-A2B-
 
 On SWE-bench, additional coding-agent SFT with CalibForge + Kimi reached **46.5%**, compared with **30.5% for direct RL**. Following that SFT with RL brought the score to 47.0% at update 30 and **50.5% at update 60**.
 
-Both direct RL and Kimi SFT nearly always opened a file touched by the reference fix. The gap appeared afterward. Kimi SFT edited a relevant file **almost twice as often** and left the target tests passing **about 1.5 times as often** as direct RL.
+Both direct RL and Kimi SFT nearly always opened a correct target file to fix. But Kimi SFT edited a relevant file **almost twice as often** and left the target tests passing **about 1.5 times as often** as direct RL.
 
 <figure class="research-figure">
 <a href="{{ '/assets/img/snowball/trace-swe-steps.png?v=step30-only' | relative_url }}"><img src="{{ '/assets/img/snowball/trace-swe-steps.png?v=step30-only' | relative_url }}" alt="SWE-bench execution milestones. Snowball 09-21 opens a relevant file in 78 percent of scored attempts and edits one in 38 percent. Vanilla Kimi SFT reaches 99 and 90 percent respectively and leaves the target tests passing in 51 percent of scored attempts." width="2952" height="1080" loading="lazy"></a>
-<figcaption>Open circles show the starting policies and blue dots show RL update 30. Values are shares of scored attempts, rather than the task-averaged benchmark scores above. A relevant file is one changed by the reference fix. Edit detection finds 80–89% of actual edits, so that column is a lower bound. These milestones are measured separately, rather than as conditional probabilities.</figcaption>
 </figure>
 
 The two routes found relevant files at similar rates. SFT’s higher SWE-bench score went with more attempts editing those files and leaving the target tests passing.
@@ -292,33 +291,25 @@ The two routes found relevant files at similar rates. SFT’s higher SWE-bench s
 
 The clearest knowledge difference appeared in `sqlite-db-truncate`, a Terminal-Bench 2.1 task. The rule that SQLite serial type 7 encodes an eight-byte IEEE double appeared in **12 of 13 SFT-family attempts** and **none of five starting-model or direct-RL attempts**. Direct RL finished using incorrect decoding rules and submitted wrong values. The SFT-family models consistently used the correct format knowledge, even though they did not always complete the task successfully.
 
-RL also helped Snowball act on knowledge it already showed. The starting checkpoint identified the needed React version fix and wrote a correct SQL query, yet failed both tasks. After RL, Snowball successfully completed them. These gains suggest improved execution of existing ideas, rather than newly acquired knowledge.
+RL also helped Snowball act on knowledge it already showed. The starting checkpoint identified the needed React version fix and wrote a correct SQL query, yet failed both tasks. After RL, Snowball successfully completed them.
 
 ### How the agents worked differently
 
-We also compared 26 newly solved TBLite tasks where both routes succeeded. The median turn counts were similar, but direct RL used fewer output tokens and more shell commands. Reasoning made up about 42% of its output characters, compared with 69% for SFT + RL. Close reads suggested a pattern of shorter reasoning turns interleaved with more experiments, while SFT + RL often worked through more of the solution before acting.
+We also compared 26 newly solved TBLite tasks where both routes succeeded. The median turn counts were similar, but direct RL used fewer output tokens and more shell commands. Direct RL's reasoning made up about 42% of its output characters, compared with 69% for SFT + RL. It had a pattern of shorter reasoning turns interleaved with more experiments, while SFT + RL often worked through more of the solution before acting.
 
 <figure class="research-figure">
 <a href="{{ '/assets/img/snowball/trace-working-style.png?v=aligned-type' | relative_url }}"><img src="{{ '/assets/img/snowball/trace-working-style.png?v=aligned-type' | relative_url }}" alt="On 26 shared TBLite successes, median time is 255 seconds for direct RL versus 604 for SFT plus RL; agent turns are 28.5 versus 31; output tokens are 35 thousand versus 92 thousand; reasoning shares are 42 versus 69 percent of output characters; shell commands are 61 versus 44." width="2952" height="882" loading="lazy"></a>
-<figcaption>Medians of per-task medians over passing attempts, pooling the three SFT + RL recipes at 30 RL updates. Reasoning share is measured in output characters. These describe successful traces, not the cost of training or every attempt. The direction varied by task.</figcaption>
 </figure>
 
-Longer reasoning sometimes paid off. On parking-lot pathfinding, the vanilla Kimi SFT + RL model finished in roughly 100–120 seconds and 6–8 turns, while direct RL took 900–1,100 seconds and 68–83 turns. On shared Terminal-Bench 2.1 successes, direct RL was slower overall.
+Longer reasoning of SFT sometimes paid off. On parking-lot pathfinding, the vanilla Kimi SFT + RL model finished in roughly 100–120 seconds and 6–8 turns, while direct RL took 900–1,100 seconds and 68–83 turns.
 
 ### How the failures changed with training
 
-The starting checkpoint often struggled to get actions executed at all. On TBLite, invalid action formats appeared in roughly four out of five attempts. Direct RL reduced that to about 2%, while additional SFT almost eliminated it. Both routes also made claims of completion without doing any work much rarer.
+The starting checkpoint often struggled to get actions executed at all. On TBLite, invalid action formats appeared in roughly four out of five attempts. Direct RL reduced that to about 2%, while additional SFT almost eliminated it. Both runs also decreased the tendency of claiming done without doing any work.
 
 <figure class="research-figure">
 <a href="{{ '/assets/img/snowball/trace-failure-modes.png?v=spacing-refined' | relative_url }}"><img src="{{ '/assets/img/snowball/trace-failure-modes.png?v=spacing-refined' | relative_url }}" alt="Five TBLite trace patterns before and after RL. Direct RL reduces invalid action formats from 81 to 2 percent of attempts. Turns reaching the token limit decline from 53 to 36 percent for CalibForge plus Kimi, but remain near 68 percent for CalibForge-only SFT. Summarization handoffs also decline for CalibForge plus Kimi. Unfinished shell commands persist, while failed submissions after successful self-checks become more common in the Kimi models." width="2952" height="1404" loading="lazy"></a>
-<figcaption>Percentages use all scored attempts for each model, rather than only its failures. A single attempt can exhibit several patterns, including on attempts that eventually pass. The self-check mismatch counts only failed submissions. Labels come from the trace detectors and spot checks described in the failure-mode analysis.</figcaption>
 </figure>
-
-Additional SFT brought a different pattern. Long reasoning turns hit the per-turn token limit, and repeated summarization sometimes led agents to explore the same files again. RL reduced token-limit hits by roughly a third to a half in the Kimi models, but barely changed them in CalibForge-only SFT.
-
-Some terminal mechanics remained troublesome. An unfinished heredoc or quote leaves the shell waiting for more input, so later commands become part of that input instead of executing. This still appeared in about one in five Kimi-model attempts before and after RL.
-
-Verification also changed. In the Kimi models, failed submissions following an apparently successful self-check became roughly 1.5–2 times as common after RL. These agents were checking their work, but their checks missed requirements exercised by the hidden tests.
 
 ### Reward hacking
 
@@ -333,15 +324,15 @@ Some attempts satisfied the verifier without doing the requested work. Trace ins
 
 </div>
 
-The credited exploits each added only about half a percentage point to the model’s benchmark score. Direct RL also produced far more failed shortcuts than the other models, including fabricated outputs and copied answer files. All 31 of those attempts failed, so they contributed nothing to its gains.
+These exploits each added only about half a percentage point to the model’s benchmark score. Interestingly, direct RL also produced far more failed shortcuts than the other models, including fabricated outputs and copied answer files. All 31 of those attempts failed, so they contributed nothing to its gains.
 
-The training audit found no confirmed case of fabrication earning reward. It found a different problem in R2E-Gym: the task repositories still exposed later Git commits containing the fixes. Agents read those fixes in 39 rewarded rollouts. This was already happening at the first RL update and did not become more common during training.
+During RL, we have found a few reward hackings. In R2E-Gym, some task repositories exposed later Git commits containing the fixes. Agents read those fixes in 39 rewarded rollouts. This was already happening at the first RL update and did not become more common during training.
 
 ## Conclusions
 
-SFT and RL both improved Snowball. At 60 updates, vanilla CalibForge + Kimi led on SWE-bench and Terminal-Bench, while direct RL retained the highest TBLite score. Trace analysis connected those gains to changes in knowledge use and execution, and exposed evaluation reward hacking.
+SFT and RL both improved Snowball. With RL, vanilla CalibForge + Kimi SFT led on SWE-bench and Terminal-Bench, while direct RL retained the highest TBLite score. Trace analysis connected those gains to changes in knowledge use and execution.
 
-Using agents to inspect traces helped us understand each model’s strengths and failure modes (which could be useful for model routing too). Those diagnoses could also guide targeted environments or demonstrations for more surgical improvements.
+Using agents to inspect traces helped us understand each model’s strengths and failure modes. Those diagnoses could also guide targeted environments or demonstrations for more surgical improvements.
 
 Our attempt to combine prompt optimization with RL did not improve the policy when tested without the prompt. Weak instruction following may have been one bottleneck. Improving that capability and exploring methods such as [GEPA](https://arxiv.org/abs/2507.19457) and [Fast-Slow Training (FST)](https://arxiv.org/abs/2605.12484) are worth pursuing to make better use of dense feedback from agent runs.
 
