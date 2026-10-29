@@ -1,8 +1,8 @@
 ---
 layout: research
 color_theme: snowball
-title: "Post-Training Marin’s 67B A2B MoE into a Coding Agent: What Worked and What Didn’t"
-description: "Taking Marin’s Snowball from 12.8% to 50.5% on SWE-bench and 7.2% to 23.9% on Terminal-Bench. The SFT, RL, and debugging behind those gains, and what agent traces revealed beyond the scores."
+title: "Post-Training Marin’s Snowball into a Coding Agent: What Worked and What Didn’t"
+description: "Taking Marin’s pretrained 67B A2B MoE from 12.8% to 50.5% on SWE-bench and 7.2% to 23.9% on Terminal-Bench. The SFT, RL, and training-stack debugging behind the gains—and what agent traces revealed beyond the scores."
 image:
   path: /assets/img/snowball/snowball-coding-workshop.png
   alt: "Snowball learning to build and test code at a snowy mountain workshop."
@@ -29,11 +29,11 @@ authors:
 
 We worked with the Marin team to improve coding and terminal performance in Snowball, Marin’s own 67B A2B MoE model, pretrained from scratch. Our starting checkpoint had received early general supervised fine-tuning across multiple domains. We explored reinforcement learning, additional coding-agent SFT, and SFT followed by RL.
 
-Some of the most interesting lessons came from reading the model’s attempts. Snowball could find the relevant function and describe a plausible fix, yet struggle to apply it. Other failures led us into the training system itself, where rising reward could hide falling held-out performance. Understanding these patterns helped us decide what to teach the model and what to fix around it.
+Both SFT and RL substantially improved Snowball, with different strengths. SFT + RL reached the strongest SWE-bench and Terminal-Bench results, while direct RL was competitive on TBLite without additional coding demonstrations.
 
-Both SFT and RL substantially improved Snowball, with different strengths. SFT + RL reached the strongest SWE-bench and Terminal-Bench results, while direct RL remained competitive on TBLite without additional coding-agent demonstrations.
+This post follows our part in Marin’s first post-training effort, including the failed experiments and debugging behind the results. We also explore how looking into the traces can help us understand the effects of training beyond the final scores.
 
-This post follows our part in Marin’s first post-training effort, including the failed experiments and debugging behind the results. We hope sharing these details helps others with their own post-training efforts and advances the open development of foundation models.
+We hope sharing these details helps others with their own post-training efforts and advances the open development of foundation models.
 
 <div class="table-wrap" markdown="1">
 
@@ -43,10 +43,9 @@ This post follows our part in Marin’s first post-training effort, including th
 | RL | 30.5% | 18.8% | **45.1%** |
 | SFT | 46.5% | 18.8% | 33.0% |
 | SFT + RL (step 60) | **50.5%** | **23.9%** | 41.8% |
+| Qwen3.5-9B (reference) | 53.5% | 25.6% | 42.4% |
 
 </div>
-
-
 
 <nav class="research-toc" aria-label="Article contents">
 <div class="research-toc-title">Contents</div>
@@ -63,20 +62,19 @@ This post follows our part in Marin’s first post-training effort, including th
 
 ## Starting with Reinforcement Learning
 
-These early experiments used the older Stage-3 checkpoint to study Snowball’s behavior and get RL working reliably. The main comparison of SFT and RL later in the post uses the newer [Snowball 09-21](https://huggingface.co/open-athena/Grug-67B-A2B-Datakit-SFT-262K-2026.09.21) checkpoint.
+These early experiments used the older Stage-3 checkpoint to study Snowball’s behavior and get RL working reliably. The main comparison of SFT and RL later in the post uses the relatively newer [Snowball 09-21](https://huggingface.co/open-athena/Grug-67B-A2B-Datakit-SFT-262K-2026.09.21) checkpoint.
 
 ### The Pre-RL Probe
 
-Before running RL, it helps to understand what the starting model can already do. That means asking how many tasks it can sometimes solve, what its common failures are, and whether it lacks coding knowledge or struggles to put that knowledge into practice. The answers help decide whether to change the task pool, the training recipe, or the starting model.
+Before running RL, it helps to understand what the starting model can already do. That means asking how many tasks it can sometimes solve, what its common failures are, and whether it lacks coding knowledge or struggles to put that knowledge into practice. The answers help decide whether to change the task pool or the training recipe itself.
 
-I started with [Snowball's Stage-3 Nemotron-Terminal SFT checkpoint](https://github.com/marin-community/marin/issues/8225). Before training, I sampled R2E-Gym tasks eight times each and used coding agents to inspect the traces. Only 36% of fully sampled tasks had both successes and failures, the useful band for binary-reward GRPO.
+We first started with [Snowball's Stage-3 Nemotron-Terminal SFT checkpoint](https://github.com/marin-community/marin/issues/8225), which is now a very old, weak model, but a decent model at that time. Before training, we sampled [R2E-Gym](https://arxiv.org/pdf/2504.07164) tasks eight times each and used coding agents to inspect the traces. Only 36% of fully sampled tasks had both successes and failures, the useful band for binary-reward GRPO.
 
 <figure class="research-figure">
 <a href="{{ '/assets/img/snowball/pre-rl-probe.png?v=clean-distribution' | relative_url }}"><img src="{{ '/assets/img/snowball/pre-rl-probe.png?v=clean-distribution' | relative_url }}" alt="Distribution of successes out of eight attempts: 62.9% of tasks had no successes and 36.2% had one to seven. Successful attempts more often edited the repository and ran a test." width="3060" height="1080" loading="lazy"></a>
-<figcaption>The original probe: 4,206 tasks sampled eight times, before the terminal-screen fix. Dots show observed percentages and the curve joins the discrete bins. Right: 8,641 attempts on tasks solved one to three times in eight tries, with overlapping behavior categories. These historical measurements are separate from the later RL evaluations.</figcaption>
 </figure>
 
-In thirteen of fifteen closely read tasks with both successful and failed attempts, the losers reached the same file, usually the same function, as the winner. Often they could describe the fix. Getting it into the repository was another matter.
+In thirteen of fifteen closely read tasks with both successful and failed attempts, the losers reached the same file, usually the same function, as the winner. Often they could describe the fix. This suggested that Snowball already had the knowledge required to solve certain tasks, but didn't know how to reliably use it to deliver the fix. This kind of behavioral failure is what RL can target.
 
 <aside class="research-reports" markdown="1">
 [Full report](https://claude.ai/artifact/TefbJfphaTBsYFtFgrNgMY).
@@ -100,7 +98,6 @@ The corpus also retained unfinished trajectories: 70% of its medium-difficulty s
 ### Early RL Gains
 
 In the first held-out evaluation, RL nearly doubled pass@1 from 8.7% to 16.6%. Before RL, 91% of attempts exhausted the 64k context window while the agent was still working. One RL recipe brought that down to 56%, making it more likely that useful work reached a result within the window.
-
 
 <figure class="research-figure">
 <a href="{{ '/assets/img/snowball/early-rl-labeled.png?v=left-legend' | relative_url }}"><img src="{{ '/assets/img/snowball/early-rl-labeled.png?v=left-legend' | relative_url }}" alt="Starting model and two RL checkpoints, labeled by their single-attempt success and task coverage." width="1728" height="880" loading="lazy"></a>
@@ -164,7 +161,6 @@ The text looks identical, but the trainer now sees a token the model never sampl
 </aside>
 
 With these repairs in place, held-out performance improved further. On a later evaluation set, the new stack was already ahead at update 12 and reached about ten points above the old stack by update 24.
-
 
 <figure class="research-figure">
 <a href="{{ '/assets/img/snowball/stack-comparison.png?v=clean-type' | relative_url }}"><img src="{{ '/assets/img/snowball/stack-comparison.png?v=clean-type' | relative_url }}" alt="Held-out R2E-Gym pass@1 across RL updates. The new stack improves from the shared starting policy through updates 12 and 24; the old stack is evaluated through update 36. Both held-out splits favor the new stack." width="2232" height="954" loading="lazy"></a>
