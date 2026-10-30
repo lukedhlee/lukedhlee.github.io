@@ -29,11 +29,7 @@ authors:
 
 We worked with the Marin team to improve coding and terminal performance in Snowball, Marin’s own 67B A2B MoE model, pretrained from scratch. Our starting checkpoint had received early general supervised fine-tuning across multiple domains. We explored reinforcement learning, additional coding-agent SFT, and SFT followed by RL.
 
-Both SFT and RL substantially improved Snowball, with different strengths. SFT + RL reached the strongest SWE-bench and Terminal-Bench results, while direct RL was competitive on TBLite without additional coding demonstrations.
-
-This post follows our part in Marin’s first post-training effort, including the failed experiments and debugging behind the results. We also explore how looking into the traces can help us understand the effects of training beyond the final scores.
-
-We hope sharing these details helps others with their own post-training efforts and advances the open development of foundation models.
+Both SFT and RL substantially improved Snowball, with different strengths. SFT + RL reached the strongest SWE-bench and Terminal-Bench results, comparable to Nemotron-3.5-Lightning-30B-A3B. Direct RL was competitive on TBLite without additional coding demonstrations, outperforming Qwen 3.5 9B.
 
 <!--
 <figure class="research-figure">
@@ -42,7 +38,7 @@ We hope sharing these details helps others with their own post-training efforts 
 -->
 
 <figure class="research-figure">
-<a href="{{ '/assets/img/snowball/intro-ranked-bars.png?v=padded' | relative_url }}"><img src="{{ '/assets/img/snowball/intro-ranked-bars.png?v=padded' | relative_url }}" alt="Snowball and Qwen3.5 benchmark comparison" width="6546" height="2299" loading="lazy"></a>
+<a href="{{ '/assets/img/snowball/intro-ranked-bars.png?v=nemotron-direct-rl-hires' | relative_url }}"><img src="{{ '/assets/img/snowball/intro-ranked-bars.svg?v=nemotron-direct-rl-hires' | relative_url }}" alt="Snowball starting checkpoint, direct RL, and SFT plus RL compared with Qwen3.5 and Nemotron across three benchmarks" width="12156" height="3515" loading="lazy"></a>
 </figure>
 
 <div class="table-wrap" markdown="1">
@@ -55,6 +51,10 @@ We hope sharing these details helps others with their own post-training efforts 
 | SFT + RL | **50.5%** | **23.9%** | 41.8% |
 
 </div>
+
+This post follows our part in Marin’s first post-training effort, including the failed experiments and debugging behind the results. We also explore how looking into the traces can help us understand the effects of training beyond the final scores.
+
+We hope sharing these details helps others with their own post-training efforts and advances the open development of foundation models.
 
 <nav class="research-toc" aria-label="Article contents">
 <div class="research-toc-title">Contents</div>

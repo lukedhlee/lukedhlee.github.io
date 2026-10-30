@@ -38,5 +38,21 @@
     "tb": 25.6,
     "swe": 53.5,
     "tblite": 42.4
+  },
+  {
+    "model": "Nemotron-3.5-Lightning-30B-A3B",
+    "active_b": 3,
+    "total_b": 30,
+    "tb": 23.3,
+    "swe": 48.5,
+    "tblite": 48.3
+  },
+  {
+    "model": "Snowball direct RL",
+    "active_b": 2,
+    "total_b": 67,
+    "tb": 18.8,
+    "swe": 30.5,
+    "tblite": 45.1
   }
 ]
