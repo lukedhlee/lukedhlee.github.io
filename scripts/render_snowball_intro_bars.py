@@ -36,5 +36,5 @@ for ax,key,title in zip(axes,['tb','swe','tblite'],['Terminal-Bench 2.1','SWE-be
             tick.set_color(BLUE); tick.set_weight('bold')
 axes[0].set_ylabel('Pass@1 (%)',labelpad=12)
 for ext in ['png','svg','pdf']:
-    fig.savefig(OUT/f'intro-ranked-bars.{ext}',dpi=400,facecolor='white',bbox_inches='tight',pad_inches=.18)
+    fig.savefig(OUT/f'intro-ranked-bars.{ext}',dpi=400,facecolor='white',bbox_inches='tight',pad_inches=.38)
 print(OUT/'intro-ranked-bars.png')

@@ -42,7 +42,7 @@ We hope sharing these details helps others with their own post-training efforts 
 -->
 
 <figure class="research-figure">
-<a href="{{ '/assets/img/snowball/intro-ranked-bars.png' | relative_url }}"><img src="{{ '/assets/img/snowball/intro-ranked-bars.png' | relative_url }}" alt="Snowball and Qwen3.5 benchmark comparison" width="6386" height="2139" loading="lazy"></a>
+<a href="{{ '/assets/img/snowball/intro-ranked-bars.png?v=padded' | relative_url }}"><img src="{{ '/assets/img/snowball/intro-ranked-bars.png?v=padded' | relative_url }}" alt="Snowball and Qwen3.5 benchmark comparison" width="6546" height="2299" loading="lazy"></a>
 </figure>
 
 <div class="table-wrap" markdown="1">
