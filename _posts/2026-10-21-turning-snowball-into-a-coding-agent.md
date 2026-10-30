@@ -35,15 +35,24 @@ This post follows our part in Marin’s first post-training effort, including th
 
 We hope sharing these details helps others with their own post-training efforts and advances the open development of foundation models.
 
+<!--
+<figure class="research-figure">
+<a href="{{ '/assets/img/snowball/intro-total-parameters.png' | relative_url }}"><img src="{{ '/assets/img/snowball/intro-total-parameters.png' | relative_url }}" alt="Benchmark scores against total model parameters" width="2880" height="1098" loading="lazy"></a>
+</figure>
+-->
+
+<figure class="research-figure">
+<a href="{{ '/assets/img/snowball/intro-ranked-bars.png' | relative_url }}"><img src="{{ '/assets/img/snowball/intro-ranked-bars.png' | relative_url }}" alt="Snowball and Qwen3.5 benchmark comparison" width="6386" height="2139" loading="lazy"></a>
+</figure>
+
 <div class="table-wrap" markdown="1">
 
 | Model, evaluated with Terminus-2 | SWE-bench Verified random-100 | Terminal-Bench 2.1 | OpenThoughts-TBLite |
 |---|---:|---:|---:|
-| [Snowball 09-21](https://huggingface.co/open-athena/Grug-67B-A2B-Datakit-SFT-262K-2026.09.21) | 12.8% | 7.2% | 11.5% |
+| Snowball 09-21 | 12.8% | 7.2% | 11.5% |
 | RL | 30.5% | 18.8% | **45.1%** |
 | SFT | 46.5% | 18.8% | 33.0% |
-| SFT + RL (step 60) | **50.5%** | **23.9%** | 41.8% |
-| Qwen3.5-9B (reference) | 53.5% | 25.6% | 42.4% |
+| SFT + RL | **50.5%** | **23.9%** | 41.8% |
 
 </div>
 

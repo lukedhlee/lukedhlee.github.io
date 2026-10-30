@@ -1,0 +1,42 @@
+[
+  {
+    "model": "Snowball 09-21",
+    "active_b": 2,
+    "total_b": 67,
+    "tb": 7.2,
+    "swe": 12.8,
+    "tblite": 11.5
+  },
+  {
+    "model": "Snowball SFT + RL (step 60)",
+    "active_b": 2,
+    "total_b": 67,
+    "tb": 23.9,
+    "swe": 50.5,
+    "tblite": 41.8
+  },
+  {
+    "model": "Qwen3.5-35B-A3B",
+    "active_b": 3,
+    "total_b": 35,
+    "tb": 29.0,
+    "swe": 65.0,
+    "tblite": 64.1
+  },
+  {
+    "model": "Qwen3.5-4B",
+    "active_b": 4,
+    "total_b": 4,
+    "tb": 17.6,
+    "swe": 47.5,
+    "tblite": 29.3
+  },
+  {
+    "model": "Qwen3.5-9B",
+    "active_b": 9,
+    "total_b": 9,
+    "tb": 25.6,
+    "swe": 53.5,
+    "tblite": 42.4
+  }
+]
