@@ -38,7 +38,7 @@ Both SFT and RL substantially improved Snowball, with different strengths. SFT +
 -->
 
 <figure class="research-figure">
-<a href="{{ '/assets/img/snowball/intro-ranked-bars.png?v=nemotron-direct-rl-hires' | relative_url }}"><img src="{{ '/assets/img/snowball/intro-ranked-bars.svg?v=nemotron-direct-rl-hires' | relative_url }}" alt="Snowball starting checkpoint, direct RL, and SFT plus RL compared with Qwen3.5 and Nemotron across three benchmarks" width="12156" height="3515" loading="lazy"></a>
+<a href="{{ '/assets/img/snowball/intro-ranked-bars.png?v=grouped-ascending' | relative_url }}"><img src="{{ '/assets/img/snowball/intro-ranked-bars.svg?v=grouped-ascending' | relative_url }}" alt="Snowball starting checkpoint, direct RL, and SFT plus RL grouped apart from Qwen3.5 and Nemotron reference models, each group sorted from lowest to highest score, across three benchmarks" width="12741" height="3716" loading="lazy"></a>
 </figure>
 
 <div class="table-wrap" markdown="1">
